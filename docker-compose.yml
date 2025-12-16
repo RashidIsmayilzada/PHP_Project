@@ -1,6 +1,4 @@
-version: '3'
-
-services:
+yes services:
     nginx:
         image: nginx:latest
         ports:

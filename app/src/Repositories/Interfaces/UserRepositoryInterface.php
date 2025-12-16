@@ -1,10 +1,9 @@
 <?php
-
-namespace App\Services\Interfaces;
+namespace App\Repositories\Interfaces;
 
 use App\Models\User;
 
-interface UserServiceInterface
+interface UserRepositoryInterface
 {
     public function testConnection(): array;
     public function findAll(): array;

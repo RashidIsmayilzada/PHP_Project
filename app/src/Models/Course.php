@@ -1,0 +1,88 @@
+<?php
+namespace App\Models;
+
+// Course model representing the courses table
+class Course
+{
+    private ?int $courseId = null;
+    private string $courseCode;
+    private string $courseName;
+    private ?string $description = null;
+    private int $teacherId;
+    private ?float $credits = null;
+    private ?string $semester = null;
+    private ?string $createdAt = null;
+    private ?string $updatedAt = null;
+
+    public function __construct(
+        string $courseCode,
+        string $courseName,
+        int $teacherId,
+        ?string $description = null,
+        ?float $credits = null,
+        ?string $semester = null,
+        ?int $courseId = null,
+        ?string $createdAt = null,
+        ?string $updatedAt = null
+    ) {
+        $this->courseId = $courseId;
+        $this->courseCode = $courseCode;
+        $this->courseName = $courseName;
+        $this->description = $description;
+        $this->teacherId = $teacherId;
+        $this->credits = $credits;
+        $this->semester = $semester;
+        $this->createdAt = $createdAt;
+        $this->updatedAt = $updatedAt;
+    }
+
+    public function getCourseId(): ?int
+    {
+        return $this->courseId;
+    }
+
+    public function setCourseId(int $courseId): void
+    {
+        $this->courseId = $courseId;
+    }
+
+    public function getCourseCode(): string
+    {
+        return $this->courseCode;
+    }
+
+    public function getCourseName(): string
+    {
+        return $this->courseName;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function getTeacherId(): int
+    {
+        return $this->teacherId;
+    }
+
+    public function getCredits(): ?float
+    {
+        return $this->credits;
+    }
+
+    public function getSemester(): ?string
+    {
+        return $this->semester;
+    }
+
+    public function getCreatedAt(): ?string
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): ?string
+    {
+        return $this->updatedAt;
+    }
+}

@@ -1,9 +1,11 @@
 <?php
-namespace App\Services\Interfaces;
+namespace App\Repositories\Interfaces;
 
 use App\Models\Assignment;
 
-interface AssignmentServiceInterface {
+interface AssignmentRepositoryInterface
+{
+    public function testConnection(): array;
     public function findAll(): array;
     public function findById(int $id): ?Assignment;
     public function findByCourseId(int $courseId): array;

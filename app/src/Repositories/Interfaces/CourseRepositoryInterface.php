@@ -1,11 +1,11 @@
 <?php
-
-namespace App\Services\Interfaces;
+namespace App\Repositories\Interfaces;
 
 use App\Models\Course;
 
-interface CourseServiceInterface
+interface CourseRepositoryInterface
 {
+    public function testConnection(): array;
     public function findAll(): array;
     public function findById(int $id): ?Course;
     public function findByTeacherId(int $teacherId): array;

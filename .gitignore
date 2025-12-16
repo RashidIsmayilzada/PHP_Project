@@ -40,4 +40,5 @@ node_modules/
 
 # Docker overrides (optional local overrides)
 docker-compose.override.yml
-
+CLAUDE.md
+IMPLEMENTATION_PLAN.md

@@ -1,11 +1,11 @@
 <?php
-
-namespace App\Services\Interfaces;
+namespace App\Repositories\Interfaces;
 
 use App\Models\Grade;
 
-interface GradeServiceInterface
+interface GradeRepositoryInterface
 {
+    public function testConnection(): array;
     public function findAll(): array;
     public function findById(int $id): ?Grade;
     public function findByStudentId(int $studentId): array;

@@ -35,7 +35,7 @@ echo 'Hello world!';
 // To start writing HTML, just close the PHP tag like this:
 
 // View source code in the browser to see the HTML output. Anything missing? 😱😱😱
-
+echo $_GET;
 ?>
 
 <div>
