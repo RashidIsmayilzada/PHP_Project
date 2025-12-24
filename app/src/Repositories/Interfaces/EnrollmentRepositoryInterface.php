@@ -11,4 +11,7 @@ interface EnrollmentRepositoryInterface
     public function findByStudentId(int $studentId): array;
     public function findByCourseId(int $courseId): array;
     public function findActiveEnrollmentsByStudentId(int $studentId): array;
+    public function create(Enrollment $enrollment): ?Enrollment;
+    public function update(Enrollment $enrollment): bool;
+    public function delete(int $enrollmentId): bool;
 }

@@ -3,9 +3,16 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Repositories\CourseRepository;
 use App\Repositories\UserRepository;
+use App\Services\AuthService;
 
 $courseRepository = new CourseRepository();
 $userRepository = new UserRepository();
+$authService = new AuthService($userRepository);
+
+// Require authentication
+$authService->requireAuth();
+$currentUser = $authService->getCurrentUser();
+
 $courses = $courseRepository->findAll();
 ?>
 <!DOCTYPE html>

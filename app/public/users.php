@@ -2,8 +2,15 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Repositories\UserRepository;
+use App\Services\AuthService;
 
 $userRepository = new UserRepository();
+$authService = new AuthService($userRepository);
+
+// Require authentication
+$authService->requireAuth();
+$currentUser = $authService->getCurrentUser();
+
 $users = $userRepository->findAll();
 ?>
 <!DOCTYPE html>
@@ -65,6 +72,13 @@ $users = $userRepository->findAll();
         .nav a:hover {
             text-decoration: underline;
         }
+        .user-info {
+            float: right;
+            color: #333;
+        }
+        .user-info a {
+            color: #f44336;
+        }
     </style>
 </head>
 <body>
@@ -74,6 +88,10 @@ $users = $userRepository->findAll();
         <a href="assignments.php">Assignments</a>
         <a href="grades.php">Grades</a>
         <a href="enrollments.php">Enrollments</a>
+        <span class="user-info">
+            Welcome, <?php echo htmlspecialchars($currentUser->getFullName()); ?>
+            (<a href="logout.php">Logout</a>)
+        </span>
     </div>
 
     <h1>Users</h1>

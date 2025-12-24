@@ -8,6 +8,7 @@ class Assignment
     private int $courseId;
     private string $assignmentName;
     private ?string $description = null;
+    private float $maxPoints;
     private ?string $dueDate = null;
     private ?string $createdAt = null;
     private ?string $updatedAt = null;
@@ -15,6 +16,7 @@ class Assignment
     public function __construct(
         int $courseId,
         string $assignmentName,
+        float $maxPoints,
         ?string $description = null,
         ?string $dueDate = null,
         ?int $assignmentId = null,
@@ -24,6 +26,7 @@ class Assignment
         $this->assignmentId = $assignmentId;
         $this->courseId = $courseId;
         $this->assignmentName = $assignmentName;
+        $this->maxPoints = $maxPoints;
         $this->description = $description;
         $this->dueDate = $dueDate;
         $this->createdAt = $createdAt;
@@ -53,6 +56,16 @@ class Assignment
     public function getDescription(): ?string
     {
         return $this->description;
+    }
+
+    public function getMaxPoints(): float
+    {
+        return $this->maxPoints;
+    }
+
+    public function setMaxPoints(float $maxPoints): void
+    {
+        $this->maxPoints = $maxPoints;
     }
 
     public function getDueDate(): ?string

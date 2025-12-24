@@ -71,6 +71,7 @@ $assignments = $assignmentRepository->findAll();
                 <th>Course ID</th>
                 <th>Assignment Name</th>
                 <th>Description</th>
+                <th>Max Points</th>
                 <th>Due Date</th>
                 <th>Created At</th>
             </tr>
@@ -82,6 +83,7 @@ $assignments = $assignmentRepository->findAll();
                 <td><?php echo htmlspecialchars($assignment->getCourseId()); ?></td>
                 <td><?php echo htmlspecialchars($assignment->getAssignmentName()); ?></td>
                 <td><?php echo htmlspecialchars($assignment->getDescription() ?? 'N/A'); ?></td>
+                <td><?php echo htmlspecialchars($assignment->getMaxPoints()); ?></td>
                 <td><?php echo htmlspecialchars($assignment->getDueDate() ?? 'N/A'); ?></td>
                 <td><?php echo htmlspecialchars($assignment->getCreatedAt() ?? 'N/A'); ?></td>
             </tr>

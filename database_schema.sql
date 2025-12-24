@@ -73,16 +73,16 @@ CREATE TABLE enrollments (
 
 -- Insert sample data for testing
 
--- Insert teachers
+-- Insert teachers (password: password123)
 INSERT INTO users (email, password, first_name, last_name, role, student_number) VALUES
-('john.doe@university.edu', '$2y$10$abcdefghijklmnopqrstuv', 'John', 'Doe', 'teacher', NULL),
-('jane.smith@university.edu', '$2y$10$abcdefghijklmnopqrstuv', 'Jane', 'Smith', 'teacher', NULL);
+('john.doe@university.edu', '$2y$12$k29VP5YeYjlbjQvfpn5CzeTxoVX5DNHMtdXsrYpxp5.NvOLf.kyLq', 'John', 'Doe', 'teacher', NULL),
+('jane.smith@university.edu', '$2y$12$k29VP5YeYjlbjQvfpn5CzeTxoVX5DNHMtdXsrYpxp5.NvOLf.kyLq', 'Jane', 'Smith', 'teacher', NULL);
 
--- Insert students
+-- Insert students (password: password123)
 INSERT INTO users (email, password, first_name, last_name, role, student_number) VALUES
-('alice.student@university.edu', '$2y$10$abcdefghijklmnopqrstuv', 'Alice', 'Johnson', 'student', 'S001'),
-('bob.student@university.edu', '$2y$10$abcdefghijklmnopqrstuv', 'Bob', 'Williams', 'student', 'S002'),
-('charlie.student@university.edu', '$2y$10$abcdefghijklmnopqrstuv', 'Charlie', 'Brown', 'student', 'S003');
+('alice.student@university.edu', '$2y$12$k29VP5YeYjlbjQvfpn5CzeTxoVX5DNHMtdXsrYpxp5.NvOLf.kyLq', 'Alice', 'Johnson', 'student', 'S001'),
+('bob.student@university.edu', '$2y$12$k29VP5YeYjlbjQvfpn5CzeTxoVX5DNHMtdXsrYpxp5.NvOLf.kyLq', 'Bob', 'Williams', 'student', 'S002'),
+('charlie.student@university.edu', '$2y$12$k29VP5YeYjlbjQvfpn5CzeTxoVX5DNHMtdXsrYpxp5.NvOLf.kyLq', 'Charlie', 'Brown', 'student', 'S003');
 
 -- Insert courses
 INSERT INTO courses (course_code, course_name, description, teacher_id, credits, semester) VALUES

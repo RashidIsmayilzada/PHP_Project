@@ -2,6 +2,15 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Repositories\EnrollmentRepository;
+use App\Repositories\UserRepository;
+use App\Services\AuthService;
+
+$userRepository = new UserRepository();
+$authService = new AuthService($userRepository);
+
+// Require authentication
+$authService->requireAuth();
+$currentUser = $authService->getCurrentUser();
 
 $enrollmentRepository = new EnrollmentRepository();
 $enrollments = $enrollmentRepository->findAll();

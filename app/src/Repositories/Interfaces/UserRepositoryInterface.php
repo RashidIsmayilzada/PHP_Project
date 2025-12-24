@@ -11,4 +11,7 @@ interface UserRepositoryInterface
     public function findByEmail(string $email): ?User;
     public function findAllStudents(): array;
     public function findAllTeachers(): array;
+    public function create(User $user): ?User;
+    public function update(User $user): bool;
+    public function delete(int $userId): bool;
 }

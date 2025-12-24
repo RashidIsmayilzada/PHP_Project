@@ -7,7 +7,7 @@ class Grade
     private ?int $gradeId = null;
     private int $assignmentId;
     private int $studentId;
-    private string $status;
+    private float $pointsEarned;
     private ?string $feedback = null;
     private ?string $gradedAt = null;
     private ?string $updatedAt = null;
@@ -15,7 +15,7 @@ class Grade
     public function __construct(
         int $assignmentId,
         int $studentId,
-        string $status,
+        float $pointsEarned,
         ?string $feedback = null,
         ?int $gradeId = null,
         ?string $gradedAt = null,
@@ -24,7 +24,7 @@ class Grade
         $this->gradeId = $gradeId;
         $this->assignmentId = $assignmentId;
         $this->studentId = $studentId;
-        $this->status = $status;
+        $this->pointsEarned = $pointsEarned;
         $this->feedback = $feedback;
         $this->gradedAt = $gradedAt;
         $this->updatedAt = $updatedAt;
@@ -50,9 +50,14 @@ class Grade
         return $this->studentId;
     }
 
-    public function getStatus(): string
+    public function getPointsEarned(): float
     {
-        return $this->status;
+        return $this->pointsEarned;
+    }
+
+    public function setPointsEarned(float $pointsEarned): void
+    {
+        $this->pointsEarned = $pointsEarned;
     }
 
     public function getFeedback(): ?string

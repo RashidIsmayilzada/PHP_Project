@@ -11,4 +11,9 @@ interface GradeRepositoryInterface
     public function findByStudentId(int $studentId): array;
     public function findByAssignmentId(int $assignmentId): array;
     public function findByStudentAndAssignment(int $studentId, int $assignmentId): ?Grade;
+    public function findByCourseId(int $courseId): array;
+    public function create(Grade $grade): ?Grade;
+    public function update(Grade $grade): bool;
+    public function delete(int $gradeId): bool;
+    public function calculateCourseAverage(int $courseId, int $studentId): ?float;
 }

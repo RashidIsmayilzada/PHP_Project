@@ -2,6 +2,15 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Repositories\GradeRepository;
+use App\Repositories\UserRepository;
+use App\Services\AuthService;
+
+$userRepository = new UserRepository();
+$authService = new AuthService($userRepository);
+
+// Require authentication
+$authService->requireAuth();
+$currentUser = $authService->getCurrentUser();
 
 $gradeRepository = new GradeRepository();
 $grades = $gradeRepository->findAll();
@@ -84,7 +93,7 @@ $grades = $gradeRepository->findAll();
                 <th>ID</th>
                 <th>Assignment ID</th>
                 <th>Student ID</th>
-                <th>Status</th>
+                <th>Points Earned</th>
                 <th>Feedback</th>
                 <th>Graded At</th>
                 <th>Updated At</th>
@@ -96,11 +105,7 @@ $grades = $gradeRepository->findAll();
                 <td><?php echo htmlspecialchars($grade->getGradeId()); ?></td>
                 <td><?php echo htmlspecialchars($grade->getAssignmentId()); ?></td>
                 <td><?php echo htmlspecialchars($grade->getStudentId()); ?></td>
-                <td>
-                    <span class="badge badge-<?php echo htmlspecialchars($grade->getStatus()); ?>">
-                        <?php echo htmlspecialchars(strtoupper($grade->getStatus())); ?>
-                    </span>
-                </td>
+                <td><?php echo htmlspecialchars($grade->getPointsEarned()); ?></td>
                 <td><?php echo htmlspecialchars($grade->getFeedback() ?? 'N/A'); ?></td>
                 <td><?php echo htmlspecialchars($grade->getGradedAt() ?? 'N/A'); ?></td>
                 <td><?php echo htmlspecialchars($grade->getUpdatedAt() ?? 'N/A'); ?></td>

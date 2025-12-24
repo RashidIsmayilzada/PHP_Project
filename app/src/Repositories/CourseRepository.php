@@ -88,6 +88,90 @@ class CourseRepository implements CourseRepositoryInterface
         return $courses;
     }
 
+    // Find courses by student ID (courses the student is enrolled in)
+    public function findByStudentId(int $studentId): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT c.* FROM courses c
+             INNER JOIN enrollments e ON c.course_id = e.course_id
+             WHERE e.student_id = :student_id
+             ORDER BY c.course_code"
+        );
+        $stmt->execute(['student_id' => $studentId]);
+        $courses = [];
+
+        while ($row = $stmt->fetch()) {
+            $courses[] = $this->mapRowToCourse($row);
+        }
+
+        return $courses;
+    }
+
+    // Create a new course
+    public function create(Course $course): ?Course
+    {
+        try {
+            $stmt = $this->db->prepare(
+                "INSERT INTO courses (course_code, course_name, description, teacher_id, credits, semester)
+                 VALUES (:course_code, :course_name, :description, :teacher_id, :credits, :semester)"
+            );
+
+            $stmt->execute([
+                'course_code' => $course->getCourseCode(),
+                'course_name' => $course->getCourseName(),
+                'description' => $course->getDescription(),
+                'teacher_id' => $course->getTeacherId(),
+                'credits' => $course->getCredits(),
+                'semester' => $course->getSemester()
+            ]);
+
+            $courseId = (int) $this->db->lastInsertId();
+            return $this->findById($courseId);
+        } catch (PDOException $e) {
+            return null;
+        }
+    }
+
+    // Update an existing course
+    public function update(Course $course): bool
+    {
+        try {
+            $stmt = $this->db->prepare(
+                "UPDATE courses
+                 SET course_code = :course_code,
+                     course_name = :course_name,
+                     description = :description,
+                     teacher_id = :teacher_id,
+                     credits = :credits,
+                     semester = :semester
+                 WHERE course_id = :course_id"
+            );
+
+            return $stmt->execute([
+                'course_code' => $course->getCourseCode(),
+                'course_name' => $course->getCourseName(),
+                'description' => $course->getDescription(),
+                'teacher_id' => $course->getTeacherId(),
+                'credits' => $course->getCredits(),
+                'semester' => $course->getSemester(),
+                'course_id' => $course->getCourseId()
+            ]);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    // Delete a course (cascade deletes assignments and enrollments via FK constraints)
+    public function delete(int $courseId): bool
+    {
+        try {
+            $stmt = $this->db->prepare("DELETE FROM courses WHERE course_id = :course_id");
+            return $stmt->execute(['course_id' => $courseId]);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
     // Map database row to Course object
     private function mapRowToCourse(array $row): Course
     {

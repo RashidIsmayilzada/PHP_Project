@@ -104,6 +104,66 @@ class EnrollmentRepository implements EnrollmentRepositoryInterface
         return $enrollments;
     }
 
+    // Create a new enrollment
+    public function create(Enrollment $enrollment): ?Enrollment
+    {
+        try {
+            $stmt = $this->db->prepare(
+                "INSERT INTO enrollments (student_id, course_id, status, enrollment_date)
+                 VALUES (:student_id, :course_id, :status, :enrollment_date)"
+            );
+
+            $stmt->execute([
+                'student_id' => $enrollment->getStudentId(),
+                'course_id' => $enrollment->getCourseId(),
+                'status' => $enrollment->getStatus(),
+                'enrollment_date' => $enrollment->getEnrollmentDate() ?? date('Y-m-d H:i:s')
+            ]);
+
+            $enrollmentId = (int) $this->db->lastInsertId();
+            return $this->findById($enrollmentId);
+        } catch (PDOException $e) {
+            // UNIQUE constraint on (student_id, course_id) may fail
+            return null;
+        }
+    }
+
+    // Update an existing enrollment
+    public function update(Enrollment $enrollment): bool
+    {
+        try {
+            $stmt = $this->db->prepare(
+                "UPDATE enrollments
+                 SET student_id = :student_id,
+                     course_id = :course_id,
+                     status = :status,
+                     enrollment_date = :enrollment_date
+                 WHERE enrollment_id = :enrollment_id"
+            );
+
+            return $stmt->execute([
+                'student_id' => $enrollment->getStudentId(),
+                'course_id' => $enrollment->getCourseId(),
+                'status' => $enrollment->getStatus(),
+                'enrollment_date' => $enrollment->getEnrollmentDate(),
+                'enrollment_id' => $enrollment->getEnrollmentId()
+            ]);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    // Delete an enrollment
+    public function delete(int $enrollmentId): bool
+    {
+        try {
+            $stmt = $this->db->prepare("DELETE FROM enrollments WHERE enrollment_id = :enrollment_id");
+            return $stmt->execute(['enrollment_id' => $enrollmentId]);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
     // Map database row to Enrollment object
     private function mapRowToEnrollment(array $row): Enrollment
     {

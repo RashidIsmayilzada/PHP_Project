@@ -96,6 +96,76 @@ class UserRepository implements UserRepositoryInterface
         return $teachers;
     }
 
+    // Create a new user
+    public function create(User $user): ?User
+    {
+        try {
+            $stmt = $this->db->prepare(
+                "INSERT INTO users (email, password, first_name, last_name, role, student_number)
+                 VALUES (:email, :password, :first_name, :last_name, :role, :student_number)"
+            );
+
+            $stmt->execute([
+                'email' => $user->getEmail(),
+                'password' => $user->getPassword(),
+                'first_name' => $user->getFirstName(),
+                'last_name' => $user->getLastName(),
+                'role' => $user->getRole(),
+                'student_number' => $user->getStudentNumber()
+            ]);
+
+            // Get the last inserted ID
+            $userId = (int) $this->db->lastInsertId();
+
+            // Return the created user with the new ID
+            return $this->findById($userId);
+        } catch (PDOException $e) {
+            // Return null if creation fails (e.g., duplicate email)
+            return null;
+        }
+    }
+
+    // Update an existing user
+    public function update(User $user): bool
+    {
+        try {
+            $stmt = $this->db->prepare(
+                "UPDATE users
+                 SET email = :email,
+                     password = :password,
+                     first_name = :first_name,
+                     last_name = :last_name,
+                     role = :role,
+                     student_number = :student_number
+                 WHERE user_id = :user_id"
+            );
+
+            return $stmt->execute([
+                'email' => $user->getEmail(),
+                'password' => $user->getPassword(),
+                'first_name' => $user->getFirstName(),
+                'last_name' => $user->getLastName(),
+                'role' => $user->getRole(),
+                'student_number' => $user->getStudentNumber(),
+                'user_id' => $user->getUserId()
+            ]);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    // Delete a user
+    public function delete(int $userId): bool
+    {
+        try {
+            $stmt = $this->db->prepare("DELETE FROM users WHERE user_id = :user_id");
+            return $stmt->execute(['user_id' => $userId]);
+        } catch (PDOException $e) {
+            // Foreign key constraint may prevent deletion
+            return false;
+        }
+    }
+
     // Map database row to User object
     private function mapRowToUser(array $row): User
     {
