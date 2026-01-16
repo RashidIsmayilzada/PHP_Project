@@ -7,9 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class GradeModelTest extends TestCase
 {
-    /**
-     * Test Grade model construction with minimum required fields
-     */
+    // Test Grade model construction with minimum required fields
     public function testGradeConstructionWithMinimumFields(): void
     {
         $grade = new Grade(
@@ -27,9 +25,7 @@ class GradeModelTest extends TestCase
         $this->assertNull($grade->getUpdatedAt());
     }
 
-    /**
-     * Test Grade model construction with all fields
-     */
+    // Test Grade model construction with all fields
     public function testGradeConstructionWithAllFields(): void
     {
         $grade = new Grade(
@@ -51,9 +47,7 @@ class GradeModelTest extends TestCase
         $this->assertEquals('2025-01-02 15:30:00', $grade->getUpdatedAt());
     }
 
-    /**
-     * Test setting grade ID
-     */
+    // Test setting grade ID
     public function testSetGradeId(): void
     {
         $grade = new Grade(1, 2, 80.0);
@@ -63,9 +57,7 @@ class GradeModelTest extends TestCase
         $this->assertEquals(5, $grade->getGradeId());
     }
 
-    /**
-     * Test setting points earned
-     */
+    // Test setting points earned
     public function testSetPointsEarned(): void
     {
         $grade = new Grade(1, 2, 80.0);
@@ -75,36 +67,28 @@ class GradeModelTest extends TestCase
         $this->assertEquals(95.5, $grade->getPointsEarned());
     }
 
-    /**
-     * Test grade with zero points
-     */
+    // Test grade with zero points
     public function testGradeWithZeroPoints(): void
     {
         $grade = new Grade(1, 2, 0.0);
         $this->assertEquals(0.0, $grade->getPointsEarned());
     }
 
-    /**
-     * Test grade with decimal points
-     */
+    // Test grade with decimal points
     public function testGradeWithDecimalPoints(): void
     {
         $grade = new Grade(1, 2, 87.75);
         $this->assertEquals(87.75, $grade->getPointsEarned());
     }
 
-    /**
-     * Test grade with feedback
-     */
+    // Test grade with feedback
     public function testGradeWithFeedback(): void
     {
         $grade = new Grade(1, 2, 90.0, 'Great job! Keep up the good work.');
         $this->assertEquals('Great job! Keep up the good work.', $grade->getFeedback());
     }
 
-    /**
-     * Test grade without feedback
-     */
+    // Test grade without feedback
     public function testGradeWithoutFeedback(): void
     {
         $grade = new Grade(1, 2, 85.0);

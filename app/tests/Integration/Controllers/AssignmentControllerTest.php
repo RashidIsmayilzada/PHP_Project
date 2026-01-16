@@ -39,9 +39,7 @@ class AssignmentControllerTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * Set up a mock teacher session
-     */
+    // Set up a mock teacher session
     private function setupTeacherSession(): void
     {
         $users = $this->userRepository->findAll();
@@ -60,36 +58,28 @@ class AssignmentControllerTest extends TestCase
         }
     }
 
-    /**
-     * Test that createAction method exists and is callable
-     */
+    // Test that createAction method exists and is callable
     public function testCreateActionMethodExists(): void
     {
         $this->assertTrue(method_exists($this->controller, 'createAction'));
         $this->assertTrue(is_callable([$this->controller, 'createAction']));
     }
 
-    /**
-     * Test that editAction method exists and is callable
-     */
+    // Test that editAction method exists and is callable
     public function testEditActionMethodExists(): void
     {
         $this->assertTrue(method_exists($this->controller, 'editAction'));
         $this->assertTrue(is_callable([$this->controller, 'editAction']));
     }
 
-    /**
-     * Test that delete method exists and is callable
-     */
+    // Test that delete method exists and is callable
     public function testDeleteMethodExists(): void
     {
         $this->assertTrue(method_exists($this->controller, 'delete'));
         $this->assertTrue(is_callable([$this->controller, 'delete']));
     }
 
-    /**
-     * Test createAction requires teacher authentication
-     */
+    // Test createAction requires teacher authentication
     public function testCreateActionRequiresTeacherAuth(): void
     {
         ob_start();
@@ -102,9 +92,7 @@ class AssignmentControllerTest extends TestCase
         ob_end_clean();
     }
 
-    /**
-     * Test editAction requires teacher authentication
-     */
+    // Test editAction requires teacher authentication
     public function testEditActionRequiresTeacherAuth(): void
     {
         ob_start();
@@ -117,9 +105,7 @@ class AssignmentControllerTest extends TestCase
         ob_end_clean();
     }
 
-    /**
-     * Test delete requires teacher authentication
-     */
+    // Test delete requires teacher authentication
     public function testDeleteRequiresTeacherAuth(): void
     {
         ob_start();
@@ -132,9 +118,7 @@ class AssignmentControllerTest extends TestCase
         ob_end_clean();
     }
 
-    /**
-     * Test editAction accepts assignment ID parameter
-     */
+    // Test editAction accepts assignment ID parameter
     public function testEditActionAcceptsParameter(): void
     {
         $this->setupTeacherSession();
@@ -151,9 +135,7 @@ class AssignmentControllerTest extends TestCase
         $this->assertEquals(5, $_GET['id']);
     }
 
-    /**
-     * Test delete accepts assignment ID parameter
-     */
+    // Test delete accepts assignment ID parameter
     public function testDeleteAcceptsParameter(): void
     {
         $this->setupTeacherSession();
@@ -170,9 +152,7 @@ class AssignmentControllerTest extends TestCase
         $this->assertEquals(10, $_GET['id']);
     }
 
-    /**
-     * Test student cannot access assignment controller methods
-     */
+    // Test student cannot access assignment controller methods
     public function testStudentCannotAccessAssignmentActions(): void
     {
         $users = $this->userRepository->findAll();

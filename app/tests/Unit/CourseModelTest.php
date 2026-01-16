@@ -7,9 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class CourseModelTest extends TestCase
 {
-    /**
-     * Test Course model construction with minimum required fields
-     */
+    // Test Course model construction with minimum required fields
     public function testCourseConstructionWithMinimumFields(): void
     {
         $course = new Course(
@@ -29,9 +27,7 @@ class CourseModelTest extends TestCase
         $this->assertNull($course->getUpdatedAt());
     }
 
-    /**
-     * Test Course model construction with all fields
-     */
+    // Test Course model construction with all fields
     public function testCourseConstructionWithAllFields(): void
     {
         $course = new Course(
@@ -57,9 +53,7 @@ class CourseModelTest extends TestCase
         $this->assertEquals('2025-01-15 14:30:00', $course->getUpdatedAt());
     }
 
-    /**
-     * Test setting course ID
-     */
+    // Test setting course ID
     public function testSetCourseId(): void
     {
         $course = new Course('CS101', 'Intro to CS', 1);
@@ -69,9 +63,7 @@ class CourseModelTest extends TestCase
         $this->assertEquals(10, $course->getCourseId());
     }
 
-    /**
-     * Test course with various credit values
-     */
+    // Test course with various credit values
     public function testCourseWithDifferentCredits(): void
     {
         $course1 = new Course('CS101', 'Intro to CS', 1, null, 3.0);
@@ -84,9 +76,7 @@ class CourseModelTest extends TestCase
         $this->assertEquals(1.5, $course3->getCredits());
     }
 
-    /**
-     * Test course with description
-     */
+    // Test course with description
     public function testCourseWithDescription(): void
     {
         $description = 'This course covers fundamental programming concepts and algorithms.';
@@ -94,9 +84,7 @@ class CourseModelTest extends TestCase
         $this->assertEquals($description, $course->getDescription());
     }
 
-    /**
-     * Test course without optional fields
-     */
+    // Test course without optional fields
     public function testCourseWithoutOptionalFields(): void
     {
         $course = new Course('MATH101', 'Calculus I', 2);
@@ -105,9 +93,7 @@ class CourseModelTest extends TestCase
         $this->assertNull($course->getSemester());
     }
 
-    /**
-     * Test course with semester
-     */
+    // Test course with semester
     public function testCourseWithSemester(): void
     {
         $course = new Course('CS101', 'Intro to CS', 1, null, 3.0, 'Spring 2025');

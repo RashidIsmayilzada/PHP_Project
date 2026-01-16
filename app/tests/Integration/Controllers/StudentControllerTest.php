@@ -39,9 +39,7 @@ class StudentControllerTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * Set up a mock student session
-     */
+    // Set up a mock student session
     private function setupStudentSession(): void
     {
         // Find a student user in the database
@@ -61,36 +59,28 @@ class StudentControllerTest extends TestCase
         }
     }
 
-    /**
-     * Test that dashboard method exists and is callable
-     */
+    // Test that dashboard method exists and is callable
     public function testDashboardMethodExists(): void
     {
         $this->assertTrue(method_exists($this->controller, 'dashboard'));
         $this->assertTrue(is_callable([$this->controller, 'dashboard']));
     }
 
-    /**
-     * Test that courseDetail method exists and is callable
-     */
+    // Test that courseDetail method exists and is callable
     public function testCourseDetailMethodExists(): void
     {
         $this->assertTrue(method_exists($this->controller, 'courseDetail'));
         $this->assertTrue(is_callable([$this->controller, 'courseDetail']));
     }
 
-    /**
-     * Test that statistics method exists and is callable
-     */
+    // Test that statistics method exists and is callable
     public function testStatisticsMethodExists(): void
     {
         $this->assertTrue(method_exists($this->controller, 'statistics'));
         $this->assertTrue(is_callable([$this->controller, 'statistics']));
     }
 
-    /**
-     * Test dashboard requires student authentication
-     */
+    // Test dashboard requires student authentication
     public function testDashboardRequiresStudentAuth(): void
     {
         // Without authentication
@@ -105,9 +95,7 @@ class StudentControllerTest extends TestCase
         ob_end_clean();
     }
 
-    /**
-     * Test courseDetail requires student authentication
-     */
+    // Test courseDetail requires student authentication
     public function testCourseDetailRequiresStudentAuth(): void
     {
         // Without authentication
@@ -122,9 +110,7 @@ class StudentControllerTest extends TestCase
         ob_end_clean();
     }
 
-    /**
-     * Test statistics requires student authentication
-     */
+    // Test statistics requires student authentication
     public function testStatisticsRequiresStudentAuth(): void
     {
         // Without authentication
@@ -139,9 +125,7 @@ class StudentControllerTest extends TestCase
         ob_end_clean();
     }
 
-    /**
-     * Test courseDetail accepts course ID parameter
-     */
+    // Test courseDetail accepts course ID parameter
     public function testCourseDetailAcceptsParameter(): void
     {
         $this->setupStudentSession();
@@ -159,9 +143,7 @@ class StudentControllerTest extends TestCase
         $this->assertEquals(1, $_GET['id']);
     }
 
-    /**
-     * Test courseDetail with different course IDs
-     */
+    // Test courseDetail with different course IDs
     public function testCourseDetailWithDifferentIds(): void
     {
         $this->setupStudentSession();
@@ -184,9 +166,7 @@ class StudentControllerTest extends TestCase
         }
     }
 
-    /**
-     * Test that teacher cannot access student dashboard
-     */
+    // Test that teacher cannot access student dashboard
     public function testTeacherCannotAccessStudentDashboard(): void
     {
         // Find a teacher user

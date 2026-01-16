@@ -39,9 +39,7 @@ class TeacherControllerTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * Set up a mock teacher session
-     */
+    // Set up a mock teacher session
     private function setupTeacherSession(): void
     {
         // Find a teacher user in the database
@@ -61,18 +59,14 @@ class TeacherControllerTest extends TestCase
         }
     }
 
-    /**
-     * Test that dashboard method exists and is callable
-     */
+    // Test that dashboard method exists and is callable
     public function testDashboardMethodExists(): void
     {
         $this->assertTrue(method_exists($this->controller, 'dashboard'));
         $this->assertTrue(is_callable([$this->controller, 'dashboard']));
     }
 
-    /**
-     * Test dashboard requires teacher authentication
-     */
+    // Test dashboard requires teacher authentication
     public function testDashboardRequiresTeacherAuth(): void
     {
         // Without authentication
@@ -87,9 +81,7 @@ class TeacherControllerTest extends TestCase
         ob_end_clean();
     }
 
-    /**
-     * Test that student cannot access teacher dashboard
-     */
+    // Test that student cannot access teacher dashboard
     public function testStudentCannotAccessTeacherDashboard(): void
     {
         // Find a student user

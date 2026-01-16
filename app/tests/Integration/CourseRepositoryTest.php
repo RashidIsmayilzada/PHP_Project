@@ -16,9 +16,7 @@ class CourseRepositoryTest extends TestCase
         $this->courseRepository = new CourseRepository();
     }
 
-    /**
-     * Test finding all courses
-     */
+    // Test finding all courses
     public function testFindAll(): void
     {
         $courses = $this->courseRepository->findAll();
@@ -35,9 +33,7 @@ class CourseRepositoryTest extends TestCase
         }
     }
 
-    /**
-     * Test finding course by ID
-     */
+    // Test finding course by ID
     public function testFindById(): void
     {
         $allCourses = $this->courseRepository->findAll();
@@ -57,18 +53,14 @@ class CourseRepositoryTest extends TestCase
         $this->assertEquals($firstCourse->getCourseName(), $course->getCourseName());
     }
 
-    /**
-     * Test finding course by non-existent ID returns null
-     */
+    // Test finding course by non-existent ID returns null
     public function testFindByIdNonExistent(): void
     {
         $course = $this->courseRepository->findById(999999);
         $this->assertNull($course);
     }
 
-    /**
-     * Test finding courses by teacher ID
-     */
+    // Test finding courses by teacher ID
     public function testFindByTeacherId(): void
     {
         $allCourses = $this->courseRepository->findAll();
@@ -89,9 +81,7 @@ class CourseRepositoryTest extends TestCase
         }
     }
 
-    /**
-     * Test finding courses by student ID
-     */
+    // Test finding courses by student ID
     public function testFindByStudentId(): void
     {
         // Assuming student ID 1 exists and is enrolled in courses
@@ -105,9 +95,7 @@ class CourseRepositoryTest extends TestCase
         }
     }
 
-    /**
-     * Test that courses have valid course codes
-     */
+    // Test that courses have valid course codes
     public function testCoursesHaveValidCourseCodes(): void
     {
         $courses = $this->courseRepository->findAll();
@@ -123,9 +111,7 @@ class CourseRepositoryTest extends TestCase
         }
     }
 
-    /**
-     * Test that courses have valid credits
-     */
+    // Test that courses have valid credits
     public function testCoursesHaveValidCredits(): void
     {
         $courses = $this->courseRepository->findAll();
@@ -142,9 +128,7 @@ class CourseRepositoryTest extends TestCase
         }
     }
 
-    /**
-     * Test that course names are not empty
-     */
+    // Test that course names are not empty
     public function testCourseNamesAreNotEmpty(): void
     {
         $courses = $this->courseRepository->findAll();

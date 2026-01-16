@@ -17,9 +17,7 @@ class GradeRepositoryTest extends TestCase
         $this->gradeRepository = new GradeRepository();
     }
 
-    /**
-     * Test finding all grades
-     */
+    // Test finding all grades
     public function testFindAll(): void
     {
         $grades = $this->gradeRepository->findAll();
@@ -36,9 +34,7 @@ class GradeRepositoryTest extends TestCase
         }
     }
 
-    /**
-     * Test finding grade by ID
-     */
+    // Test finding grade by ID
     public function testFindById(): void
     {
         $allGrades = $this->gradeRepository->findAll();
@@ -56,18 +52,14 @@ class GradeRepositoryTest extends TestCase
         $this->assertEquals($gradeId, $grade->getGradeId());
     }
 
-    /**
-     * Test finding grade by non-existent ID returns null
-     */
+    // Test finding grade by non-existent ID returns null
     public function testFindByIdNonExistent(): void
     {
         $grade = $this->gradeRepository->findById(999999);
         $this->assertNull($grade);
     }
 
-    /**
-     * Test finding grades by student ID
-     */
+    // Test finding grades by student ID
     public function testFindByStudentId(): void
     {
         $allGrades = $this->gradeRepository->findAll();
@@ -88,9 +80,7 @@ class GradeRepositoryTest extends TestCase
         }
     }
 
-    /**
-     * Test finding grades by assignment ID
-     */
+    // Test finding grades by assignment ID
     public function testFindByAssignmentId(): void
     {
         $allGrades = $this->gradeRepository->findAll();
@@ -111,9 +101,7 @@ class GradeRepositoryTest extends TestCase
         }
     }
 
-    /**
-     * Test that grades have valid point values
-     */
+    // Test that grades have valid point values
     public function testGradesHaveValidPointValues(): void
     {
         $grades = $this->gradeRepository->findAll();
@@ -128,9 +116,7 @@ class GradeRepositoryTest extends TestCase
         }
     }
 
-    /**
-     * Test finding grades by student and assignment
-     */
+    // Test finding grades by student and assignment
     public function testFindByStudentAndAssignment(): void
     {
         $allGrades = $this->gradeRepository->findAll();
@@ -152,9 +138,7 @@ class GradeRepositoryTest extends TestCase
         }
     }
 
-    /**
-     * Test calculating course average
-     */
+    // Test calculating course average
     public function testCalculateCourseAverage(): void
     {
         $allGrades = $this->gradeRepository->findAll();

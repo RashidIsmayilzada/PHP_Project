@@ -7,9 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class AssignmentModelTest extends TestCase
 {
-    /**
-     * Test Assignment model construction with minimum required fields
-     */
+    // Test Assignment model construction with minimum required fields
     public function testAssignmentConstructionWithMinimumFields(): void
     {
         $assignment = new Assignment(
@@ -28,9 +26,7 @@ class AssignmentModelTest extends TestCase
         $this->assertNull($assignment->getUpdatedAt());
     }
 
-    /**
-     * Test Assignment model construction with all fields
-     */
+    // Test Assignment model construction with all fields
     public function testAssignmentConstructionWithAllFields(): void
     {
         $assignment = new Assignment(
@@ -54,9 +50,7 @@ class AssignmentModelTest extends TestCase
         $this->assertEquals('2025-01-15 14:30:00', $assignment->getUpdatedAt());
     }
 
-    /**
-     * Test setting assignment ID
-     */
+    // Test setting assignment ID
     public function testSetAssignmentId(): void
     {
         $assignment = new Assignment(1, 'Quiz 1', 50.0);
@@ -66,9 +60,7 @@ class AssignmentModelTest extends TestCase
         $this->assertEquals(5, $assignment->getAssignmentId());
     }
 
-    /**
-     * Test setting max points
-     */
+    // Test setting max points
     public function testSetMaxPoints(): void
     {
         $assignment = new Assignment(1, 'Test', 100.0);
@@ -78,18 +70,14 @@ class AssignmentModelTest extends TestCase
         $this->assertEquals(150.0, $assignment->getMaxPoints());
     }
 
-    /**
-     * Test assignment with decimal max points
-     */
+    // Test assignment with decimal max points
     public function testAssignmentWithDecimalMaxPoints(): void
     {
         $assignment = new Assignment(1, 'Lab 1', 87.5);
         $this->assertEquals(87.5, $assignment->getMaxPoints());
     }
 
-    /**
-     * Test assignment with description
-     */
+    // Test assignment with description
     public function testAssignmentWithDescription(): void
     {
         $description = 'Write a program that implements a binary search tree';
@@ -97,18 +85,14 @@ class AssignmentModelTest extends TestCase
         $this->assertEquals($description, $assignment->getDescription());
     }
 
-    /**
-     * Test assignment without description
-     */
+    // Test assignment without description
     public function testAssignmentWithoutDescription(): void
     {
         $assignment = new Assignment(1, 'Quiz', 50.0);
         $this->assertNull($assignment->getDescription());
     }
 
-    /**
-     * Test assignment with due date
-     */
+    // Test assignment with due date
     public function testAssignmentWithDueDate(): void
     {
         $assignment = new Assignment(
@@ -121,27 +105,21 @@ class AssignmentModelTest extends TestCase
         $this->assertEquals('2025-03-15 23:59:59', $assignment->getDueDate());
     }
 
-    /**
-     * Test assignment without due date
-     */
+    // Test assignment without due date
     public function testAssignmentWithoutDueDate(): void
     {
         $assignment = new Assignment(1, 'Practice Problems', 0.0);
         $this->assertNull($assignment->getDueDate());
     }
 
-    /**
-     * Test assignment with zero max points
-     */
+    // Test assignment with zero max points
     public function testAssignmentWithZeroMaxPoints(): void
     {
         $assignment = new Assignment(1, 'Ungraded Assignment', 0.0);
         $this->assertEquals(0.0, $assignment->getMaxPoints());
     }
 
-    /**
-     * Test multiple assignments with different names
-     */
+    // Test multiple assignments with different names
     public function testMultipleAssignmentsWithDifferentNames(): void
     {
         $assignments = [

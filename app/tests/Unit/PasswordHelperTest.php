@@ -7,9 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class PasswordHelperTest extends TestCase
 {
-    /**
-     * Test password hashing
-     */
+    // Test password hashing
     public function testPasswordHashing(): void
     {
         $password = 'mySecurePassword123';
@@ -25,9 +23,7 @@ class PasswordHelperTest extends TestCase
         $this->assertStringStartsWith('$2y$', $hash);
     }
 
-    /**
-     * Test that same password produces different hashes (salt)
-     */
+    // Test that same password produces different hashes (salt)
     public function testPasswordHashingWithSalt(): void
     {
         $password = 'mySecurePassword123';
@@ -42,9 +38,7 @@ class PasswordHelperTest extends TestCase
         $this->assertTrue(PasswordHelper::verify($password, $hash2));
     }
 
-    /**
-     * Test password verification with correct password
-     */
+    // Test password verification with correct password
     public function testPasswordVerificationSuccess(): void
     {
         $password = 'mySecurePassword123';
@@ -53,9 +47,7 @@ class PasswordHelperTest extends TestCase
         $this->assertTrue(PasswordHelper::verify($password, $hash));
     }
 
-    /**
-     * Test password verification with incorrect password
-     */
+    // Test password verification with incorrect password
     public function testPasswordVerificationFailure(): void
     {
         $password = 'mySecurePassword123';
@@ -65,9 +57,7 @@ class PasswordHelperTest extends TestCase
         $this->assertFalse(PasswordHelper::verify($wrongPassword, $hash));
     }
 
-    /**
-     * Test password verification is case sensitive
-     */
+    // Test password verification is case sensitive
     public function testPasswordVerificationCaseSensitive(): void
     {
         $password = 'MySecurePassword';
@@ -78,9 +68,7 @@ class PasswordHelperTest extends TestCase
         $this->assertFalse(PasswordHelper::verify('MYSECUREPASSWORD', $hash));
     }
 
-    /**
-     * Test empty password handling
-     */
+    // Test empty password handling
     public function testEmptyPasswordHandling(): void
     {
         $emptyPassword = '';
@@ -91,9 +79,7 @@ class PasswordHelperTest extends TestCase
         $this->assertFalse(PasswordHelper::verify('anyPassword', $hash));
     }
 
-    /**
-     * Test special characters in password
-     */
+    // Test special characters in password
     public function testSpecialCharactersInPassword(): void
     {
         $password = 'P@ssw0rd!#$%^&*()_+-=[]{}|;:",.<>?/~`';
@@ -102,9 +88,7 @@ class PasswordHelperTest extends TestCase
         $this->assertTrue(PasswordHelper::verify($password, $hash));
     }
 
-    /**
-     * Test very long password
-     */
+    // Test very long password
     public function testLongPassword(): void
     {
         $password = str_repeat('a', 1000);
@@ -113,9 +97,7 @@ class PasswordHelperTest extends TestCase
         $this->assertTrue(PasswordHelper::verify($password, $hash));
     }
 
-    /**
-     * Test needsRehash for fresh hash
-     */
+    // Test needsRehash for fresh hash
     public function testNeedsRehashForFreshHash(): void
     {
         $password = 'mySecurePassword123';
@@ -125,9 +107,7 @@ class PasswordHelperTest extends TestCase
         $this->assertFalse(PasswordHelper::needsRehash($hash));
     }
 
-    /**
-     * Test needsRehash with bcrypt hash
-     */
+    // Test needsRehash with bcrypt hash
     public function testNeedsRehashWithBcryptHash(): void
     {
         $password = 'testPassword';

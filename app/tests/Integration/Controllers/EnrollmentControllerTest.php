@@ -39,9 +39,7 @@ class EnrollmentControllerTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * Set up a mock teacher session
-     */
+    // Set up a mock teacher session
     private function setupTeacherSession(): void
     {
         $users = $this->userRepository->findAll();
@@ -60,18 +58,14 @@ class EnrollmentControllerTest extends TestCase
         }
     }
 
-    /**
-     * Test that enrollAction method exists and is callable
-     */
+    // Test that enrollAction method exists and is callable
     public function testEnrollActionMethodExists(): void
     {
         $this->assertTrue(method_exists($this->controller, 'enrollAction'));
         $this->assertTrue(is_callable([$this->controller, 'enrollAction']));
     }
 
-    /**
-     * Test enrollAction requires teacher authentication
-     */
+    // Test enrollAction requires teacher authentication
     public function testEnrollActionRequiresTeacherAuth(): void
     {
         ob_start();
@@ -84,9 +78,7 @@ class EnrollmentControllerTest extends TestCase
         ob_end_clean();
     }
 
-    /**
-     * Test enrollAction accepts course ID parameter
-     */
+    // Test enrollAction accepts course ID parameter
     public function testEnrollActionAcceptsParameter(): void
     {
         $this->setupTeacherSession();
@@ -103,9 +95,7 @@ class EnrollmentControllerTest extends TestCase
         $this->assertEquals(5, $_GET['course_id']);
     }
 
-    /**
-     * Test enrollAction with different course IDs
-     */
+    // Test enrollAction with different course IDs
     public function testEnrollActionWithDifferentIds(): void
     {
         $this->setupTeacherSession();
@@ -128,9 +118,7 @@ class EnrollmentControllerTest extends TestCase
         }
     }
 
-    /**
-     * Test student cannot access enrollment actions
-     */
+    // Test student cannot access enrollment actions
     public function testStudentCannotAccessEnrollmentActions(): void
     {
         $users = $this->userRepository->findAll();

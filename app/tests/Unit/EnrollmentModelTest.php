@@ -7,9 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class EnrollmentModelTest extends TestCase
 {
-    /**
-     * Test Enrollment model construction with minimum required fields
-     */
+    // Test Enrollment model construction with minimum required fields
     public function testEnrollmentConstructionWithMinimumFields(): void
     {
         $enrollment = new Enrollment(
@@ -25,9 +23,7 @@ class EnrollmentModelTest extends TestCase
         $this->assertNull($enrollment->getEnrollmentDate());
     }
 
-    /**
-     * Test Enrollment model construction with all fields
-     */
+    // Test Enrollment model construction with all fields
     public function testEnrollmentConstructionWithAllFields(): void
     {
         $enrollment = new Enrollment(
@@ -46,9 +42,7 @@ class EnrollmentModelTest extends TestCase
         $this->assertEquals('2025-01-10 09:00:00', $enrollment->getEnrollmentDate());
     }
 
-    /**
-     * Test enrollment with active status
-     */
+    // Test enrollment with active status
     public function testEnrollmentWithActiveStatus(): void
     {
         $enrollment = new Enrollment(1, 2, 'active');
@@ -56,9 +50,7 @@ class EnrollmentModelTest extends TestCase
         $this->assertTrue($enrollment->isActive());
     }
 
-    /**
-     * Test enrollment with inactive status
-     */
+    // Test enrollment with inactive status
     public function testEnrollmentWithInactiveStatus(): void
     {
         $enrollment = new Enrollment(1, 2, 'inactive');
@@ -66,9 +58,7 @@ class EnrollmentModelTest extends TestCase
         $this->assertFalse($enrollment->isActive());
     }
 
-    /**
-     * Test enrollment with dropped status
-     */
+    // Test enrollment with dropped status
     public function testEnrollmentWithDroppedStatus(): void
     {
         $enrollment = new Enrollment(1, 2, 'dropped');
@@ -76,9 +66,7 @@ class EnrollmentModelTest extends TestCase
         $this->assertFalse($enrollment->isActive());
     }
 
-    /**
-     * Test enrollment with completed status
-     */
+    // Test enrollment with completed status
     public function testEnrollmentWithCompletedStatus(): void
     {
         $enrollment = new Enrollment(1, 2, 'completed');
@@ -86,9 +74,7 @@ class EnrollmentModelTest extends TestCase
         $this->assertFalse($enrollment->isActive());
     }
 
-    /**
-     * Test setting enrollment ID
-     */
+    // Test setting enrollment ID
     public function testSetEnrollmentId(): void
     {
         $enrollment = new Enrollment(1, 2);
@@ -98,9 +84,7 @@ class EnrollmentModelTest extends TestCase
         $this->assertEquals(5, $enrollment->getEnrollmentId());
     }
 
-    /**
-     * Test enrollment with enrollment date
-     */
+    // Test enrollment with enrollment date
     public function testEnrollmentWithEnrollmentDate(): void
     {
         $enrollment = new Enrollment(
@@ -113,18 +97,14 @@ class EnrollmentModelTest extends TestCase
         $this->assertEquals('2025-01-15 10:30:00', $enrollment->getEnrollmentDate());
     }
 
-    /**
-     * Test enrollment without enrollment date
-     */
+    // Test enrollment without enrollment date
     public function testEnrollmentWithoutEnrollmentDate(): void
     {
         $enrollment = new Enrollment(1, 2);
         $this->assertNull($enrollment->getEnrollmentDate());
     }
 
-    /**
-     * Test default status is active
-     */
+    // Test default status is active
     public function testDefaultStatusIsActive(): void
     {
         $enrollment = new Enrollment(1, 2);
@@ -132,9 +112,7 @@ class EnrollmentModelTest extends TestCase
         $this->assertTrue($enrollment->isActive());
     }
 
-    /**
-     * Test multiple enrollments for same student in different courses
-     */
+    // Test multiple enrollments for same student in different courses
     public function testMultipleEnrollmentsForSameStudent(): void
     {
         $enrollment1 = new Enrollment(1, 10);
@@ -150,9 +128,7 @@ class EnrollmentModelTest extends TestCase
         $this->assertEquals(30, $enrollment3->getCourseId());
     }
 
-    /**
-     * Test multiple enrollments for different students in same course
-     */
+    // Test multiple enrollments for different students in same course
     public function testMultipleEnrollmentsForSameCourse(): void
     {
         $enrollment1 = new Enrollment(1, 100);

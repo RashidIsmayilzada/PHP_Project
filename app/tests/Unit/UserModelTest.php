@@ -7,9 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class UserModelTest extends TestCase
 {
-    /**
-     * Test User model construction with minimum required fields (student)
-     */
+    // Test User model construction with minimum required fields (student)
     public function testUserConstructionAsStudent(): void
     {
         $user = new User(
@@ -32,9 +30,7 @@ class UserModelTest extends TestCase
         $this->assertFalse($user->isTeacher());
     }
 
-    /**
-     * Test User model construction as teacher
-     */
+    // Test User model construction as teacher
     public function testUserConstructionAsTeacher(): void
     {
         $user = new User(
@@ -51,9 +47,7 @@ class UserModelTest extends TestCase
         $this->assertFalse($user->isStudent());
     }
 
-    /**
-     * Test User model construction with all fields
-     */
+    // Test User model construction with all fields
     public function testUserConstructionWithAllFields(): void
     {
         $user = new User(
@@ -79,9 +73,7 @@ class UserModelTest extends TestCase
         $this->assertEquals('2025-01-15 14:30:00', $user->getUpdatedAt());
     }
 
-    /**
-     * Test getFullName method
-     */
+    // Test getFullName method
     public function testGetFullName(): void
     {
         $user = new User(
@@ -95,9 +87,7 @@ class UserModelTest extends TestCase
         $this->assertEquals('John Doe', $user->getFullName());
     }
 
-    /**
-     * Test getFullName with different names
-     */
+    // Test getFullName with different names
     public function testGetFullNameVariations(): void
     {
         $user1 = new User('test@test.com', 'pass', 'Alice', 'Smith', 'student');
@@ -107,9 +97,7 @@ class UserModelTest extends TestCase
         $this->assertEquals('Bob Johnson-Lee', $user2->getFullName());
     }
 
-    /**
-     * Test setting user ID
-     */
+    // Test setting user ID
     public function testSetUserId(): void
     {
         $user = new User('test@test.com', 'pass', 'John', 'Doe', 'student');
@@ -119,9 +107,7 @@ class UserModelTest extends TestCase
         $this->assertEquals(5, $user->getUserId());
     }
 
-    /**
-     * Test role validation methods
-     */
+    // Test role validation methods
     public function testRoleValidation(): void
     {
         $student = new User('student@test.com', 'pass', 'John', 'Doe', 'student');
@@ -133,9 +119,7 @@ class UserModelTest extends TestCase
         $this->assertFalse($teacher->isStudent());
     }
 
-    /**
-     * Test student without student number
-     */
+    // Test student without student number
     public function testStudentWithoutStudentNumber(): void
     {
         $user = new User(
@@ -150,9 +134,7 @@ class UserModelTest extends TestCase
         $this->assertTrue($user->isStudent());
     }
 
-    /**
-     * Test email validation (format checking)
-     */
+    // Test email validation (format checking)
     public function testEmailFormat(): void
     {
         $user = new User(

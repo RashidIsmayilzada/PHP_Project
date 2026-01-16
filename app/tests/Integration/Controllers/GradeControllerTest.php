@@ -39,9 +39,7 @@ class GradeControllerTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * Set up a mock teacher session
-     */
+    // Set up a mock teacher session
     private function setupTeacherSession(): void
     {
         $users = $this->userRepository->findAll();
@@ -60,36 +58,28 @@ class GradeControllerTest extends TestCase
         }
     }
 
-    /**
-     * Test that showCourseGrades method exists and is callable
-     */
+    // Test that showCourseGrades method exists and is callable
     public function testShowCourseGradesMethodExists(): void
     {
         $this->assertTrue(method_exists($this->controller, 'showCourseGrades'));
         $this->assertTrue(is_callable([$this->controller, 'showCourseGrades']));
     }
 
-    /**
-     * Test that gradeAction method exists and is callable
-     */
+    // Test that gradeAction method exists and is callable
     public function testGradeActionMethodExists(): void
     {
         $this->assertTrue(method_exists($this->controller, 'gradeAction'));
         $this->assertTrue(is_callable([$this->controller, 'gradeAction']));
     }
 
-    /**
-     * Test that editAction method exists and is callable
-     */
+    // Test that editAction method exists and is callable
     public function testEditActionMethodExists(): void
     {
         $this->assertTrue(method_exists($this->controller, 'editAction'));
         $this->assertTrue(is_callable([$this->controller, 'editAction']));
     }
 
-    /**
-     * Test showCourseGrades requires teacher authentication
-     */
+    // Test showCourseGrades requires teacher authentication
     public function testShowCourseGradesRequiresTeacherAuth(): void
     {
         ob_start();
@@ -102,9 +92,7 @@ class GradeControllerTest extends TestCase
         ob_end_clean();
     }
 
-    /**
-     * Test gradeAction requires teacher authentication
-     */
+    // Test gradeAction requires teacher authentication
     public function testGradeActionRequiresTeacherAuth(): void
     {
         ob_start();
@@ -117,9 +105,7 @@ class GradeControllerTest extends TestCase
         ob_end_clean();
     }
 
-    /**
-     * Test editAction requires teacher authentication
-     */
+    // Test editAction requires teacher authentication
     public function testEditActionRequiresTeacherAuth(): void
     {
         ob_start();
@@ -132,9 +118,7 @@ class GradeControllerTest extends TestCase
         ob_end_clean();
     }
 
-    /**
-     * Test showCourseGrades accepts course ID parameter
-     */
+    // Test showCourseGrades accepts course ID parameter
     public function testShowCourseGradesAcceptsParameter(): void
     {
         $this->setupTeacherSession();
@@ -151,9 +135,7 @@ class GradeControllerTest extends TestCase
         $this->assertEquals(5, $_GET['course_id']);
     }
 
-    /**
-     * Test gradeAction accepts assignment ID parameter
-     */
+    // Test gradeAction accepts assignment ID parameter
     public function testGradeActionAcceptsParameter(): void
     {
         $this->setupTeacherSession();
@@ -170,9 +152,7 @@ class GradeControllerTest extends TestCase
         $this->assertEquals(10, $_GET['assignment_id']);
     }
 
-    /**
-     * Test editAction accepts grade ID parameter
-     */
+    // Test editAction accepts grade ID parameter
     public function testEditActionAcceptsParameter(): void
     {
         $this->setupTeacherSession();
@@ -189,9 +169,7 @@ class GradeControllerTest extends TestCase
         $this->assertEquals(15, $_GET['id']);
     }
 
-    /**
-     * Test student cannot access grade controller methods
-     */
+    // Test student cannot access grade controller methods
     public function testStudentCannotAccessGradeActions(): void
     {
         $users = $this->userRepository->findAll();

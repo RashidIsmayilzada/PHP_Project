@@ -15,9 +15,7 @@ class GradeServiceTest extends TestCase
         $this->gradeService = new GradeService();
     }
 
-    /**
-     * Test percentage to letter grade conversion
-     */
+    // Test percentage to letter grade conversion
     public function testPercentageToLetterGrade(): void
     {
         // Test A grade (90-100)
@@ -46,9 +44,7 @@ class GradeServiceTest extends TestCase
         $this->assertEquals('F', $this->gradeService->percentageToLetterGrade(0));
     }
 
-    /**
-     * Test edge cases for letter grade conversion
-     */
+    // Test edge cases for letter grade conversion
     public function testPercentageToLetterGradeEdgeCases(): void
     {
         // Test boundary values
@@ -62,9 +58,7 @@ class GradeServiceTest extends TestCase
         $this->assertEquals('F', $this->gradeService->percentageToLetterGrade(59.99));
     }
 
-    /**
-     * Test percentage to GPA conversion
-     */
+    // Test percentage to GPA conversion
     public function testPercentageToGPA(): void
     {
         // Test A grade (90-100) = 4.0
@@ -93,9 +87,7 @@ class GradeServiceTest extends TestCase
         $this->assertEquals(0.0, $this->gradeService->percentageToGPA(0));
     }
 
-    /**
-     * Test edge cases for GPA conversion
-     */
+    // Test edge cases for GPA conversion
     public function testPercentageToGPAEdgeCases(): void
     {
         // Test boundary values
@@ -109,9 +101,7 @@ class GradeServiceTest extends TestCase
         $this->assertEquals(0.0, $this->gradeService->percentageToGPA(59.99));
     }
 
-    /**
-     * Test that GPA and letter grade conversion align
-     */
+    // Test that GPA and letter grade conversion align
     public function testGPAAndLetterGradeAlignment(): void
     {
         $testCases = [

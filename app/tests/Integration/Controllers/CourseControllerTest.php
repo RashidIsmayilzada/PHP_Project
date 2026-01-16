@@ -39,9 +39,7 @@ class CourseControllerTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * Set up a mock teacher session
-     */
+    // Set up a mock teacher session
     private function setupTeacherSession(): void
     {
         $users = $this->userRepository->findAll();
@@ -60,45 +58,35 @@ class CourseControllerTest extends TestCase
         }
     }
 
-    /**
-     * Test that show method exists and is callable
-     */
+    // Test that show method exists and is callable
     public function testShowMethodExists(): void
     {
         $this->assertTrue(method_exists($this->controller, 'show'));
         $this->assertTrue(is_callable([$this->controller, 'show']));
     }
 
-    /**
-     * Test that createAction method exists and is callable
-     */
+    // Test that createAction method exists and is callable
     public function testCreateActionMethodExists(): void
     {
         $this->assertTrue(method_exists($this->controller, 'createAction'));
         $this->assertTrue(is_callable([$this->controller, 'createAction']));
     }
 
-    /**
-     * Test that editAction method exists and is callable
-     */
+    // Test that editAction method exists and is callable
     public function testEditActionMethodExists(): void
     {
         $this->assertTrue(method_exists($this->controller, 'editAction'));
         $this->assertTrue(is_callable([$this->controller, 'editAction']));
     }
 
-    /**
-     * Test that delete method exists and is callable
-     */
+    // Test that delete method exists and is callable
     public function testDeleteMethodExists(): void
     {
         $this->assertTrue(method_exists($this->controller, 'delete'));
         $this->assertTrue(is_callable([$this->controller, 'delete']));
     }
 
-    /**
-     * Test show requires teacher authentication
-     */
+    // Test show requires teacher authentication
     public function testShowRequiresTeacherAuth(): void
     {
         ob_start();
@@ -111,9 +99,7 @@ class CourseControllerTest extends TestCase
         ob_end_clean();
     }
 
-    /**
-     * Test createAction requires teacher authentication
-     */
+    // Test createAction requires teacher authentication
     public function testCreateActionRequiresTeacherAuth(): void
     {
         ob_start();
@@ -126,9 +112,7 @@ class CourseControllerTest extends TestCase
         ob_end_clean();
     }
 
-    /**
-     * Test editAction requires teacher authentication
-     */
+    // Test editAction requires teacher authentication
     public function testEditActionRequiresTeacherAuth(): void
     {
         ob_start();
@@ -141,9 +125,7 @@ class CourseControllerTest extends TestCase
         ob_end_clean();
     }
 
-    /**
-     * Test delete requires teacher authentication
-     */
+    // Test delete requires teacher authentication
     public function testDeleteRequiresTeacherAuth(): void
     {
         ob_start();
@@ -156,9 +138,7 @@ class CourseControllerTest extends TestCase
         ob_end_clean();
     }
 
-    /**
-     * Test show accepts course ID parameter
-     */
+    // Test show accepts course ID parameter
     public function testShowAcceptsParameter(): void
     {
         $this->setupTeacherSession();
@@ -175,9 +155,7 @@ class CourseControllerTest extends TestCase
         $this->assertEquals(1, $_GET['id']);
     }
 
-    /**
-     * Test editAction accepts course ID parameter
-     */
+    // Test editAction accepts course ID parameter
     public function testEditActionAcceptsParameter(): void
     {
         $this->setupTeacherSession();
@@ -194,9 +172,7 @@ class CourseControllerTest extends TestCase
         $this->assertEquals(5, $_GET['id']);
     }
 
-    /**
-     * Test delete accepts course ID parameter
-     */
+    // Test delete accepts course ID parameter
     public function testDeleteAcceptsParameter(): void
     {
         $this->setupTeacherSession();
@@ -213,9 +189,7 @@ class CourseControllerTest extends TestCase
         $this->assertEquals(10, $_GET['id']);
     }
 
-    /**
-     * Test student cannot access course controller methods
-     */
+    // Test student cannot access course controller methods
     public function testStudentCannotAccessCourseActions(): void
     {
         // Find a student user

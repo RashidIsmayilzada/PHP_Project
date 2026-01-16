@@ -40,54 +40,42 @@ class AuthControllerTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * Test that showLogin method exists and is callable
-     */
+    // Test that showLogin method exists and is callable
     public function testShowLoginMethodExists(): void
     {
         $this->assertTrue(method_exists($this->controller, 'showLogin'));
         $this->assertTrue(is_callable([$this->controller, 'showLogin']));
     }
 
-    /**
-     * Test that login method exists and is callable
-     */
+    // Test that login method exists and is callable
     public function testLoginMethodExists(): void
     {
         $this->assertTrue(method_exists($this->controller, 'login'));
         $this->assertTrue(is_callable([$this->controller, 'login']));
     }
 
-    /**
-     * Test that showRegister method exists and is callable
-     */
+    // Test that showRegister method exists and is callable
     public function testShowRegisterMethodExists(): void
     {
         $this->assertTrue(method_exists($this->controller, 'showRegister'));
         $this->assertTrue(is_callable([$this->controller, 'showRegister']));
     }
 
-    /**
-     * Test that register method exists and is callable
-     */
+    // Test that register method exists and is callable
     public function testRegisterMethodExists(): void
     {
         $this->assertTrue(method_exists($this->controller, 'register'));
         $this->assertTrue(is_callable([$this->controller, 'register']));
     }
 
-    /**
-     * Test that logout method exists and is callable
-     */
+    // Test that logout method exists and is callable
     public function testLogoutMethodExists(): void
     {
         $this->assertTrue(method_exists($this->controller, 'logout'));
         $this->assertTrue(is_callable([$this->controller, 'logout']));
     }
 
-    /**
-     * Test login with empty credentials
-     */
+    // Test login with empty credentials
     public function testLoginWithEmptyCredentials(): void
     {
         $_POST = [
@@ -107,9 +95,7 @@ class AuthControllerTest extends TestCase
         $this->assertArrayNotHasKey('user_id', $_SESSION);
     }
 
-    /**
-     * Test login with invalid credentials
-     */
+    // Test login with invalid credentials
     public function testLoginWithInvalidCredentials(): void
     {
         $_POST = [
@@ -129,9 +115,7 @@ class AuthControllerTest extends TestCase
         $this->assertArrayNotHasKey('user_id', $_SESSION);
     }
 
-    /**
-     * Test register with empty email
-     */
+    // Test register with empty email
     public function testRegisterWithEmptyEmail(): void
     {
         $_POST = [
@@ -156,9 +140,7 @@ class AuthControllerTest extends TestCase
         $this->assertArrayNotHasKey('user_id', $_SESSION);
     }
 
-    /**
-     * Test register with invalid email format
-     */
+    // Test register with invalid email format
     public function testRegisterWithInvalidEmailFormat(): void
     {
         $_POST = [
@@ -183,9 +165,7 @@ class AuthControllerTest extends TestCase
         $this->assertArrayNotHasKey('user_id', $_SESSION);
     }
 
-    /**
-     * Test register with short password
-     */
+    // Test register with short password
     public function testRegisterWithShortPassword(): void
     {
         $_POST = [
@@ -210,9 +190,7 @@ class AuthControllerTest extends TestCase
         $this->assertArrayNotHasKey('user_id', $_SESSION);
     }
 
-    /**
-     * Test register with mismatched passwords
-     */
+    // Test register with mismatched passwords
     public function testRegisterWithMismatchedPasswords(): void
     {
         $_POST = [
@@ -237,9 +215,7 @@ class AuthControllerTest extends TestCase
         $this->assertArrayNotHasKey('user_id', $_SESSION);
     }
 
-    /**
-     * Test register with empty first name
-     */
+    // Test register with empty first name
     public function testRegisterWithEmptyFirstName(): void
     {
         $_POST = [
@@ -264,9 +240,7 @@ class AuthControllerTest extends TestCase
         $this->assertArrayNotHasKey('user_id', $_SESSION);
     }
 
-    /**
-     * Test register with invalid role
-     */
+    // Test register with invalid role
     public function testRegisterWithInvalidRole(): void
     {
         $_POST = [
@@ -291,9 +265,7 @@ class AuthControllerTest extends TestCase
         $this->assertArrayNotHasKey('user_id', $_SESSION);
     }
 
-    /**
-     * Test register as student without student number
-     */
+    // Test register as student without student number
     public function testRegisterAsStudentWithoutStudentNumber(): void
     {
         $_POST = [
@@ -318,9 +290,7 @@ class AuthControllerTest extends TestCase
         $this->assertArrayNotHasKey('user_id', $_SESSION);
     }
 
-    /**
-     * Test logout clears session
-     */
+    // Test logout clears session
     public function testLogoutClearsSession(): void
     {
         // Set up a fake session
