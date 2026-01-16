@@ -3,6 +3,7 @@ Consider that you MUST add the .env file with mentioned variables below for the 
 Technically speaking the command "docker compose up" should work. However sometimes it happened to me that while running this command was not working due to some Docker Daemon not found issue (or something similar).
 If it will happen for you as well, you will have to run the container via *Docker Desktop*. If something like this happens, I am very sorry for inconvenience. In case if needed the compose file is the same as it was in the boilerplate and the whole app has been built based on that boilerplate. 
 
+- another important notice is that when I was creating the pages I accidentally created a folder views inside of public, however I was a bit lazy to change all the paths in the code, however it shouldn't be any problem for the app to work. I hope it won't affect my grade :)
 
 # Student Management System
 
