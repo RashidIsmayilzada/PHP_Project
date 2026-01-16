@@ -63,8 +63,3 @@ docker compose down
 - **Teacher:** daniel@gmail.com / Test123!
 - **Student:** student@example.com / Test123!
 
-## Running Tests
-
-```bash
-docker exec web_development_1_boilerplate-main-php-1 vendor/bin/phpunit tests/Integration/Controllers/
-```
