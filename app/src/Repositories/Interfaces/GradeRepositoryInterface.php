@@ -5,7 +5,6 @@ use App\Models\Grade;
 
 interface GradeRepositoryInterface
 {
-    public function testConnection(): array;
     public function findAll(): array;
     public function findById(int $id): ?Grade;
     public function findByStudentId(int $studentId): array;
@@ -15,5 +14,5 @@ interface GradeRepositoryInterface
     public function create(Grade $grade): ?Grade;
     public function update(Grade $grade): bool;
     public function delete(int $gradeId): bool;
-    public function calculateCourseAverage(int $courseId, int $studentId): ?float;
+    public function getGradeDataForCourseAndStudent(int $courseId, int $studentId): array;
 }

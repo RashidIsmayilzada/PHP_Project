@@ -3,115 +3,53 @@
 namespace App\Controllers;
 
 use App\Services\CourseService;
+use App\Repositories\CourseRepository;
+use App\Repositories\UserRepository;
 
-class CourseController
+class CourseController extends BaseController
 {
     private CourseService $courseService;
 
     public function __construct()
     {
-        $this->courseService = new CourseService();
+        parent::__construct();
+        $courseRepository = new CourseRepository();
+        $userRepository = new UserRepository();
+        $this->courseService = new CourseService($courseRepository, $userRepository);
     }
 
-    public function index(): void
-    {
-        header('Content-Type: application/json');
-        try {
-            $courses = $this->courseService->findAll();
-            $coursesData = array_map(function($course) {
-                return [
-                    'course_id' => $course->getCourseId(),
-                    'course_code' => $course->getCourseCode(),
-                    'course_name' => $course->getCourseName(),
-                    'description' => $course->getDescription(),
-                    'teacher_id' => $course->getTeacherId(),
-                    'credits' => $course->getCredits(),
-                    'semester' => $course->getSemester(),
-                    'created_at' => $course->getCreatedAt(),
-                    'updated_at' => $course->getUpdatedAt()
-                ];
-            }, $courses);
-            echo json_encode(['success' => true, 'data' => $coursesData]);
-        } catch (\Exception $e) {
-            http_response_code(500);
-            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-        }
-    }
-
+    // Display detailed information about a specific course (teacher view)
     public function show(int $id): void
     {
-        header('Content-Type: application/json');
-        try {
-            $course = $this->courseService->findById($id);
-            if ($course === null) {
-                http_response_code(404);
-                echo json_encode(['success' => false, 'error' => 'Course not found']);
-                return;
-            }
+        $this->getAuthService()->requireRole('teacher');
+        $_GET['id'] = $id;
 
-            $courseData = [
-                'course_id' => $course->getCourseId(),
-                'course_code' => $course->getCourseCode(),
-                'course_name' => $course->getCourseName(),
-                'description' => $course->getDescription(),
-                'teacher_id' => $course->getTeacherId(),
-                'credits' => $course->getCredits(),
-                'semester' => $course->getSemester(),
-                'created_at' => $course->getCreatedAt(),
-                'updated_at' => $course->getUpdatedAt()
-            ];
-            echo json_encode(['success' => true, 'data' => $courseData]);
-        } catch (\Exception $e) {
-            http_response_code(500);
-            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-        }
+        require __DIR__ . '/../../public/teacher/course-detail.php';
     }
 
-    public function byTeacher(int $teacherId): void
+    // Handle course creation form display and processing
+    public function createAction(): void
     {
-        header('Content-Type: application/json');
-        try {
-            $courses = $this->courseService->findByTeacherId($teacherId);
-            $coursesData = array_map(function($course) {
-                return [
-                    'course_id' => $course->getCourseId(),
-                    'course_code' => $course->getCourseCode(),
-                    'course_name' => $course->getCourseName(),
-                    'description' => $course->getDescription(),
-                    'teacher_id' => $course->getTeacherId(),
-                    'credits' => $course->getCredits(),
-                    'semester' => $course->getSemester(),
-                    'created_at' => $course->getCreatedAt()
-                ];
-            }, $courses);
-            echo json_encode(['success' => true, 'data' => $coursesData]);
-        } catch (\Exception $e) {
-            http_response_code(500);
-            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-        }
+        $this->getAuthService()->requireRole('teacher');
+
+        require __DIR__ . '/../../public/teacher/course-create.php';
     }
 
-    public function bySemester(string $semester): void
+    // Handle course editing form display and processing
+    public function editAction(int $id): void
     {
-        header('Content-Type: application/json');
-        try {
-            $courses = $this->courseService->findBySemester($semester);
-            $coursesData = array_map(function($course) {
-                return [
-                    'course_id' => $course->getCourseId(),
-                    'course_code' => $course->getCourseCode(),
-                    'course_name' => $course->getCourseName(),
-                    'description' => $course->getDescription(),
-                    'teacher_id' => $course->getTeacherId(),
-                    'credits' => $course->getCredits(),
-                    'semester' => $course->getSemester(),
-                    'created_at' => $course->getCreatedAt()
-                ];
-            }, $courses);
-            echo json_encode(['success' => true, 'data' => $coursesData]);
-        } catch (\Exception $e) {
-            http_response_code(500);
-            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-        }
+        $this->getAuthService()->requireRole('teacher');
+        $_GET['id'] = $id;
+
+        require __DIR__ . '/../../public/teacher/course-edit.php';
+    }
+
+    // Handle course deletion with confirmation
+    public function delete(int $id): void
+    {
+        $this->getAuthService()->requireRole('teacher');
+        $_GET['id'] = $id;
+
+        require __DIR__ . '/../../public/teacher/course-delete.php';
     }
 }

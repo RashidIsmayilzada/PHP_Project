@@ -7,37 +7,17 @@ use App\Repositories\Interfaces\EnrollmentRepositoryInterface;
 use PDO;
 use PDOException;
 
-// Repository for Enrollment database operations
+// Handles all database operations for enrollments
 class EnrollmentRepository implements EnrollmentRepositoryInterface
 {
     private PDO $db;
 
-    // Constructor initializes database connection
     public function __construct()
     {
         $this->db = Database::getConnection();
     }
 
-    // Test database connection by counting enrollments
-    public function testConnection(): array
-    {
-        try {
-            $stmt = $this->db->query("SELECT COUNT(*) as count FROM enrollments");
-            $result = $stmt->fetch();
-            return [
-                'success' => true,
-                'message' => 'Database connection successful',
-                'enrollment_count' => $result['count']
-            ];
-        } catch (PDOException $e) {
-            return [
-                'success' => false,
-                'message' => 'Database connection failed: ' . $e->getMessage()
-            ];
-        }
-    }
-
-    // Find all enrollments
+    // Grab all enrollments from the database, newest first
     public function findAll(): array
     {
         $stmt = $this->db->query("SELECT * FROM enrollments ORDER BY enrollment_date DESC");
@@ -50,7 +30,7 @@ class EnrollmentRepository implements EnrollmentRepositoryInterface
         return $enrollments;
     }
 
-    // Find enrollment by ID
+    // Look up a specific enrollment by its ID
     public function findById(int $id): ?Enrollment
     {
         $stmt = $this->db->prepare("SELECT * FROM enrollments WHERE enrollment_id = :id");
@@ -60,7 +40,7 @@ class EnrollmentRepository implements EnrollmentRepositoryInterface
         return $row ? $this->mapRowToEnrollment($row) : null;
     }
 
-    // Find enrollments by student ID
+    // Get all enrollments for a particular student
     public function findByStudentId(int $studentId): array
     {
         $stmt = $this->db->prepare("SELECT * FROM enrollments WHERE student_id = :student_id");
@@ -74,7 +54,7 @@ class EnrollmentRepository implements EnrollmentRepositoryInterface
         return $enrollments;
     }
 
-    // Find enrollments by course ID
+    // Get all enrollments for a specific course
     public function findByCourseId(int $courseId): array
     {
         $stmt = $this->db->prepare("SELECT * FROM enrollments WHERE course_id = :course_id");
@@ -88,7 +68,7 @@ class EnrollmentRepository implements EnrollmentRepositoryInterface
         return $enrollments;
     }
 
-    // Find active enrollments by student ID
+    // Get only the active enrollments for a student
     public function findActiveEnrollmentsByStudentId(int $studentId): array
     {
         $stmt = $this->db->prepare(
@@ -104,7 +84,7 @@ class EnrollmentRepository implements EnrollmentRepositoryInterface
         return $enrollments;
     }
 
-    // Create a new enrollment
+    // Save a new enrollment to the database and return it with the generated ID
     public function create(Enrollment $enrollment): ?Enrollment
     {
         try {
@@ -123,12 +103,12 @@ class EnrollmentRepository implements EnrollmentRepositoryInterface
             $enrollmentId = (int) $this->db->lastInsertId();
             return $this->findById($enrollmentId);
         } catch (PDOException $e) {
-            // UNIQUE constraint on (student_id, course_id) may fail
+            // This usually fails when trying to enroll the same student in a course twice
             return null;
         }
     }
 
-    // Update an existing enrollment
+    // Update an existing enrollment in the database
     public function update(Enrollment $enrollment): bool
     {
         try {
@@ -153,7 +133,7 @@ class EnrollmentRepository implements EnrollmentRepositoryInterface
         }
     }
 
-    // Delete an enrollment
+    // Remove an enrollment from the database
     public function delete(int $enrollmentId): bool
     {
         try {
@@ -164,7 +144,6 @@ class EnrollmentRepository implements EnrollmentRepositoryInterface
         }
     }
 
-    // Map database row to Enrollment object
     private function mapRowToEnrollment(array $row): Enrollment
     {
         return new Enrollment(

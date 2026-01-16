@@ -8,9 +8,7 @@ use PDOException;
 // Database connection class
 class Database
 {
-    /**
-     * @var PDO|null
-     */
+    // @var PDO|null
     private static $connection = null;
 
     // Get a singleton PDO connection
@@ -18,11 +16,11 @@ class Database
     {
         if (self::$connection === null) {
             try {
-                $dsn = "mysql:host=" . Config::DB_SERVER_NAME . ";dbname=" . Config::DB_NAME . ";charset=utf8mb4";
+                $dsn = "mysql:host=" . Config::getDbServerName() . ";dbname=" . Config::getDbName() . ";charset=utf8mb4";
                 self::$connection = new PDO(
                     $dsn,
-                    Config::DB_USERNAME,
-                    Config::DB_PASSWORD,
+                    Config::getDbUsername(),
+                    Config::getDbPassword(),
                     [
                         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,

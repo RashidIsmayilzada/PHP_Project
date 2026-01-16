@@ -7,37 +7,17 @@ use App\Repositories\Interfaces\UserRepositoryInterface;
 use PDO;
 use PDOException;
 
-// Repository for User database operations
+// Handles all database operations for users
 class UserRepository implements UserRepositoryInterface
 {
     private PDO $db;
 
-    // Constructor initializes database connection
     public function __construct()
     {
         $this->db = Database::getConnection();
     }
 
-    // Test database connection by counting users
-    public function testConnection(): array
-    {
-        try {
-            $stmt = $this->db->query("SELECT COUNT(*) as count FROM users");
-            $result = $stmt->fetch();
-            return [
-                'success' => true,
-                'message' => 'Database connection successful',
-                'user_count' => $result['count']
-            ];
-        } catch (PDOException $e) {
-            return [
-                'success' => false,
-                'message' => 'Database connection failed: ' . $e->getMessage()
-            ];
-        }
-    }
-
-    // Find all users
+    // Grab all users from the database, newest first
     public function findAll(): array
     {
         $stmt = $this->db->query("SELECT * FROM users ORDER BY created_at DESC");
@@ -50,7 +30,7 @@ class UserRepository implements UserRepositoryInterface
         return $users;
     }
 
-    // Find user by ID
+    // Look up a specific user by their ID
     public function findById(int $id): ?User
     {
         $stmt = $this->db->prepare("SELECT * FROM users WHERE user_id = :id");
@@ -60,17 +40,17 @@ class UserRepository implements UserRepositoryInterface
         return $row ? $this->mapRowToUser($row) : null;
     }
 
-    // Find user by email
+    // Find a user by their email address (case-insensitive)
     public function findByEmail(string $email): ?User
     {
-        $stmt = $this->db->prepare("SELECT * FROM users WHERE email = :email");
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE LOWER(email) = LOWER(:email)");
         $stmt->execute(['email' => $email]);
         $row = $stmt->fetch();
 
         return $row ? $this->mapRowToUser($row) : null;
     }
 
-    // Find all students
+    // Get all students, sorted by last name then first name
     public function findAllStudents(): array
     {
         $stmt = $this->db->query("SELECT * FROM users WHERE role = 'student' ORDER BY last_name, first_name");
@@ -83,7 +63,7 @@ class UserRepository implements UserRepositoryInterface
         return $students;
     }
 
-    // Find all teachers
+    // Get all teachers, sorted by last name then first name
     public function findAllTeachers(): array
     {
         $stmt = $this->db->query("SELECT * FROM users WHERE role = 'teacher' ORDER BY last_name, first_name");
@@ -96,7 +76,7 @@ class UserRepository implements UserRepositoryInterface
         return $teachers;
     }
 
-    // Create a new user
+    // Save a new user to the database and return it with the generated ID
     public function create(User $user): ?User
     {
         try {
@@ -114,18 +94,15 @@ class UserRepository implements UserRepositoryInterface
                 'student_number' => $user->getStudentNumber()
             ]);
 
-            // Get the last inserted ID
             $userId = (int) $this->db->lastInsertId();
-
-            // Return the created user with the new ID
             return $this->findById($userId);
         } catch (PDOException $e) {
-            // Return null if creation fails (e.g., duplicate email)
+            // This usually fails when the email is already taken
             return null;
         }
     }
 
-    // Update an existing user
+    // Update an existing user's information in the database
     public function update(User $user): bool
     {
         try {
@@ -154,19 +131,18 @@ class UserRepository implements UserRepositoryInterface
         }
     }
 
-    // Delete a user
+    // Remove a user from the database
     public function delete(int $userId): bool
     {
         try {
             $stmt = $this->db->prepare("DELETE FROM users WHERE user_id = :user_id");
             return $stmt->execute(['user_id' => $userId]);
         } catch (PDOException $e) {
-            // Foreign key constraint may prevent deletion
+            // Can't delete if they have enrollments or grades linked to them
             return false;
         }
     }
 
-    // Map database row to User object
     private function mapRowToUser(array $row): User
     {
         return new User(

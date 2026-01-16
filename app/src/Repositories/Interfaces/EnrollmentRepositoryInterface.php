@@ -5,7 +5,6 @@ use App\Models\Enrollment;
 
 interface EnrollmentRepositoryInterface
 {
-    public function testConnection(): array;
     public function findAll(): array;
     public function findById(int $id): ?Enrollment;
     public function findByStudentId(int $studentId): array;

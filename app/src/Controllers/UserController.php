@@ -13,6 +13,7 @@ class UserController
         $this->userService = new UserService();
     }
 
+    // Return JSON list of all users in the system
     public function index(): void
     {
         header('Content-Type: application/json');
@@ -38,6 +39,7 @@ class UserController
         }
     }
 
+    // Return JSON data for a specific user by their ID
     public function show(int $id): void
     {
         header('Content-Type: application/json');
@@ -67,6 +69,7 @@ class UserController
         }
     }
 
+    // Return JSON list of all students (users with student role)
     public function students(): void
     {
         header('Content-Type: application/json');
@@ -90,6 +93,7 @@ class UserController
         }
     }
 
+    // Return JSON list of all teachers (users with teacher role)
     public function teachers(): void
     {
         header('Content-Type: application/json');
@@ -112,6 +116,7 @@ class UserController
         }
     }
 
+    // Search for and return a specific user by their email address
     public function findByEmail(string $email): void
     {
         header('Content-Type: application/json');

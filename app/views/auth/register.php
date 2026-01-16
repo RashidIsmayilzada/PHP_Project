@@ -1,98 +1,3 @@
-<?php
-require_once __DIR__ . '/../vendor/autoload.php';
-
-use App\Services\AuthService;
-use App\Repositories\UserRepository;
-
-$userRepository = new UserRepository();
-$authService = new AuthService($userRepository);
-
-// If already logged in, redirect to appropriate dashboard
-if ($authService->isAuthenticated()) {
-    if ($authService->isTeacher()) {
-        header('Location: /teacher/dashboard.php');
-    } else {
-        header('Location: /student/dashboard.php');
-    }
-    exit;
-}
-
-$errors = [];
-$formData = [
-    'email' => '',
-    'first_name' => '',
-    'last_name' => '',
-    'role' => 'student',
-    'student_number' => ''
-];
-
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get form data
-    $formData = [
-        'email' => trim($_POST['email'] ?? ''),
-        'first_name' => trim($_POST['first_name'] ?? ''),
-        'last_name' => trim($_POST['last_name'] ?? ''),
-        'role' => $_POST['role'] ?? 'student',
-        'student_number' => trim($_POST['student_number'] ?? '')
-    ];
-    $password = $_POST['password'] ?? '';
-    $confirmPassword = $_POST['confirm_password'] ?? '';
-
-    // Validation
-    if (empty($formData['email'])) {
-        $errors['email'] = 'Email is required';
-    } elseif (!filter_var($formData['email'], FILTER_VALIDATE_EMAIL)) {
-        $errors['email'] = 'Invalid email format';
-    } elseif ($userRepository->findByEmail($formData['email'])) {
-        $errors['email'] = 'Email already registered';
-    }
-
-    if (empty($password)) {
-        $errors['password'] = 'Password is required';
-    } elseif (strlen($password) < 8) {
-        $errors['password'] = 'Password must be at least 8 characters';
-    }
-
-    if ($password !== $confirmPassword) {
-        $errors['confirm_password'] = 'Passwords do not match';
-    }
-
-    if (empty($formData['first_name'])) {
-        $errors['first_name'] = 'First name is required';
-    }
-
-    if (empty($formData['last_name'])) {
-        $errors['last_name'] = 'Last name is required';
-    }
-
-    if (!in_array($formData['role'], ['student', 'teacher'])) {
-        $errors['role'] = 'Invalid role selected';
-    }
-
-    if ($formData['role'] === 'student' && empty($formData['student_number'])) {
-        $errors['student_number'] = 'Student number is required for students';
-    }
-
-    // If no errors, attempt to register
-    if (empty($errors)) {
-        $formData['password'] = $password;
-        $user = $authService->register($formData);
-
-        if ($user) {
-            // User is auto-logged in, redirect to appropriate dashboard
-            if ($user->getRole() === 'teacher') {
-                header('Location: /teacher/dashboard.php');
-            } else {
-                header('Location: /student/dashboard.php');
-            }
-            exit;
-        } else {
-            $errors['general'] = 'Registration failed. Email may already be registered.';
-        }
-    }
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -250,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="register.php" id="registerForm">
+        <form method="POST" action="/register" id="registerForm">
             <div class="form-group <?php echo isset($errors['email']) ? 'error' : ''; ?>">
                 <label for="email">Email Address *</label>
                 <input
@@ -355,7 +260,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <div class="register-footer">
-            Already have an account? <a href="login.php">Login here</a>
+            Already have an account? <a href="/login">Login here</a>
         </div>
     </div>
 

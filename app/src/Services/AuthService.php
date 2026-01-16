@@ -13,76 +13,51 @@ class AuthService
     {
         $this->userRepository = $userRepository;
 
-        // Start session if not already started
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
     }
 
-    /**
-     * Attempt to log in a user with email and password
-     *
-     * @param string $email User's email address
-     * @param string $password User's plain text password
-     * @return bool True if login successful, false otherwise
-     */
+    // Verify user credentials and create a session if valid
     public function login(string $email, string $password): bool
     {
-        // Find user by email
         $user = $this->userRepository->findByEmail($email);
 
         if (!$user) {
             return false;
         }
 
-        // Verify password
         if (!PasswordHelper::verify($password, $user->getPassword())) {
             return false;
         }
 
-        // Store user ID in session
         $_SESSION['user_id'] = $user->getUserId();
         $_SESSION['user_role'] = $user->getRole();
 
         return true;
     }
 
-    /**
-     * Log out the current user
-     *
-     * @return void
-     */
+    // Clear the user's session and destroy the session cookie
     public function logout(): void
     {
-        // Unset all session variables
         $_SESSION = [];
 
-        // Destroy the session cookie
         if (isset($_COOKIE[session_name()])) {
             setcookie(session_name(), '', time() - 3600, '/');
         }
 
-        // Destroy the session
         session_destroy();
     }
 
-    /**
-     * Register a new user
-     *
-     * @param array $userData User data (email, password, first_name, last_name, role, student_number)
-     * @return User|null Created user object or null on failure
-     */
+    // Create a new user account and automatically log them in
     public function register(array $userData): ?User
     {
-        // Check if email already exists
         if ($this->userRepository->findByEmail($userData['email'])) {
             return null;
         }
 
-        // Hash password
         $hashedPassword = PasswordHelper::hash($userData['password']);
 
-        // Create user object
         $user = new User(
             $userData['email'],
             $hashedPassword,
@@ -92,11 +67,9 @@ class AuthService
             $userData['student_number'] ?? null
         );
 
-        // Save user to database
         $createdUser = $this->userRepository->create($user);
 
         if ($createdUser) {
-            // Auto-login the user
             $_SESSION['user_id'] = $createdUser->getUserId();
             $_SESSION['user_role'] = $createdUser->getRole();
         }
@@ -104,11 +77,7 @@ class AuthService
         return $createdUser;
     }
 
-    /**
-     * Get the currently logged in user
-     *
-     * @return User|null User object if logged in, null otherwise
-     */
+    // Retrieve the full user object for the currently logged in user
     public function getCurrentUser(): ?User
     {
         if (!isset($_SESSION['user_id'])) {
@@ -118,35 +87,22 @@ class AuthService
         return $this->userRepository->findById($_SESSION['user_id']);
     }
 
-    /**
-     * Check if a user is currently authenticated
-     *
-     * @return bool True if user is logged in, false otherwise
-     */
+    // Check whether any user is currently logged in
     public function isAuthenticated(): bool
     {
         return isset($_SESSION['user_id']);
     }
 
-    /**
-     * Require authentication - redirect to login if not authenticated
-     *
-     * @return void
-     */
+    // Force user to be logged in or redirect them to login page
     public function requireAuth(): void
     {
         if (!$this->isAuthenticated()) {
-            header('Location: /login.php');
+            header('Location: /login');
             exit;
         }
     }
 
-    /**
-     * Require a specific role - redirect to 403 if user doesn't have the role
-     *
-     * @param string $role Required role (student or teacher)
-     * @return void
-     */
+    // Ensure the current user has a specific role or show forbidden page
     public function requireRole(string $role): void
     {
         $this->requireAuth();
@@ -154,17 +110,12 @@ class AuthService
         $currentUser = $this->getCurrentUser();
 
         if (!$currentUser || $currentUser->getRole() !== $role) {
-            header('Location: /403.php');
+            header('Location: /403');
             exit;
         }
     }
 
-    /**
-     * Check if current user has a specific role
-     *
-     * @param string $role Role to check (student or teacher)
-     * @return bool True if user has the role, false otherwise
-     */
+    // Check if the logged in user has a particular role
     public function hasRole(string $role): bool
     {
         if (!$this->isAuthenticated()) {
@@ -175,21 +126,13 @@ class AuthService
         return $currentUser && $currentUser->getRole() === $role;
     }
 
-    /**
-     * Check if current user is a teacher
-     *
-     * @return bool
-     */
+    // Quick check if current user is a teacher
     public function isTeacher(): bool
     {
         return $this->hasRole('teacher');
     }
 
-    /**
-     * Check if current user is a student
-     *
-     * @return bool
-     */
+    // Quick check if current user is a student
     public function isStudent(): bool
     {
         return $this->hasRole('student');

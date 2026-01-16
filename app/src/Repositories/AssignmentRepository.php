@@ -7,37 +7,17 @@ use App\Repositories\Interfaces\AssignmentRepositoryInterface;
 use PDO;
 use PDOException;
 
-// Repository for Assignment database operations
+// Handles all database operations for assignments
 class AssignmentRepository implements AssignmentRepositoryInterface
 {
     private PDO $db;
 
-    // Constructor initializes database connection
     public function __construct()
     {
         $this->db = Database::getConnection();
     }
 
-    // Test database connection by counting assignments
-    public function testConnection(): array
-    {
-        try {
-            $stmt = $this->db->query("SELECT COUNT(*) as count FROM assignments");
-            $result = $stmt->fetch();
-            return [
-                'success' => true,
-                'message' => 'Database connection successful',
-                'assignment_count' => $result['count']
-            ];
-        } catch (PDOException $e) {
-            return [
-                'success' => false,
-                'message' => 'Database connection failed: ' . $e->getMessage()
-            ];
-        }
-    }
-
-    // Find all assignments
+    // Grab all assignments from the database, with most recent due dates first
     public function findAll(): array
     {
         $stmt = $this->db->query("SELECT * FROM assignments ORDER BY due_date DESC");
@@ -50,7 +30,7 @@ class AssignmentRepository implements AssignmentRepositoryInterface
         return $assignments;
     }
 
-    // Find assignment by ID
+    // Look up a specific assignment by its ID
     public function findById(int $id): ?Assignment
     {
         $stmt = $this->db->prepare("SELECT * FROM assignments WHERE assignment_id = :id");
@@ -60,7 +40,7 @@ class AssignmentRepository implements AssignmentRepositoryInterface
         return $row ? $this->mapRowToAssignment($row) : null;
     }
 
-    // Find assignments by course ID
+    // Get all assignments for a particular course, sorted by due date
     public function findByCourseId(int $courseId): array
     {
         $stmt = $this->db->prepare("SELECT * FROM assignments WHERE course_id = :course_id ORDER BY due_date");
@@ -74,7 +54,7 @@ class AssignmentRepository implements AssignmentRepositoryInterface
         return $assignments;
     }
 
-    // Create a new assignment
+    // Save a new assignment to the database and return it with the generated ID
     public function create(Assignment $assignment): ?Assignment
     {
         try {
@@ -98,7 +78,7 @@ class AssignmentRepository implements AssignmentRepositoryInterface
         }
     }
 
-    // Update an existing assignment
+    // Update an existing assignment in the database
     public function update(Assignment $assignment): bool
     {
         try {
@@ -125,7 +105,7 @@ class AssignmentRepository implements AssignmentRepositoryInterface
         }
     }
 
-    // Delete an assignment (cascade deletes grades via FK constraints)
+    // Remove an assignment from the database (also removes linked grades)
     public function delete(int $assignmentId): bool
     {
         try {
@@ -136,7 +116,6 @@ class AssignmentRepository implements AssignmentRepositoryInterface
         }
     }
 
-    // Map database row to Assignment object
     private function mapRowToAssignment(array $row): Assignment
     {
         return new Assignment(

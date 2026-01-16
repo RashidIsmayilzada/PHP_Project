@@ -12,12 +12,48 @@ require __DIR__ . '/../vendor/autoload.php';
 use FastRoute\RouteCollector;
 use function FastRoute\simpleDispatcher;
 
-/**
- * Define the routes for the application.
- */
-$dispatcher = simpleDispatcher(function (RouteCollector $r) {
-    $r->addRoute('GET', '/', ['App\Controllers\HomeController', 'home']);
-    $r->addRoute('GET', '/hello/{name}', ['App\Controllers\HelloController', 'greet']);
+// Define all application routes
+$dispatcher = simpleDispatcher(function(RouteCollector $r) {
+    // Home route
+    $r->addRoute('GET', '/', ['App\Controllers\AuthController', 'showLogin']);
+
+    // Authentication routes
+    $r->addRoute('GET', '/login', ['App\Controllers\AuthController', 'showLogin']);
+    $r->addRoute('POST', '/login', ['App\Controllers\AuthController', 'login']);
+    $r->addRoute('GET', '/register', ['App\Controllers\AuthController', 'showRegister']);
+    $r->addRoute('POST', '/register', ['App\Controllers\AuthController', 'register']);
+    $r->addRoute(['GET', 'POST'], '/logout', ['App\Controllers\AuthController', 'logout']);
+
+    // Student routes
+    $r->addRoute('GET', '/student/dashboard', ['App\Controllers\StudentController', 'dashboard']);
+    $r->addRoute('GET', '/student/course/{id:\d+}', ['App\Controllers\StudentController', 'courseDetail']);
+    $r->addRoute('GET', '/student/statistics', ['App\Controllers\StudentController', 'statistics']);
+
+    // Teacher routes
+    $r->addRoute('GET', '/teacher/dashboard', ['App\Controllers\TeacherController', 'dashboard']);
+
+    // Course management routes (teacher only)
+    $r->addRoute('GET', '/teacher/course/{id:\d+}', ['App\Controllers\CourseController', 'show']);
+    $r->addRoute(['GET', 'POST'], '/teacher/course/create', ['App\Controllers\CourseController', 'createAction']);
+    $r->addRoute(['GET', 'POST'], '/teacher/course/{id:\d+}/edit', ['App\Controllers\CourseController', 'editAction']);
+    $r->addRoute(['GET', 'POST'], '/teacher/course/{id:\d+}/delete', ['App\Controllers\CourseController', 'delete']);
+
+    // Assignment management routes (teacher only)
+    $r->addRoute(['GET', 'POST'], '/teacher/assignment/create', ['App\Controllers\AssignmentController', 'createAction']);
+    $r->addRoute(['GET', 'POST'], '/teacher/assignment/{id:\d+}/edit', ['App\Controllers\AssignmentController', 'editAction']);
+    $r->addRoute(['GET', 'POST'], '/teacher/assignment/{id:\d+}/delete', ['App\Controllers\AssignmentController', 'delete']);
+
+    // Enrollment management routes (teacher only)
+    $r->addRoute(['GET', 'POST'], '/teacher/course/{courseId:\d+}/enroll', ['App\Controllers\EnrollmentController', 'enrollAction']);
+
+    // Grade management routes (teacher only)
+    $r->addRoute('GET', '/teacher/course/{courseId:\d+}/grades', ['App\Controllers\GradeController', 'showCourseGrades']);
+    $r->addRoute(['GET', 'POST'], '/teacher/assignment/{assignmentId:\d+}/grade', ['App\Controllers\GradeController', 'gradeAction']);
+    $r->addRoute(['GET', 'POST'], '/teacher/grade/{id:\d+}/edit', ['App\Controllers\GradeController', 'editAction']);
+
+    // Error routes
+    $r->addRoute('GET', '/403', ['App\Controllers\ErrorController', 'forbidden']);
+    $r->addRoute('GET', '/404', ['App\Controllers\ErrorController', 'notFound']);
 });
 
 
@@ -37,8 +73,8 @@ $routeInfo = $dispatcher->dispatch($httpMethod, $uri);
 switch ($routeInfo[0]) {
     // Handle not found routes
     case FastRoute\Dispatcher::NOT_FOUND:
-        http_response_code(404);
-        echo 'Not Found';
+        $controller = new App\Controllers\ErrorController();
+        $controller->notFound();
         break;
     // Handle routes that were invoked with the wrong HTTP method
     case FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
@@ -58,7 +94,8 @@ switch ($routeInfo[0]) {
          * Hint: in PHP we can use a string to call a class method dynamically, like this: `$instance->$methodName($args);`
          */
 
-        // TODO: invoke the controller and method using the data in $routeInfo[1]
+        $controllerClass = $routeInfo[1][0];
+        $methodName = $routeInfo[1][1];
 
         /**
          * $route[2] contains any dynamic parameters parsed from the URL.
@@ -66,10 +103,10 @@ switch ($routeInfo[0]) {
          *  $r->addRoute('GET', '/hello/{name}', ['App\Controllers\HelloController', 'greet']);
          * and the URL is `/hello/dan-the-man`, then `$routeInfo[2][name]` will be `dan-the-man`.
          */
+        $params = $routeInfo[2];
 
-        // TODO: pass the dynamic route data to the controller method
-        // When done, visiting `http://localhost/hello/dan-the-man` should output "Hi, dan-the-man!"
-        throw new Exception('Not implemented yet');
+        $controller = new $controllerClass();
+        $controller->$methodName(...array_values($params));
 
         break;
 }

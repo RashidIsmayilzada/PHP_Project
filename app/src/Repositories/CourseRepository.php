@@ -7,37 +7,17 @@ use App\Repositories\Interfaces\CourseRepositoryInterface;
 use PDO;
 use PDOException;
 
-// Repository for Course database operations
+// Handles all database operations for courses
 class CourseRepository implements CourseRepositoryInterface
 {
     private PDO $db;
 
-    // Constructor initializes database connection
     public function __construct()
     {
         $this->db = Database::getConnection();
     }
 
-    // Test database connection by counting courses
-    public function testConnection(): array
-    {
-        try {
-            $stmt = $this->db->query("SELECT COUNT(*) as count FROM courses");
-            $result = $stmt->fetch();
-            return [
-                'success' => true,
-                'message' => 'Database connection successful',
-                'course_count' => $result['count']
-            ];
-        } catch (PDOException $e) {
-            return [
-                'success' => false,
-                'message' => 'Database connection failed: ' . $e->getMessage()
-            ];
-        }
-    }
-
-    // Find all courses
+    // Grab all courses from the database, sorted by course code
     public function findAll(): array
     {
         $stmt = $this->db->query("SELECT * FROM courses ORDER BY course_code");
@@ -50,7 +30,7 @@ class CourseRepository implements CourseRepositoryInterface
         return $courses;
     }
 
-    // Find course by ID
+    // Look up a specific course by its ID
     public function findById(int $id): ?Course
     {
         $stmt = $this->db->prepare("SELECT * FROM courses WHERE course_id = :id");
@@ -60,7 +40,7 @@ class CourseRepository implements CourseRepositoryInterface
         return $row ? $this->mapRowToCourse($row) : null;
     }
 
-    // Find courses by teacher ID
+    // Get all courses taught by a particular teacher
     public function findByTeacherId(int $teacherId): array
     {
         $stmt = $this->db->prepare("SELECT * FROM courses WHERE teacher_id = :teacher_id ORDER BY course_code");
@@ -74,7 +54,7 @@ class CourseRepository implements CourseRepositoryInterface
         return $courses;
     }
 
-    // Find courses by semester
+    // Get all courses for a specific semester
     public function findBySemester(string $semester): array
     {
         $stmt = $this->db->prepare("SELECT * FROM courses WHERE semester = :semester ORDER BY course_code");
@@ -88,7 +68,7 @@ class CourseRepository implements CourseRepositoryInterface
         return $courses;
     }
 
-    // Find courses by student ID (courses the student is enrolled in)
+    // Get all courses a student is enrolled in by joining through the enrollments table
     public function findByStudentId(int $studentId): array
     {
         $stmt = $this->db->prepare(
@@ -107,7 +87,7 @@ class CourseRepository implements CourseRepositoryInterface
         return $courses;
     }
 
-    // Create a new course
+    // Save a new course to the database and return it with the generated ID
     public function create(Course $course): ?Course
     {
         try {
@@ -132,7 +112,7 @@ class CourseRepository implements CourseRepositoryInterface
         }
     }
 
-    // Update an existing course
+    // Update an existing course in the database
     public function update(Course $course): bool
     {
         try {
@@ -161,7 +141,7 @@ class CourseRepository implements CourseRepositoryInterface
         }
     }
 
-    // Delete a course (cascade deletes assignments and enrollments via FK constraints)
+    // Remove a course from the database (also removes linked assignments and enrollments)
     public function delete(int $courseId): bool
     {
         try {
@@ -172,7 +152,6 @@ class CourseRepository implements CourseRepositoryInterface
         }
     }
 
-    // Map database row to Course object
     private function mapRowToCourse(array $row): Course
     {
         return new Course(

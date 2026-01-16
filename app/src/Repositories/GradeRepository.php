@@ -7,37 +7,17 @@ use App\Repositories\Interfaces\GradeRepositoryInterface;
 use PDO;
 use PDOException;
 
-// Repository for Grade database operations
+// Handles all database operations for grades
 class GradeRepository implements GradeRepositoryInterface
 {
     private PDO $db;
 
-    // Constructor initializes database connection
     public function __construct()
     {
         $this->db = Database::getConnection();
     }
 
-    // Test database connection by counting grades
-    public function testConnection(): array
-    {
-        try {
-            $stmt = $this->db->query("SELECT COUNT(*) as count FROM grades");
-            $result = $stmt->fetch();
-            return [
-                'success' => true,
-                'message' => 'Database connection successful',
-                'grade_count' => $result['count']
-            ];
-        } catch (PDOException $e) {
-            return [
-                'success' => false,
-                'message' => 'Database connection failed: ' . $e->getMessage()
-            ];
-        }
-    }
-
-    // Find all grades
+    // Grab all grades from the database, newest first
     public function findAll(): array
     {
         $stmt = $this->db->query("SELECT * FROM grades ORDER BY graded_at DESC");
@@ -50,7 +30,7 @@ class GradeRepository implements GradeRepositoryInterface
         return $grades;
     }
 
-    // Find grade by ID
+    // Look up a specific grade by its ID
     public function findById(int $id): ?Grade
     {
         $stmt = $this->db->prepare("SELECT * FROM grades WHERE grade_id = :id");
@@ -60,7 +40,7 @@ class GradeRepository implements GradeRepositoryInterface
         return $row ? $this->mapRowToGrade($row) : null;
     }
 
-    // Find grades by student ID
+    // Get all grades for a particular student, newest first
     public function findByStudentId(int $studentId): array
     {
         $stmt = $this->db->prepare("SELECT * FROM grades WHERE student_id = :student_id ORDER BY graded_at DESC");
@@ -74,7 +54,7 @@ class GradeRepository implements GradeRepositoryInterface
         return $grades;
     }
 
-    // Find grades by assignment ID
+    // Get all grades for a specific assignment
     public function findByAssignmentId(int $assignmentId): array
     {
         $stmt = $this->db->prepare("SELECT * FROM grades WHERE assignment_id = :assignment_id");
@@ -88,7 +68,7 @@ class GradeRepository implements GradeRepositoryInterface
         return $grades;
     }
 
-    // Find grade for a specific student and assignment
+    // Find a specific grade for a student on a particular assignment
     public function findByStudentAndAssignment(int $studentId, int $assignmentId): ?Grade
     {
         $stmt = $this->db->prepare(
@@ -103,7 +83,7 @@ class GradeRepository implements GradeRepositoryInterface
         return $row ? $this->mapRowToGrade($row) : null;
     }
 
-    // Find all grades for a course (via assignments)
+    // Get all grades for a course by joining through the assignments table
     public function findByCourseId(int $courseId): array
     {
         $stmt = $this->db->prepare(
@@ -122,7 +102,7 @@ class GradeRepository implements GradeRepositoryInterface
         return $grades;
     }
 
-    // Create a new grade
+    // Save a new grade to the database and return it with the generated ID
     public function create(Grade $grade): ?Grade
     {
         try {
@@ -142,12 +122,12 @@ class GradeRepository implements GradeRepositoryInterface
             $gradeId = (int) $this->db->lastInsertId();
             return $this->findById($gradeId);
         } catch (PDOException $e) {
-            // UNIQUE constraint on (student_id, assignment_id) may fail
+            // This usually fails when trying to give the same student multiple grades for one assignment
             return null;
         }
     }
 
-    // Update an existing grade
+    // Update an existing grade in the database
     public function update(Grade $grade): bool
     {
         try {
@@ -174,7 +154,7 @@ class GradeRepository implements GradeRepositoryInterface
         }
     }
 
-    // Delete a grade
+    // Remove a grade from the database
     public function delete(int $gradeId): bool
     {
         try {
@@ -185,12 +165,13 @@ class GradeRepository implements GradeRepositoryInterface
         }
     }
 
-    // Calculate course average for a student (percentage 0-100)
-    public function calculateCourseAverage(int $courseId, int $studentId): ?float
+    // Pull out grade data with assignment info so we can calculate course averages
+    public function getGradeDataForCourseAndStudent(int $courseId, int $studentId): array
     {
         $stmt = $this->db->prepare(
             "SELECT
-                AVG((g.points_earned / a.max_points) * 100) as average
+                g.points_earned,
+                a.max_points
              FROM grades g
              INNER JOIN assignments a ON g.assignment_id = a.assignment_id
              WHERE a.course_id = :course_id AND g.student_id = :student_id"
@@ -199,12 +180,10 @@ class GradeRepository implements GradeRepositoryInterface
             'course_id' => $courseId,
             'student_id' => $studentId
         ]);
-        $row = $stmt->fetch();
 
-        return $row && $row['average'] !== null ? (float) $row['average'] : null;
+        return $stmt->fetchAll();
     }
 
-    // Map database row to Grade object
     private function mapRowToGrade(array $row): Grade
     {
         return new Grade(

@@ -1,59 +1,3 @@
-<?php
-require_once __DIR__ . '/../vendor/autoload.php';
-
-use App\Services\AuthService;
-use App\Repositories\UserRepository;
-
-$userRepository = new UserRepository();
-$authService = new AuthService($userRepository);
-
-// If already logged in, redirect to appropriate dashboard
-if ($authService->isAuthenticated()) {
-    if ($authService->isTeacher()) {
-        header('Location: /teacher/dashboard.php');
-    } else {
-        header('Location: /student/dashboard.php');
-    }
-    exit;
-}
-
-$error = '';
-$success = '';
-$email = '';
-
-// Check for success message
-if (isset($_GET['message'])) {
-    if ($_GET['message'] === 'logout_success') {
-        $success = 'You have been successfully logged out.';
-    } elseif ($_GET['message'] === 'registration_success') {
-        $success = 'Registration successful! Please login with your credentials.';
-    }
-}
-
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? '';
-
-    // Validate input
-    if (empty($email) || empty($password)) {
-        $error = 'Please enter both email and password.';
-    } else {
-        // Attempt login
-        if ($authService->login($email, $password)) {
-            // Redirect based on role
-            if ($authService->isTeacher()) {
-                header('Location: /teacher/dashboard.php');
-            } else {
-                header('Location: /student/dashboard.php');
-            }
-            exit;
-        } else {
-            $error = 'Invalid email or password.';
-        }
-    }
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -204,26 +148,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p>Student Grade Management System</p>
         </div>
 
-        <?php if ($success): ?>
+        <?php if (isset($success) && $success): ?>
             <div class="success-message">
                 <?php echo htmlspecialchars($success); ?>
             </div>
         <?php endif; ?>
 
-        <?php if ($error): ?>
+        <?php if (isset($error) && $error): ?>
             <div class="error-message">
                 <?php echo htmlspecialchars($error); ?>
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="login.php">
+        <form method="POST" action="/login">
             <div class="form-group">
                 <label for="email">Email Address</label>
                 <input
                     type="email"
                     id="email"
                     name="email"
-                    value="<?php echo htmlspecialchars($email); ?>"
+                    value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>"
                     required
                     placeholder="Enter your email"
                 >
@@ -244,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <div class="login-footer">
-            Don't have an account? <a href="register.php">Register here</a>
+            Don't have an account? <a href="/register">Register here</a>
         </div>
 
         <div class="credentials-hint">

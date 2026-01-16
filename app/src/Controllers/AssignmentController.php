@@ -4,87 +4,39 @@ namespace App\Controllers;
 
 use App\Services\AssignmentService;
 
-class AssignmentController
+class AssignmentController extends BaseController
 {
     private AssignmentService $assignmentService;
 
     public function __construct()
     {
+        parent::__construct();
         $this->assignmentService = new AssignmentService();
     }
 
-    public function index(): void
+    // Handle assignment creation form display and processing
+    public function createAction(): void
     {
-        header('Content-Type: application/json');
-        try {
-            $assignments = $this->assignmentService->findAll();
-            $assignmentsData = array_map(function($assignment) {
-                return [
-                    'assignment_id' => $assignment->getAssignmentId(),
-                    'course_id' => $assignment->getCourseId(),
-                    'assignment_name' => $assignment->getAssignmentName(),
-                    'description' => $assignment->getDescription(),
-                    'max_points' => $assignment->getMaxPoints(),
-                    'due_date' => $assignment->getDueDate(),
-                    'created_at' => $assignment->getCreatedAt(),
-                    'updated_at' => $assignment->getUpdatedAt()
-                ];
-            }, $assignments);
-            echo json_encode(['success' => true, 'data' => $assignmentsData]);
-        } catch (\Exception $e) {
-            http_response_code(500);
-            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-        }
+        $this->getAuthService()->requireRole('teacher');
+
+        require __DIR__ . '/../../public/teacher/assignment-create.php';
     }
 
-    public function show(int $id): void
+    // Handle assignment editing form display and processing
+    public function editAction(int $id): void
     {
-        header('Content-Type: application/json');
-        try {
-            $assignment = $this->assignmentService->findById($id);
-            if ($assignment === null) {
-                http_response_code(404);
-                echo json_encode(['success' => false, 'error' => 'Assignment not found']);
-                return;
-            }
+        $this->getAuthService()->requireRole('teacher');
+        $_GET['id'] = $id;
 
-            $assignmentData = [
-                'assignment_id' => $assignment->getAssignmentId(),
-                'course_id' => $assignment->getCourseId(),
-                'assignment_name' => $assignment->getAssignmentName(),
-                'description' => $assignment->getDescription(),
-                'max_points' => $assignment->getMaxPoints(),
-                'due_date' => $assignment->getDueDate(),
-                'created_at' => $assignment->getCreatedAt(),
-                'updated_at' => $assignment->getUpdatedAt()
-            ];
-            echo json_encode(['success' => true, 'data' => $assignmentData]);
-        } catch (\Exception $e) {
-            http_response_code(500);
-            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-        }
+        require __DIR__ . '/../../public/teacher/assignment-edit.php';
     }
 
-    public function byCourse(int $courseId): void
+    // Handle assignment deletion with confirmation
+    public function delete(int $id): void
     {
-        header('Content-Type: application/json');
-        try {
-            $assignments = $this->assignmentService->findByCourseId($courseId);
-            $assignmentsData = array_map(function($assignment) {
-                return [
-                    'assignment_id' => $assignment->getAssignmentId(),
-                    'course_id' => $assignment->getCourseId(),
-                    'assignment_name' => $assignment->getAssignmentName(),
-                    'description' => $assignment->getDescription(),
-                    'max_points' => $assignment->getMaxPoints(),
-                    'due_date' => $assignment->getDueDate(),
-                    'created_at' => $assignment->getCreatedAt()
-                ];
-            }, $assignments);
-            echo json_encode(['success' => true, 'data' => $assignmentsData]);
-        } catch (\Exception $e) {
-            http_response_code(500);
-            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-        }
+        $this->getAuthService()->requireRole('teacher');
+        $_GET['id'] = $id;
+
+        require __DIR__ . '/../../public/teacher/assignment-delete.php';
     }
 }
