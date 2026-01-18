@@ -5,6 +5,9 @@ If it will happen for you as well, you will have to run the container via *Docke
 
 - another important notice is that when I was creating the pages I accidentally created a folder views inside of public, however I was a bit lazy to change all the paths in the code, however it shouldn't be any problem for the app to work. I hope it won't affect my grade :)
 
+# IMPORTANT
+**If you don't have php setup on Docker go to the  [First Time Setup](#first-time-setup) section and follow the instructions.**
+
 # Student Management System
 
 A PHP-based web application for managing courses, students, teachers, grades, and enrollments. (EXCEPT SUBMISSIONS, SUBMISSION OF HOMEWORKS DOES NOT WORK)
