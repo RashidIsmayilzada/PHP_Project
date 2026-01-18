@@ -6,11 +6,11 @@ If it will happen for you as well, you will have to run the container via *Docke
 - another important notice is that when I was creating the pages I accidentally created a folder views inside of public, however I was a bit lazy to change all the paths in the code, however it shouldn't be any problem for the app to work. I hope it won't affect my grade :)
 
 # IMPORTANT
-**If you don't have php setup on Docker go to the  [First Time Setup](#first-time-setup) section and follow the instructions.**
+**If you don't have dependencies installed go to the  [First Time Setup](#first-time-setup) section and follow the instructions.**
 
 # Student Management System
 
-A PHP-based web application for managing courses, students, teachers, grades, and enrollments. (EXCEPT SUBMISSIONS, SUBMISSION OF HOMEWORKS DOES NOT WORK)
+A PHP-based web application for managing courses, students, teachers, grades, and enrollments. (except submissions, which is not implemented)
 
 ## Setup & Run
 
@@ -23,15 +23,24 @@ docker compose up
 
 3. Create `.env` file in the `app` directory with database credentials:
 ```bash
+# Database Configuration
 DB_SERVER_NAME=mysql
 DB_USERNAME=root
 DB_PASSWORD=secret123
 DB_NAME=developmentdb
+
+# Application Configuration
 APP_ENV=development
 APP_DEBUG=true
 APP_URL=http://localhost
+
+# Session Configuration
 SESSION_LIFETIME=3600
+
+# Security Configuration
 PASSWORD_MIN_LENGTH=8
+
+# Grade Configuration
 GRADE_A_THRESHOLD=90
 GRADE_B_THRESHOLD=80
 GRADE_C_THRESHOLD=70
@@ -42,9 +51,13 @@ GPA_C=2.0
 GPA_D=1.0
 GPA_F=0.0
 DEFAULT_COURSE_CREDITS=3.0
+
 ```
 
-4. Access the application:
+4. Import the database schema:
+[developmentdb.sql](developmentdb.sql) into the MySQL database using PHPMyAdmin.
+
+5. Access the application:
    - **Main Application:** http://localhost
    - **PHPMyAdmin:** http://localhost:8080 (user: developer, password: secret123)
 
@@ -73,9 +86,9 @@ docker compose down
 The application contains several secure API endpoints for managing resources.
 
 Examples:
-- `GET /api/courses` - Retrieve a list of all courses.
+- `GET /api/courses` - Get a list of all courses.
 - `POST /api/courses` - Create a new course.
-- `GET /api/students/{id}` - Retrieve details of a specific student.
+- `GET /api/students/{id}` - Get details of a specific student.
 and many more for different use cases.
 
 ## Code Structure
