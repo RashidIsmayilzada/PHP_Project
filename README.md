@@ -64,3 +64,139 @@ docker compose down
 - **Teacher:** daniel@gmail.com / Test123!
 - **Student:** student@example.com / Test123!
 
+
+## API endpoints
+
+The application contains several secure API endpoints for managing resources.
+
+Examples:
+- `GET /api/courses` - Retrieve a list of all courses.
+- `POST /api/courses` - Create a new course.
+- `GET /api/students/{id}` - Retrieve details of a specific student.
+and many more for different use cases.
+
+## Code Structure
+Application uses Advanced MVC architecture.
+By advanced I mean:
+- Usage of Service and repository layers to separate business logic and data access.
+- Usage of Dependency Injection to manage loose coupling for better flexibility and scalability.
+- Usage of Middleware for handling cross-cutting concerns like authentication and authorization.
+
+
+## Sessions
+
+The application uses PHP Sessions to manage user authentification(session timeout can be changed in the .env file)
+
+## Security Measures
+The application complies with several practices to ensure security:
+1. **Password Hashing:** User passwords are securely hashed using PHP's `password_hash()` function before storing them in the database.
+2. **Prepared Statements:** All database queries utilize prepared statements to prevent SQL injection attacks.
+3. **Input Validation and Sanitization:** User inputs are validated and sanitized to prevent XSS attacks.
+
+## WCAG Compliance
+
+The basic AA and partially AAA standards of WCAG have been implemented in the application to ensure accessibility for all users.
+
+Examples of Features Implemented:
+
+### Basic Error pages in case of unallowed access and not found pages
+```php
+<body>
+    <div class="error-container">
+        <div class="icon">🚫</div>
+        <div class="error-code">403</div>
+        <h1 class="error-title">Access Denied</h1>
+        <p class="error-message">
+            You don't have permission to access this page. This area is restricted to authorized users only.
+        </p>
+        <div class="error-actions">
+            <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
+            <a href="/login" class="btn btn-primary">Go to Login</a>
+        </div>
+    </div>
+</body>
+```
+
+```php
+<body>
+    <div class="error-container">
+        <div class="icon">🔍</div>
+        <div class="error-code">404</div>
+        <h1 class="error-title">Page Not Found</h1>
+        <p class="error-message">
+            Oops! The page you're looking for doesn't exist. It might have been moved or deleted.
+        </p>
+        <div class="error-actions">
+            <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
+            <a href="/login" class="btn btn-primary">Go to Home</a>
+        </div>
+    </div>
+</body>
+</html>
+```
+
+### Form Labels and Inputs
+```php
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>Welcome Back</h1>
+            <p>Student Grade Management System</p>
+        </div>
+
+        <?php if (isset($success) && $success): ?>
+            <div class="success-message">
+                <?php echo htmlspecialchars($success); ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($error) && $error): ?>
+            <div class="error-message">
+                <?php echo htmlspecialchars($error); ?>
+            </div>
+        <?php endif; ?>
+
+        <form method="POST" action="/login">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>"
+                    required
+                    placeholder="Enter your email"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    required
+                    placeholder="Enter your password"
+                >
+            </div>
+
+            <button type="submit" class="btn-login">Login</button>
+        </form>
+
+        <div class="login-footer">
+            Don't have an account? <a href="/register">Register here</a>
+        </div>
+
+        <div class="credentials-hint">
+            <strong>Demo Credentials:</strong>
+            <ul>
+                <li><strong>Teacher:</strong> john.doe@university.edu</li>
+                <li><strong>Student:</strong> alice.student@university.edu</li>
+                <li><strong>Password:</strong> password123</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
+
+```

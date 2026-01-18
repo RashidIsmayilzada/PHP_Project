@@ -58,19 +58,19 @@ $dispatcher = simpleDispatcher(function(RouteCollector $r) {
 
 
 
-// Get the request method and URI from the server variables and invoke the dispatcher.
+// Get the request method and URI from the server variables.
 $httpMethod = $_SERVER['REQUEST_METHOD'];
 $uri = strtok($_SERVER['REQUEST_URI'], '?');
 $routeInfo = $dispatcher->dispatch($httpMethod, $uri);
 
-// Switch on the dispatcher result and call the appropriate controller method if found.
+// Switch on the dispatcher result and call the appropriate controller method.
 switch ($routeInfo[0]) {
-    // Handle not found routes
+    // Handle unfound routes
     case FastRoute\Dispatcher::NOT_FOUND:
         $controller = new App\Controllers\ErrorController();
         $controller->notFound();
         break;
-    // Handle routes that were invoked with the wrong HTTP method
+    // Handle routes that have wrong HTTP Methods
     case FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
         http_response_code(405);
         echo 'Method Not Allowed';
