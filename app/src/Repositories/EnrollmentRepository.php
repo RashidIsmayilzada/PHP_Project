@@ -29,7 +29,12 @@ class EnrollmentRepository extends Repository implements EnrollmentRepositoryInt
 
     public function findByCourseId(int $courseId): array
     {
-        $rows = $this->fetchAll("SELECT * FROM enrollments WHERE course_id = :course_id", ['course_id' => $courseId]);
+        $sql = "SELECT e.*, u.first_name, u.last_name, u.student_number 
+                FROM enrollments e 
+                JOIN users u ON e.student_id = u.user_id 
+                WHERE e.course_id = :course_id 
+                ORDER BY u.last_name, u.first_name";
+        $rows = $this->fetchAll($sql, ['course_id' => $courseId]);
         return array_map([$this, 'mapRowToEnrollment'], $rows);
     }
 
@@ -81,12 +86,24 @@ class EnrollmentRepository extends Repository implements EnrollmentRepositoryInt
 
     private function mapRowToEnrollment(array $row): Enrollment
     {
-        return new Enrollment(
+        $enrollment = new Enrollment(
             (int)$row['student_id'],
             (int)$row['course_id'],
             $row['status'],
             (int)$row['enrollment_id'],
             $row['enrollment_date']
         );
+
+        if (isset($row['first_name'])) {
+            $enrollment->setStudentFirstName($row['first_name']);
+        }
+        if (isset($row['last_name'])) {
+            $enrollment->setStudentLastName($row['last_name']);
+        }
+        if (isset($row['student_number'])) {
+            $enrollment->setStudentNumber($row['student_number']);
+        }
+
+        return $enrollment;
     }
 }

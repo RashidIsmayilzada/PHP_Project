@@ -29,7 +29,7 @@
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th class="ps-3">Student ID</th>
+                                    <th class="ps-3">Student</th>
                                     <th>Status</th>
                                     <th class="text-end pe-3">Action</th>
                                 </tr>
@@ -37,7 +37,10 @@
                             <tbody>
                                 <?php foreach ($enrollments as $enrollment): ?>
                                     <tr>
-                                        <td class="ps-3">ID: <?= $enrollment->getStudentId() ?></td>
+                                        <td class="ps-3">
+                                            <div class="fw-bold"><?= htmlspecialchars($enrollment->getStudentFullName()) ?></div>
+                                            <div class="text-muted small">No: <?= htmlspecialchars($enrollment->getStudentNumber() ?? 'N/A') ?></div>
+                                        </td>
                                         <td>
                                             <span class="badge rounded-pill bg-<?= $enrollment->getStatus() === 'active' ? 'success' : 'warning' ?>">
                                                 <?= ucfirst($enrollment->getStatus()) ?>

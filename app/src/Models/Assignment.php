@@ -53,9 +53,19 @@ class Assignment
         return $this->assignmentName;
     }
 
+    public function setAssignmentName(string $assignmentName): void
+    {
+        $this->assignmentName = $assignmentName;
+    }
+
     public function getDescription(): ?string
     {
         return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
     }
 
     public function getMaxPoints(): float
@@ -71,6 +81,11 @@ class Assignment
     public function getDueDate(): ?string
     {
         return $this->dueDate;
+    }
+
+    public function setDueDate(?string $dueDate): void
+    {
+        $this->dueDate = $dueDate;
     }
 
     public function getCreatedAt(): ?string

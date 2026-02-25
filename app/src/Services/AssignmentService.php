@@ -63,8 +63,23 @@ class AssignmentService implements AssignmentServiceInterface
 
     public function updateAssignment(Assignment $assignment, array $updateData): bool
     {
-        if (isset($updateData['max_points']) && $updateData['max_points'] <= 0) {
-            return false;
+        if (isset($updateData['max_points'])) {
+            if ($updateData['max_points'] <= 0) {
+                return false;
+            }
+            $assignment->setMaxPoints((float)$updateData['max_points']);
+        }
+
+        if (isset($updateData['assignment_name'])) {
+            $assignment->setAssignmentName($updateData['assignment_name']);
+        }
+
+        if (array_key_exists('description', $updateData)) {
+            $assignment->setDescription($updateData['description']);
+        }
+
+        if (isset($updateData['due_date'])) {
+            $assignment->setDueDate($updateData['due_date']);
         }
 
         return $this->assignmentRepository->update($assignment);

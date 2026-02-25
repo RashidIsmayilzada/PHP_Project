@@ -9,6 +9,9 @@ class Enrollment
     private int $courseId;
     private ?string $enrollmentDate = null;
     private string $status;
+    private ?string $studentFirstName = null;
+    private ?string $studentLastName = null;
+    private ?string $studentNumber = null;
 
     public function __construct(
         int $studentId,
@@ -57,6 +60,41 @@ class Enrollment
     public function setStatus(string $status): void
     {
         $this->status = $status;
+    }
+
+    public function getStudentFirstName(): ?string
+    {
+        return $this->studentFirstName;
+    }
+
+    public function setStudentFirstName(?string $firstName): void
+    {
+        $this->studentFirstName = $firstName;
+    }
+
+    public function getStudentLastName(): ?string
+    {
+        return $this->studentLastName;
+    }
+
+    public function setStudentLastName(?string $lastName): void
+    {
+        $this->studentLastName = $lastName;
+    }
+
+    public function getStudentNumber(): ?string
+    {
+        return $this->studentNumber;
+    }
+
+    public function setStudentNumber(?string $studentNumber): void
+    {
+        $this->studentNumber = $studentNumber;
+    }
+
+    public function getStudentFullName(): string
+    {
+        return trim(($this->studentFirstName ?? '') . ' ' . ($this->studentLastName ?? ''));
     }
 
     public function isActive(): bool

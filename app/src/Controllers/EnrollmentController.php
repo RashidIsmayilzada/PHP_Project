@@ -32,27 +32,44 @@ class EnrollmentController extends Controller
         
         $course = $this->courseService->findById($courseId);
         if (!$course || $course->getTeacherId() !== Auth::id()) {
+            $this->setFlash('error', 'Course not found or access denied.');
             $this->redirect('/teacher/dashboard');
             return;
         }
 
         // Handle POST actions
-        if ($this->request('method') === 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $action = $this->request('action');
             
             if ($action === 'bulk_enroll') {
                 $studentIds = $_POST['student_ids'] ?? [];
-                $count = 0;
-                foreach ($studentIds as $sId) {
-                    if ($this->enrollmentService->enrollStudent((int)$sId, $courseId)) {
-                        $count++;
+                if (empty($studentIds)) {
+                    $this->setFlash('error', 'No students selected.');
+                } else {
+                    $count = 0;
+                    foreach ($studentIds as $sId) {
+                        if ($this->enrollmentService->enrollStudent((int)$sId, $courseId)) {
+                            $count++;
+                        }
+                    }
+                    if ($count > 0) {
+                        $this->setFlash('success', "Successfully enrolled $count student(s).");
+                    } else {
+                        $this->setFlash('error', "Failed to enroll students or they are already enrolled.");
                     }
                 }
-                $this->setFlash('success', "Successfully enrolled $count student(s).");
             } elseif ($action === 'unenroll') {
                 $enrollmentId = (int)$this->request('enrollment_id');
-                if ($this->enrollmentService->deleteEnrollment($enrollmentId)) {
-                    $this->setFlash('success', "Student unenrolled.");
+                $enrollment = $this->enrollmentService->findById($enrollmentId);
+                
+                if ($enrollment && $enrollment->getCourseId() === $courseId) {
+                    if ($this->enrollmentService->deleteEnrollment($enrollmentId)) {
+                        $this->setFlash('success', "Student unenrolled.");
+                    } else {
+                        $this->setFlash('error', "Failed to unenroll student.");
+                    }
+                } else {
+                    $this->setFlash('error', "Enrollment not found.");
                 }
             }
             

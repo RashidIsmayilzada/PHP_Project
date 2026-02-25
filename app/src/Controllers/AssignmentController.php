@@ -28,8 +28,27 @@ class AssignmentController extends Controller
         $course = $this->courseService->findById($courseId);
         
         if (!$course || $course->getTeacherId() !== Auth::id()) {
+            $this->setFlash('error', 'Course not found or access denied.');
             $this->redirect('/teacher/dashboard');
             return;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $assignmentData = [
+                'course_id' => $courseId,
+                'assignment_name' => $this->request('assignment_name'),
+                'description' => $this->request('description'),
+                'max_points' => $this->request('max_points'),
+                'due_date' => $this->request('due_date')
+            ];
+
+            if ($this->assignmentService->createAssignment($assignmentData)) {
+                $this->setFlash('success', 'Assignment created successfully!');
+                $this->redirect('/teacher/course-detail/' . $courseId);
+                return;
+            } else {
+                $this->setFlash('error', 'Failed to create assignment. Please check your input.');
+            }
         }
 
         $this->render('teacher/assignment-create', [
@@ -44,14 +63,73 @@ class AssignmentController extends Controller
     public function editAction(int $id): void
     {
         Auth::requireRole('teacher');
-        // Logic...
-        $this->render('teacher/assignment-edit', ['pageTitle' => 'Edit Assignment']);
+        $assignment = $this->assignmentService->findById($id);
+
+        if (!$assignment) {
+            $this->setFlash('error', 'Assignment not found.');
+            $this->redirect('/teacher/dashboard');
+            return;
+        }
+
+        $courseId = $assignment->getCourseId();
+        $course = $this->courseService->findById($courseId);
+
+        if (!$course || $course->getTeacherId() !== Auth::id()) {
+            $this->setFlash('error', 'Access denied.');
+            $this->redirect('/teacher/dashboard');
+            return;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $updateData = [
+                'assignment_name' => $this->request('assignment_name'),
+                'description' => $this->request('description'),
+                'max_points' => $this->request('max_points'),
+                'due_date' => $this->request('due_date')
+            ];
+
+            if ($this->assignmentService->updateAssignment($assignment, $updateData)) {
+                $this->setFlash('success', 'Assignment updated successfully!');
+                $this->redirect('/teacher/course-detail/' . $courseId);
+                return;
+            } else {
+                $this->setFlash('error', 'Failed to update assignment. Please check your input.');
+            }
+        }
+
+        $this->render('teacher/assignment-edit', [
+            'pageTitle' => 'Edit Assignment',
+            'assignment' => $assignment,
+            'courseId' => $courseId
+        ]);
     }
 
     public function delete(int $id): void
     {
         Auth::requireRole('teacher');
-        // Logic...
-        $this->redirect('/teacher/dashboard');
+        $assignment = $this->assignmentService->findById($id);
+
+        if (!$assignment) {
+            $this->setFlash('error', 'Assignment not found.');
+            $this->redirect('/teacher/dashboard');
+            return;
+        }
+
+        $courseId = $assignment->getCourseId();
+        $course = $this->courseService->findById($courseId);
+
+        if (!$course || $course->getTeacherId() !== Auth::id()) {
+            $this->setFlash('error', 'Access denied.');
+            $this->redirect('/teacher/dashboard');
+            return;
+        }
+
+        if ($this->assignmentService->deleteAssignment($id)) {
+            $this->setFlash('success', 'Assignment deleted successfully!');
+        } else {
+            $this->setFlash('error', 'Failed to delete assignment.');
+        }
+
+        $this->redirect('/teacher/course-detail/' . $courseId);
     }
 }
