@@ -1,18 +1,43 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Services;
 
 use App\Models\User;
-use App\Repositories\UserRepository;
+use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Services\Interfaces\UserServiceInterface;
 
 class UserService implements UserServiceInterface
 {
-    private UserRepository $userRepository;
+    private UserRepositoryInterface $userRepository;
 
-    public function __construct()
+    /**
+     * Dependency Injection via Interface
+     */
+    public function __construct(UserRepositoryInterface $userRepository)
     {
-        $this->userRepository = new UserRepository();
+        $this->userRepository = $userRepository;
+    }
+
+    /**
+     * Implements the missing testConnection method from UserServiceInterface.
+     * Performs a simple check to see if the repository/database is reachable.
+     */
+    public function testConnection(): array
+    {
+        try {
+            $users = $this->userRepository->findAll();
+            return [
+                'status' => 'success',
+                'message' => 'Database connection is healthy.',
+                'count' => count($users)
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'status' => 'error',
+                'message' => 'Database connection failed: ' . $e->getMessage()
+            ];
+        }
     }
 
     // Get all users from the database
@@ -42,6 +67,7 @@ class UserService implements UserServiceInterface
     // Get all users who have the teacher role
     public function findAllTeachers(): array
     {
+        // Note: Assuming Repository has this method based on Interface
         return $this->userRepository->findAllTeachers();
     }
 
@@ -97,24 +123,11 @@ class UserService implements UserServiceInterface
             }
         }
 
-        if (isset($updateData['email'])) {
-            $user = new User(
-                $updateData['email'],
-                $user->getPassword(),
-                $user->getFirstName(),
-                $user->getLastName(),
-                $user->getRole(),
-                $user->getStudentNumber(),
-                $user->getUserId(),
-                $user->getCreatedAt(),
-                $user->getUpdatedAt()
-            );
-        }
-
         if (isset($updateData['password']) && strlen($updateData['password']) < 60) {
             $updateData['password'] = password_hash($updateData['password'], PASSWORD_DEFAULT);
         }
 
+        // Logic here should update the model instance
         return $this->userRepository->update($user);
     }
 

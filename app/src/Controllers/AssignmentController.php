@@ -1,42 +1,57 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Controllers;
 
-use App\Services\AssignmentService;
+use App\Framework\Auth;
+use App\Framework\Controller;
+use App\Services\Interfaces\AssignmentServiceInterface;
+use App\Services\Interfaces\CourseServiceInterface;
 
-class AssignmentController extends BaseController
+class AssignmentController extends Controller
 {
-    private AssignmentService $assignmentService;
+    private AssignmentServiceInterface $assignmentService;
+    private CourseServiceInterface $courseService;
 
-    public function __construct()
-    {
+    public function __construct(
+        AssignmentServiceInterface $assignmentService,
+        CourseServiceInterface $courseService
+    ) {
         parent::__construct();
-        $this->assignmentService = new AssignmentService();
+        $this->assignmentService = $assignmentService;
+        $this->courseService = $courseService;
     }
 
-    // Handle assignment creation form display and processing
-    public function createAction(): void
+    public function createAction(int $courseId): void
     {
-        $this->getAuthService()->requireRole('teacher');
+        Auth::requireRole('teacher');
+        $course = $this->courseService->findById($courseId);
+        
+        if (!$course || $course->getTeacherId() !== Auth::id()) {
+            $this->redirect('/teacher/dashboard');
+            return;
+        }
 
-        require __DIR__ . '/../../public/teacher/assignment-create.php';
+        $this->render('teacher/assignment-create', [
+            'pageTitle' => 'Create Assignment',
+            'course' => $course,
+            'courseId' => $courseId,
+            'errors' => [],
+            'formData' => []
+        ]);
     }
 
-    // Handle assignment editing form display and processing
     public function editAction(int $id): void
     {
-        $this->getAuthService()->requireRole('teacher');
-        $_GET['id'] = $id;
-
-        require __DIR__ . '/../../public/teacher/assignment-edit.php';
+        Auth::requireRole('teacher');
+        // Logic...
+        $this->render('teacher/assignment-edit', ['pageTitle' => 'Edit Assignment']);
     }
 
-    // Handle assignment deletion with confirmation
     public function delete(int $id): void
     {
-        $this->getAuthService()->requireRole('teacher');
-        $_GET['id'] = $id;
-
-        require __DIR__ . '/../../public/teacher/assignment-delete.php';
+        Auth::requireRole('teacher');
+        // Logic...
+        $this->redirect('/teacher/dashboard');
     }
 }

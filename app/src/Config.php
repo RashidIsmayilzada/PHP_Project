@@ -87,9 +87,24 @@ class Config
         return (int)($_ENV['PASSWORD_MIN_LENGTH'] ?? 8);
     }
 
-    // Backwards compatibility constants - deprecated, use methods instead
-    public const DB_SERVER_NAME = 'mysql';
-    public const DB_USERNAME = 'root';
-    public const DB_PASSWORD = 'secret123';
-    public const DB_NAME = 'developmentdb';
+    // New methods for Framework\Repository compatibility
+    public static function dbHost(): string
+    {
+        return self::getDbServerName();
+    }
+
+    public static function dbName(): string
+    {
+        return self::getDbName();
+    }
+
+    public static function dbUser(): string
+    {
+        return self::getDbUsername();
+    }
+
+    public static function dbPass(): string
+    {
+        return self::getDbPassword();
+    }
 }

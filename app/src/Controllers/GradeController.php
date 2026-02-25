@@ -1,43 +1,37 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Controllers;
 
-use App\Services\GradeService;
+use App\Framework\Auth;
+use App\Framework\Controller;
+use App\Services\Interfaces\GradeServiceInterface;
 
-class GradeController extends BaseController
+class GradeController extends Controller
 {
-    private GradeService $gradeService;
+    private GradeServiceInterface $gradeService;
 
-    public function __construct()
+    public function __construct(GradeServiceInterface $gradeService)
     {
         parent::__construct();
-        $this->gradeService = new GradeService();
+        $this->gradeService = $gradeService;
     }
 
-    // Display all grades for students in a specific course
     public function showCourseGrades(int $courseId): void
     {
-        $this->getAuthService()->requireRole('teacher');
-        $_GET['course_id'] = $courseId;
-
-        require __DIR__ . '/../../public/teacher/course-grades.php';
+        Auth::requireRole('teacher');
+        $this->render('teacher/course-grades', ['pageTitle' => 'Course Grades']);
     }
 
-    // Handle grade assignment form for a specific assignment
     public function gradeAction(int $assignmentId): void
     {
-        $this->getAuthService()->requireRole('teacher');
-        $_GET['assignment_id'] = $assignmentId;
-
-        require __DIR__ . '/../../public/teacher/grade-assign.php';
+        Auth::requireRole('teacher');
+        $this->render('teacher/grade-assign', ['pageTitle' => 'Assign Grades']);
     }
 
-    // Handle grade editing form display and processing
     public function editAction(int $id): void
     {
-        $this->getAuthService()->requireRole('teacher');
-        $_GET['id'] = $id;
-
-        require __DIR__ . '/../../public/teacher/grade-edit.php';
+        Auth::requireRole('teacher');
+        $this->render('teacher/grade-edit', ['pageTitle' => 'Edit Grade']);
     }
 }

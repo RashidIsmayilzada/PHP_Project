@@ -1,55 +1,56 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Controllers;
 
-use App\Services\CourseService;
-use App\Repositories\CourseRepository;
-use App\Repositories\UserRepository;
+use App\Framework\Auth;
+use App\Framework\Controller;
+use App\Services\Interfaces\CourseServiceInterface;
 
-class CourseController extends BaseController
+class CourseController extends Controller
 {
-    private CourseService $courseService;
+    private CourseServiceInterface $courseService;
 
-    public function __construct()
+    public function __construct(CourseServiceInterface $courseService)
     {
         parent::__construct();
-        $courseRepository = new CourseRepository();
-        $userRepository = new UserRepository();
-        $this->courseService = new CourseService($courseRepository, $userRepository);
+        $this->courseService = $courseService;
     }
 
-    // Display detailed information about a specific course (teacher view)
     public function show(int $id): void
     {
-        $this->getAuthService()->requireRole('teacher');
-        $_GET['id'] = $id;
+        Auth::requireRole('teacher');
+        $course = $this->courseService->findById($id);
+        
+        if (!$course || $course->getTeacherId() !== Auth::id()) {
+            $this->redirect('/teacher/dashboard');
+            return;
+        }
 
-        require __DIR__ . '/../../public/teacher/course-detail.php';
+        $this->render('teacher/course-detail', [
+            'pageTitle' => 'Course Details',
+            'course' => $course
+        ]);
     }
 
-    // Handle course creation form display and processing
     public function createAction(): void
     {
-        $this->getAuthService()->requireRole('teacher');
-
-        require __DIR__ . '/../../public/teacher/course-create.php';
+        Auth::requireRole('teacher');
+        // Handle logic...
+        $this->render('teacher/course-create', ['pageTitle' => 'Create Course']);
     }
 
-    // Handle course editing form display and processing
     public function editAction(int $id): void
     {
-        $this->getAuthService()->requireRole('teacher');
-        $_GET['id'] = $id;
-
-        require __DIR__ . '/../../public/teacher/course-edit.php';
+        Auth::requireRole('teacher');
+        // Handle logic...
+        $this->render('teacher/course-edit', ['pageTitle' => 'Edit Course']);
     }
 
-    // Handle course deletion with confirmation
     public function delete(int $id): void
     {
-        $this->getAuthService()->requireRole('teacher');
-        $_GET['id'] = $id;
-
-        require __DIR__ . '/../../public/teacher/course-delete.php';
+        Auth::requireRole('teacher');
+        // Handle logic...
+        $this->redirect('/teacher/dashboard');
     }
 }

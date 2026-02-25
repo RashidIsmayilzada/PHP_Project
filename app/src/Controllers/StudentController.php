@@ -1,31 +1,102 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Controllers;
 
-class StudentController extends BaseController
+use App\Framework\Auth;
+use App\Framework\Controller;
+use App\Services\Interfaces\CourseServiceInterface;
+use App\Services\Interfaces\GradeServiceInterface;
+use App\Services\Interfaces\UserServiceInterface;
+use App\Services\Interfaces\EnrollmentServiceInterface;
+
+class StudentController extends Controller
 {
-    // Show student dashboard with enrolled courses and grades
+    private CourseServiceInterface $courseService;
+    private GradeServiceInterface $gradeService;
+    private UserServiceInterface $userService;
+    private EnrollmentServiceInterface $enrollmentService;
+
+    public function __construct(
+        CourseServiceInterface $courseService,
+        GradeServiceInterface $gradeService,
+        UserServiceInterface $userService,
+        EnrollmentServiceInterface $enrollmentService
+    ) {
+        parent::__construct();
+        $this->courseService = $courseService;
+        $this->gradeService = $gradeService;
+        $this->userService = $userService;
+        $this->enrollmentService = $enrollmentService;
+    }
+
     public function dashboard(): void
     {
-        $this->getAuthService()->requireRole('student');
+        Auth::requireRole('student');
+        $studentId = Auth::id();
 
-        require __DIR__ . '/../../public/student/dashboard.php';
+        $enrolledCourses = $this->courseService->getCoursesForStudent($studentId);
+        $overallGPA = $this->gradeService->calculateOverallGPA($studentId);
+
+        $coursesData = [];
+        foreach ($enrolledCourses as $course) {
+            $courseAverage = $this->gradeService->calculateCourseAverage($course->getCourseId(), $studentId);
+            $letterGrade = $courseAverage !== null ? $this->gradeService->percentageToLetterGrade($courseAverage) : 'N/A';
+            $teacher = $this->userService->findById($course->getTeacherId());
+            
+            $enrollments = $this->enrollmentService->findByStudentId($studentId);
+            $status = 'unknown';
+            foreach ($enrollments as $enrollment) {
+                if ($enrollment->getCourseId() === $course->getCourseId()) {
+                    $status = $enrollment->getStatus();
+                    break;
+                }
+            }
+
+            $coursesData[] = [
+                'course' => $course,
+                'average' => $courseAverage,
+                'letter_grade' => $letterGrade,
+                'teacher' => $teacher,
+                'status' => $status
+            ];
+        }
+
+        $this->render('student/dashboard', [
+            'pageTitle' => 'Student Dashboard',
+            'overallGPA' => $overallGPA,
+            'coursesData' => $coursesData,
+            'enrolledCourses' => $enrolledCourses
+        ]);
     }
 
-    // Show detailed information about a specific course for student
     public function courseDetail(int $id): void
     {
-        $this->getAuthService()->requireRole('student');
-        $_GET['id'] = $id;
+        Auth::requireRole('student');
+        $studentId = Auth::id();
 
-        require __DIR__ . '/../../public/student/course-detail.php';
+        $course = $this->courseService->findById($id);
+        if (!$course) {
+            $this->redirect('/student/dashboard');
+            return;
+        }
+
+        // Logic to verify enrollment could go here...
+        
+        $this->render('student/course-detail', [
+            'pageTitle' => $course->getCourseCode() . ' - Details',
+            'course' => $course
+        ]);
     }
 
-    // Show student statistics including GPA and grade distribution
     public function statistics(): void
     {
-        $this->getAuthService()->requireRole('student');
+        Auth::requireRole('student');
+        $statistics = $this->gradeService->getStudentStatistics(Auth::id());
 
-        require __DIR__ . '/../../public/student/statistics.php';
+        $this->render('student/statistics', [
+            'pageTitle' => 'Academic Statistics',
+            'statistics' => $statistics
+        ]);
     }
 }

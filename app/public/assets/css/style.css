@@ -1,0 +1,63 @@
+body {
+    background-color: #f8f9fa;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.transition-hover {
+    transition: all 0.3s ease;
+}
+
+.transition-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+
+.card {
+    border: none;
+    border-radius: 0.75rem;
+}
+
+.btn {
+    border-radius: 0.5rem;
+}
+
+.form-control, .form-select {
+    border-radius: 0.5rem;
+    padding: 0.6rem 1rem;
+}
+
+.navbar {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.sticky-offset {
+    top: 2rem;
+    z-index: 1020;
+}
+
+.avatar-md {
+    width: 48px;
+    height: 48px;
+}
+
+.progress-xs {
+    height: 6px;
+}
+
+.min-w-100 {
+    min-width: 100px;
+}
+
+.w-200 {
+    width: 200px;
+}
+
+.w-40 {
+    width: 40px;
+}
+
+.scrollable-y-400 {
+    max-height: 400px;
+    overflow-y: auto;
+}
