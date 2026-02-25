@@ -1,8 +1,8 @@
 <?php
-
 namespace App\Controllers;
 
-class ErrorController extends BaseController
+use App\Framework\Controller;
+class ErrorController extends Controller
 {
     // Display 404 not found error page
     public function notFound(): void
