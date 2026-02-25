@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Config;
+use App\Constants\GradeConfig;
 use App\Models\Grade;
 use App\Repositories\GradeRepository;
 use App\Repositories\AssignmentRepository;
@@ -162,7 +162,7 @@ class GradeService implements GradeServiceInterface
 
             if ($courseAverage !== null) {
                 $courseGPA = $this->percentageToGPA($courseAverage);
-                $credits = $course->getCredits() ?? Config::getDefaultCourseCredits();
+                $credits = $course->getCredits() ?? GradeConfig::DEFAULT_COURSE_CREDITS;
 
                 $totalPoints += $courseGPA * $credits;
                 $totalCredits += $credits;
@@ -175,21 +175,21 @@ class GradeService implements GradeServiceInterface
     // Convert a percentage score to a letter grade
     public function percentageToLetterGrade(float $percentage): string
     {
-        if ($percentage >= Config::getGradeAThreshold()) return 'A';
-        if ($percentage >= Config::getGradeBThreshold()) return 'B';
-        if ($percentage >= Config::getGradeCThreshold()) return 'C';
-        if ($percentage >= Config::getGradeDThreshold()) return 'D';
+        if ($percentage >= GradeConfig::GRADE_A_THRESHOLD) return 'A';
+        if ($percentage >= GradeConfig::GRADE_B_THRESHOLD) return 'B';
+        if ($percentage >= GradeConfig::GRADE_C_THRESHOLD) return 'C';
+        if ($percentage >= GradeConfig::GRADE_D_THRESHOLD) return 'D';
         return 'F';
     }
 
     // Convert a percentage score to GPA on a 4.0 scale
     public function percentageToGPA(float $percentage): float
     {
-        if ($percentage >= Config::getGradeAThreshold()) return Config::getGpaA();
-        if ($percentage >= Config::getGradeBThreshold()) return Config::getGpaB();
-        if ($percentage >= Config::getGradeCThreshold()) return Config::getGpaC();
-        if ($percentage >= Config::getGradeDThreshold()) return Config::getGpaD();
-        return Config::getGpaF();
+        if ($percentage >= GradeConfig::GRADE_A_THRESHOLD) return GradeConfig::GPA_A;
+        if ($percentage >= GradeConfig::GRADE_B_THRESHOLD) return GradeConfig::GPA_B;
+        if ($percentage >= GradeConfig::GRADE_C_THRESHOLD) return GradeConfig::GPA_C;
+        if ($percentage >= GradeConfig::GRADE_D_THRESHOLD) return GradeConfig::GPA_D;
+        return GradeConfig::GPA_F;
     }
 
     // Get comprehensive grade statistics for a student
@@ -206,7 +206,7 @@ class GradeService implements GradeServiceInterface
             if ($average !== null) {
                 $letterGrade = $this->percentageToLetterGrade($average);
                 $gpa = $this->percentageToGPA($average);
-                $credits = $course->getCredits() ?? Config::getDefaultCourseCredits();
+                $credits = $course->getCredits() ?? GradeConfig::DEFAULT_COURSE_CREDITS;
 
                 $courseStats[] = [
                     'course' => $course,

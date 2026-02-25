@@ -2,6 +2,7 @@
 namespace App;
 
 use Dotenv\Dotenv;
+use Dotenv\Exception\InvalidPathException;
 
 class Config
 {
@@ -11,9 +12,15 @@ class Config
     private static function initialize(): void
     {
         if (!self::$initialized) {
-            $dotenv = Dotenv::createImmutable(__DIR__ . '/..');
-            $dotenv->load();
-            self::$initialized = true;
+            try {
+                $dotenv = Dotenv::createImmutable(__DIR__ . '/..');
+                $dotenv->load();
+            } catch (InvalidPathException $e) {
+                // .env file not found, but that's okay, we have defaults.
+                // You could log this event in a real application.
+            } finally {
+                self::$initialized = true;
+            }
         }
     }
 
@@ -78,76 +85,6 @@ class Config
     {
         self::initialize();
         return (int)($_ENV['PASSWORD_MIN_LENGTH'] ?? 8);
-    }
-
-    // Get grade A threshold percentage
-    public static function getGradeAThreshold(): float
-    {
-        self::initialize();
-        return (float)($_ENV['GRADE_A_THRESHOLD'] ?? 90);
-    }
-
-    // Get grade B threshold percentage
-    public static function getGradeBThreshold(): float
-    {
-        self::initialize();
-        return (float)($_ENV['GRADE_B_THRESHOLD'] ?? 80);
-    }
-
-    // Get grade C threshold percentage
-    public static function getGradeCThreshold(): float
-    {
-        self::initialize();
-        return (float)($_ENV['GRADE_C_THRESHOLD'] ?? 70);
-    }
-
-    // Get grade D threshold percentage
-    public static function getGradeDThreshold(): float
-    {
-        self::initialize();
-        return (float)($_ENV['GRADE_D_THRESHOLD'] ?? 60);
-    }
-
-    // Get GPA value for grade A
-    public static function getGpaA(): float
-    {
-        self::initialize();
-        return (float)($_ENV['GPA_A'] ?? 4.0);
-    }
-
-    // Get GPA value for grade B
-    public static function getGpaB(): float
-    {
-        self::initialize();
-        return (float)($_ENV['GPA_B'] ?? 3.0);
-    }
-
-    // Get GPA value for grade C
-    public static function getGpaC(): float
-    {
-        self::initialize();
-        return (float)($_ENV['GPA_C'] ?? 2.0);
-    }
-
-    // Get GPA value for grade D
-    public static function getGpaD(): float
-    {
-        self::initialize();
-        return (float)($_ENV['GPA_D'] ?? 1.0);
-    }
-
-    // Get GPA value for grade F
-    public static function getGpaF(): float
-    {
-        self::initialize();
-        return (float)($_ENV['GPA_F'] ?? 0.0);
-    }
-
-    // Get default course credits when not specified
-    public static function getDefaultCourseCredits(): float
-    {
-        self::initialize();
-        return (float)($_ENV['DEFAULT_COURSE_CREDITS'] ?? 3.0);
     }
 
     // Backwards compatibility constants - deprecated, use methods instead
