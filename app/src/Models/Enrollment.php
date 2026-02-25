@@ -54,6 +54,11 @@ class Enrollment
         return $this->status;
     }
 
+    public function setStatus(string $status): void
+    {
+        $this->status = $status;
+    }
+
     public function isActive(): bool
     {
         return $this->status === 'active';
