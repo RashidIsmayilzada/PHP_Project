@@ -130,7 +130,39 @@ final class Router
                     return;
                 }
 
-                $controller->{$method}(...array_values($vars));
+                $reflection = new \ReflectionMethod($controller, $method);
+                $methodParams = $reflection->getParameters();
+
+                foreach ($vars as $i => $value) {
+                    if (!isset($methodParams[$i])) {
+                        continue;
+                    }
+
+                    $type = $methodParams[$i]->getType();
+                    if (!$type instanceof \ReflectionNamedType || !$type->isBuiltin()) {
+                        continue;
+                    }
+
+                    switch ($type->getName()) {
+                        case 'int':
+                            if (is_string($value) && ctype_digit($value)) {
+                                $vars[$i] = (int) $value;
+                            }
+                            break;
+                        case 'float':
+                            if (is_string($value) && is_numeric($value)) {
+                                $vars[$i] = (float) $value;
+                            }
+                            break;
+                        case 'bool':
+                            if (is_string($value)) {
+                                $vars[$i] = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? $value;
+                            }
+                            break;
+                    }
+                }
+
+                $reflection->invokeArgs($controller, $vars);
                 return;
         }
     }
