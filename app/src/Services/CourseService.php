@@ -87,10 +87,30 @@ class CourseService implements CourseServiceInterface
             if (!$teacher || $teacher->getRole() !== 'teacher') {
                 return false;
             }
+            $course->setTeacherId((int)$updateData['teacher_id']);
         }
 
-        if (isset($updateData['credits']) && $updateData['credits'] <= 0) {
-            return false;
+        if (isset($updateData['credits'])) {
+            if ($updateData['credits'] <= 0) {
+                return false;
+            }
+            $course->setCredits((float)$updateData['credits']);
+        }
+
+        if (isset($updateData['course_code'])) {
+            $course->setCourseCode($updateData['course_code']);
+        }
+
+        if (isset($updateData['course_name'])) {
+            $course->setCourseName($updateData['course_name']);
+        }
+
+        if (array_key_exists('description', $updateData)) {
+            $course->setDescription($updateData['description']);
+        }
+
+        if (isset($updateData['semester'])) {
+            $course->setSemester($updateData['semester']);
         }
 
         return $this->courseRepository->update($course);

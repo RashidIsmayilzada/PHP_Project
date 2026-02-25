@@ -51,9 +51,19 @@ class Course
         return $this->courseCode;
     }
 
+    public function setCourseCode(string $courseCode): void
+    {
+        $this->courseCode = $courseCode;
+    }
+
     public function getCourseName(): string
     {
         return $this->courseName;
+    }
+
+    public function setCourseName(string $courseName): void
+    {
+        $this->courseName = $courseName;
     }
 
     public function getDescription(): ?string
@@ -61,9 +71,19 @@ class Course
         return $this->description;
     }
 
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
+    }
+
     public function getTeacherId(): int
     {
         return $this->teacherId;
+    }
+
+    public function setTeacherId(int $teacherId): void
+    {
+        $this->teacherId = $teacherId;
     }
 
     public function getCredits(): ?float
@@ -71,9 +91,19 @@ class Course
         return $this->credits;
     }
 
+    public function setCredits(?float $credits): void
+    {
+        $this->credits = $credits;
+    }
+
     public function getSemester(): ?string
     {
         return $this->semester;
+    }
+
+    public function setSemester(?string $semester): void
+    {
+        $this->semester = $semester;
     }
 
     public function getCreatedAt(): ?string
