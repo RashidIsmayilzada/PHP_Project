@@ -6,7 +6,20 @@
 document.addEventListener('DOMContentLoaded', () => {
     initLiveSearch();
     initFlashMessageAutoDismiss();
+    initProgressBars();
 });
+
+/**
+ * Initialize progress bars from data-progress attributes
+ */
+function initProgressBars() {
+    document.querySelectorAll('.progress-bar[data-progress]').forEach(el => {
+        const progress = el.getAttribute('data-progress');
+        if (progress) {
+            el.style.width = progress + '%';
+        }
+    });
+}
 
 /**
  * Live Student Search Integration

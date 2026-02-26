@@ -137,7 +137,11 @@
             const query = this.value.toLowerCase();
             tableRows.forEach(row => {
                 const text = row.getAttribute('data-search');
-                row.style.display = text.includes(query) ? '' : 'none';
+                if (text.includes(query)) {
+                    row.classList.remove('d-none');
+                } else {
+                    row.classList.add('d-none');
+                }
             });
         });
     }

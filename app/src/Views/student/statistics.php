@@ -72,7 +72,7 @@
                                     <div class="d-flex align-items-center">
                                         <span class="me-2"><?= number_format($avg, 1) ?>%</span>
                                         <div class="progress flex-grow-1 d-none d-sm-flex progress-xs min-w-100">
-                                            <div class="progress-bar bg-<?= $gradeColor ?>" role="progressbar" style="width: <?= $avg ?>%"></div>
+                                            <div class="progress-bar bg-<?= $gradeColor ?>" role="progressbar" data-progress="<?= $avg ?>"></div>
                                         </div>
                                     </div>
                                 </td>
