@@ -81,7 +81,7 @@ $container->set(UserServiceInterface::class, fn($c) => new UserService($c->get(U
 $container->set(CourseServiceInterface::class, fn($c) => new CourseService($c->get(CourseRepositoryInterface::class), $c->get(UserRepositoryInterface::class)));
 $container->set(AssignmentServiceInterface::class, fn($c) => new AssignmentService($c->get(AssignmentRepositoryInterface::class), $c->get(CourseRepositoryInterface::class)));
 $container->set(EnrollmentServiceInterface::class, fn($c) => new EnrollmentService($c->get(EnrollmentRepositoryInterface::class), $c->get(UserRepositoryInterface::class), $c->get(CourseRepositoryInterface::class)));
-$container->set(GradeServiceInterface::class, fn($c) => new GradeService($c->get(GradeRepositoryInterface::class), $c->get(AssignmentRepositoryInterface::class), $c->get(EnrollmentRepositoryInterface::class), $c->get(CourseRepositoryInterface::class)));
+$container->set(GradeServiceInterface::class, fn($c) => new GradeService($c->get(GradeRepositoryInterface::class), $c->get(CourseRepositoryInterface::class)));
 
 // Bind Controllers
 $container->set(AuthController::class, fn($c) => new AuthController($c->get(UserServiceInterface::class)));

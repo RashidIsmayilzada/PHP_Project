@@ -6,27 +6,19 @@ namespace App\Services;
 use App\Constants\GradeConfig;
 use App\Models\Grade;
 use App\Repositories\Interfaces\GradeRepositoryInterface;
-use App\Repositories\Interfaces\AssignmentRepositoryInterface;
-use App\Repositories\Interfaces\EnrollmentRepositoryInterface;
 use App\Repositories\Interfaces\CourseRepositoryInterface;
 use App\Services\Interfaces\GradeServiceInterface;
 
 class GradeService implements GradeServiceInterface
 {
     private GradeRepositoryInterface $gradeRepository;
-    private AssignmentRepositoryInterface $assignmentRepository;
-    private EnrollmentRepositoryInterface $enrollmentRepository;
     private CourseRepositoryInterface $courseRepository;
 
     public function __construct(
         GradeRepositoryInterface $gradeRepository,
-        AssignmentRepositoryInterface $assignmentRepository,
-        EnrollmentRepositoryInterface $enrollmentRepository,
         CourseRepositoryInterface $courseRepository
     ) {
         $this->gradeRepository = $gradeRepository;
-        $this->assignmentRepository = $assignmentRepository;
-        $this->enrollmentRepository = $enrollmentRepository;
         $this->courseRepository = $courseRepository;
     }
 
