@@ -3,23 +3,26 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Constants\GradeConfig;
 use App\Models\Grade;
 use App\Repositories\Interfaces\GradeRepositoryInterface;
 use App\Repositories\Interfaces\CourseRepositoryInterface;
 use App\Services\Interfaces\GradeServiceInterface;
+use App\Services\Interfaces\GradePolicyInterface;
 
 class GradeService implements GradeServiceInterface
 {
     private GradeRepositoryInterface $gradeRepository;
     private CourseRepositoryInterface $courseRepository;
+    private GradePolicyInterface $gradePolicy;
 
     public function __construct(
         GradeRepositoryInterface $gradeRepository,
-        CourseRepositoryInterface $courseRepository
+        CourseRepositoryInterface $courseRepository,
+        GradePolicyInterface $gradePolicy
     ) {
         $this->gradeRepository = $gradeRepository;
         $this->courseRepository = $courseRepository;
+        $this->gradePolicy = $gradePolicy;
     }
 
     public function findAll(): array { return $this->gradeRepository->findAll(); }
@@ -75,7 +78,7 @@ class GradeService implements GradeServiceInterface
             $avg = $this->calculateCourseAverage($course->getCourseId(), $studentId);
             if ($avg !== null) {
                 $gpa = $this->percentageToGPA($avg);
-                $credits = $course->getCredits() ?? GradeConfig::DEFAULT_COURSE_CREDITS;
+                $credits = $course->getCredits() ?? $this->gradePolicy->getDefaultCourseCredits();
                 $totalPoints += ($gpa * $credits);
                 $totalCredits += $credits;
             }
@@ -86,20 +89,12 @@ class GradeService implements GradeServiceInterface
 
     public function percentageToLetterGrade(float $percentage): string
     {
-        if ($percentage >= GradeConfig::GRADE_A_THRESHOLD) return 'A';
-        if ($percentage >= GradeConfig::GRADE_B_THRESHOLD) return 'B';
-        if ($percentage >= GradeConfig::GRADE_C_THRESHOLD) return 'C';
-        if ($percentage >= GradeConfig::GRADE_D_THRESHOLD) return 'D';
-        return 'F';
+        return $this->gradePolicy->letterForPercentage($percentage);
     }
 
     public function percentageToGPA(float $percentage): float
     {
-        if ($percentage >= GradeConfig::GRADE_A_THRESHOLD) return GradeConfig::GPA_A;
-        if ($percentage >= GradeConfig::GRADE_B_THRESHOLD) return GradeConfig::GPA_B;
-        if ($percentage >= GradeConfig::GRADE_C_THRESHOLD) return GradeConfig::GPA_C;
-        if ($percentage >= GradeConfig::GRADE_D_THRESHOLD) return GradeConfig::GPA_D;
-        return GradeConfig::GPA_F;
+        return $this->gradePolicy->gpaForPercentage($percentage);
     }
 
     public function getStudentStatistics(int $studentId): array
@@ -114,7 +109,7 @@ class GradeService implements GradeServiceInterface
             if ($avg !== null) {
                 $letter = $this->percentageToLetterGrade($avg);
                 $gpa = $this->percentageToGPA($avg);
-                $credits = $course->getCredits() ?? GradeConfig::DEFAULT_COURSE_CREDITS;
+                $credits = $course->getCredits() ?? $this->gradePolicy->getDefaultCourseCredits();
 
                 $courseStats[] = [
                     'course' => $course,

@@ -6,6 +6,7 @@ namespace App\Tests\Unit;
 use PHPUnit\Framework\TestCase;
 use App\Models\Grade;
 use App\Services\GradeService;
+use App\Services\Config\GradeConfigPolicy;
 use App\Repositories\Interfaces\GradeRepositoryInterface;
 use App\Repositories\Interfaces\CourseRepositoryInterface;
 use App\Constants\GradeConfig;
@@ -23,7 +24,8 @@ class GradeServiceTest extends TestCase
 
         $this->gradeService = new GradeService(
             $this->gradeRepo,
-            $this->courseRepo
+            $this->courseRepo,
+            new GradeConfigPolicy()
         );
     }
 

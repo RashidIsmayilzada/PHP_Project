@@ -5,18 +5,24 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Repositories\Interfaces\UserRepositoryInterface;
+use App\Services\Interfaces\PasswordHasherInterface;
 use App\Services\Interfaces\UserServiceInterface;
 
 class UserService implements UserServiceInterface
 {
     private UserRepositoryInterface $userRepository;
+    private PasswordHasherInterface $passwordHasher;
 
     /**
      * Dependency Injection via Interface
      */
-    public function __construct(UserRepositoryInterface $userRepository)
+    public function __construct(
+        UserRepositoryInterface $userRepository,
+        PasswordHasherInterface $passwordHasher
+    )
     {
         $this->userRepository = $userRepository;
+        $this->passwordHasher = $passwordHasher;
     }
 
     /**
@@ -95,7 +101,7 @@ class UserService implements UserServiceInterface
         }
 
         if (isset($userData['password']) && strlen($userData['password']) < 60) {
-            $userData['password'] = password_hash($userData['password'], PASSWORD_DEFAULT);
+            $userData['password'] = $this->passwordHasher->hash($userData['password']);
         }
 
         $user = new User(
@@ -124,7 +130,7 @@ class UserService implements UserServiceInterface
         }
 
         if (isset($updateData['password']) && strlen($updateData['password']) < 60) {
-            $updateData['password'] = password_hash($updateData['password'], PASSWORD_DEFAULT);
+            $updateData['password'] = $this->passwordHasher->hash($updateData['password']);
         }
 
         // Logic here should update the model instance

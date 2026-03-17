@@ -6,6 +6,8 @@ namespace App\Tests\Unit;
 use App\Models\User;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Services\AuthService;
+use App\Services\Interfaces\PasswordHasherInterface;
+use App\Services\Interfaces\SessionInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -13,11 +15,20 @@ class AuthServiceTest extends TestCase
 {
     private AuthService $authService;
     private UserRepositoryInterface|MockObject $userRepository;
+    private PasswordHasherInterface|MockObject $passwordHasher;
+    private SessionInterface|MockObject $session;
 
     protected function setUp(): void
     {
         $this->userRepository = $this->createMock(UserRepositoryInterface::class);
-        $this->authService = new AuthService($this->userRepository);
+        $this->passwordHasher = $this->createMock(PasswordHasherInterface::class);
+        $this->session = $this->createMock(SessionInterface::class);
+
+        $this->authService = new AuthService(
+            $this->userRepository,
+            $this->passwordHasher,
+            $this->session
+        );
     }
 
     public function testAuthenticateReturnsUserForValidCredentials(): void
@@ -37,6 +48,12 @@ class AuthServiceTest extends TestCase
             ->method('findByEmail')
             ->with('student@example.com')
             ->willReturn($user);
+
+        $this->passwordHasher
+            ->expects($this->once())
+            ->method('verify')
+            ->with('secret123', $user->getPassword())
+            ->willReturn(true);
 
         $authenticatedUser = $this->authService->authenticate('student@example.com', 'secret123');
 
@@ -58,6 +75,12 @@ class AuthServiceTest extends TestCase
             ->method('findByEmail')
             ->with('student@example.com')
             ->willReturn($user);
+
+        $this->passwordHasher
+            ->expects($this->once())
+            ->method('verify')
+            ->with('wrong-password', $user->getPassword())
+            ->willReturn(false);
 
         $this->assertNull($this->authService->authenticate('student@example.com', 'wrong-password'));
     }
@@ -87,6 +110,12 @@ class AuthServiceTest extends TestCase
             ->method('findByEmail')
             ->with('teacher@example.com')
             ->willReturn(null);
+
+        $this->passwordHasher
+            ->expects($this->once())
+            ->method('hash')
+            ->with('plain-password')
+            ->willReturn($createdUser->getPassword());
 
         $this->userRepository
             ->expects($this->once())

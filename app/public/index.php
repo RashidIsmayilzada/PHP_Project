@@ -20,6 +20,10 @@ use App\Services\Interfaces\CourseServiceInterface;
 use App\Services\Interfaces\AssignmentServiceInterface;
 use App\Services\Interfaces\EnrollmentServiceInterface;
 use App\Services\Interfaces\GradeServiceInterface;
+use App\Services\Interfaces\AuthServiceInterface;
+use App\Services\Interfaces\PasswordHasherInterface;
+use App\Services\Interfaces\SessionInterface;
+use App\Services\Interfaces\GradePolicyInterface;
 
 // Import Concrete Classes
 use App\Repositories\UserRepository;
@@ -33,6 +37,10 @@ use App\Services\CourseService;
 use App\Services\AssignmentService;
 use App\Services\EnrollmentService;
 use App\Services\GradeService;
+use App\Services\AuthService;
+use App\Services\Security\BcryptPasswordHasher;
+use App\Services\Session\PhpSession;
+use App\Services\Config\GradeConfigPolicy;
 
 use App\Controllers\AuthController;
 use App\Controllers\StudentController;
@@ -77,14 +85,32 @@ $container->set(EnrollmentRepositoryInterface::class, fn() => new EnrollmentRepo
 $container->set(GradeRepositoryInterface::class, fn() => new GradeRepository());
 
 // Bind Services
-$container->set(UserServiceInterface::class, fn($c) => new UserService($c->get(UserRepositoryInterface::class)));
+$container->set(PasswordHasherInterface::class, fn() => new BcryptPasswordHasher());
+$container->set(SessionInterface::class, fn() => new PhpSession());
+$container->set(GradePolicyInterface::class, fn() => new GradeConfigPolicy());
+
+$container->set(UserServiceInterface::class, fn($c) => new UserService(
+    $c->get(UserRepositoryInterface::class),
+    $c->get(PasswordHasherInterface::class)
+));
 $container->set(CourseServiceInterface::class, fn($c) => new CourseService($c->get(CourseRepositoryInterface::class), $c->get(UserRepositoryInterface::class)));
 $container->set(AssignmentServiceInterface::class, fn($c) => new AssignmentService($c->get(AssignmentRepositoryInterface::class), $c->get(CourseRepositoryInterface::class)));
 $container->set(EnrollmentServiceInterface::class, fn($c) => new EnrollmentService($c->get(EnrollmentRepositoryInterface::class), $c->get(UserRepositoryInterface::class), $c->get(CourseRepositoryInterface::class)));
-$container->set(GradeServiceInterface::class, fn($c) => new GradeService($c->get(GradeRepositoryInterface::class), $c->get(CourseRepositoryInterface::class)));
+$container->set(GradeServiceInterface::class, fn($c) => new GradeService(
+    $c->get(GradeRepositoryInterface::class),
+    $c->get(CourseRepositoryInterface::class),
+    $c->get(GradePolicyInterface::class)
+));
+$container->set(AuthServiceInterface::class, fn($c) => new AuthService(
+    $c->get(UserRepositoryInterface::class),
+    $c->get(PasswordHasherInterface::class),
+    $c->get(SessionInterface::class)
+));
 
 // Bind Controllers
-$container->set(AuthController::class, fn($c) => new AuthController($c->get(UserServiceInterface::class)));
+$container->set(AuthController::class, fn($c) => new AuthController(
+    fn() => $c->get(UserServiceInterface::class)
+));
 $container->set(StudentController::class, fn($c) => new StudentController(
     $c->get(CourseServiceInterface::class),
     $c->get(GradeServiceInterface::class),

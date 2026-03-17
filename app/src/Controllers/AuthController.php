@@ -10,12 +10,32 @@ use App\Config;
 
 class AuthController extends Controller
 {
-    private UserServiceInterface $userService;
+    private UserServiceInterface|\Closure|null $userService;
 
-    public function __construct(UserServiceInterface $userService)
+    public function __construct(UserServiceInterface|\Closure|null $userService = null)
     {
         parent::__construct();
         $this->userService = $userService;
+    }
+
+    private function getUserService(): UserServiceInterface
+    {
+        if ($this->userService instanceof UserServiceInterface) {
+            return $this->userService;
+        }
+
+        if ($this->userService instanceof \Closure) {
+            $resolved = ($this->userService)();
+
+            if (!$resolved instanceof UserServiceInterface) {
+                throw new \RuntimeException('Invalid user service factory result.');
+            }
+
+            $this->userService = $resolved;
+            return $resolved;
+        }
+
+        throw new \RuntimeException('User service is not configured.');
     }
 
     public function showLogin(): void
@@ -46,7 +66,7 @@ class AuthController extends Controller
         $email = $this->request('email', '');
         $password = $this->request('password', '');
 
-        $user = $this->userService->findByEmail($email);
+        $user = $this->getUserService()->findByEmail($email);
 
         if ($user && password_verify($password, $user->getPassword())) {
             Auth::login($user->getUserId(), $user->getRole());
@@ -96,7 +116,7 @@ class AuthController extends Controller
         }
 
         if (empty($errors)) {
-            $user = $this->userService->createUser($userData);
+            $user = $this->getUserService()->createUser($userData);
             if ($user) {
                 $this->redirect('/login?message=registration_success');
                 return;

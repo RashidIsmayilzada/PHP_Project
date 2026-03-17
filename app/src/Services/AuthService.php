@@ -3,15 +3,25 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Repositories\Interfaces\UserRepositoryInterface;
-use App\Utils\PasswordHelper;
+use App\Services\Interfaces\AuthServiceInterface;
+use App\Services\Interfaces\PasswordHasherInterface;
+use App\Services\Interfaces\SessionInterface;
 
-class AuthService
+class AuthService implements AuthServiceInterface
 {
     private UserRepositoryInterface $userRepository;
+    private PasswordHasherInterface $passwordHasher;
+    private SessionInterface $session;
 
-    public function __construct(UserRepositoryInterface $userRepository)
+    public function __construct(
+        UserRepositoryInterface $userRepository,
+        PasswordHasherInterface $passwordHasher,
+        SessionInterface $session
+    )
     {
         $this->userRepository = $userRepository;
+        $this->passwordHasher = $passwordHasher;
+        $this->session = $session;
     }
 
     // Verify user credentials and return the authenticated user when valid.
@@ -23,7 +33,7 @@ class AuthService
             return null;
         }
 
-        if (!PasswordHelper::verify($password, $user->getPassword())) {
+        if (!$this->passwordHasher->verify($password, $user->getPassword())) {
             return null;
         }
 
@@ -33,6 +43,7 @@ class AuthService
     // Backward-compatible alias for credential verification.
     public function login(string $email, string $password): ?User
     {
+        $this->session->ensureStarted();
         return $this->authenticate($email, $password);
     }
 
@@ -43,7 +54,7 @@ class AuthService
             return null;
         }
 
-        $hashedPassword = PasswordHelper::hash($userData['password']);
+        $hashedPassword = $this->passwordHasher->hash($userData['password']);
 
         $user = new User(
             $userData['email'],
