@@ -3,15 +3,20 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Enums\EnrollmentStatus;
 use App\Framework\Repository;
 use App\Models\Enrollment;
 use App\Repositories\Interfaces\EnrollmentRepositoryInterface;
 
 class EnrollmentRepository extends Repository implements EnrollmentRepositoryInterface
 {
-    public function findAll(): array
+    public function findAll(int $limit = 100, int $offset = 0): array
     {
-        $rows = $this->fetchAll("SELECT * FROM enrollments");
+        $rows = $this->fetchAll(
+            "SELECT * FROM enrollments ORDER BY enrollment_date DESC, enrollment_id DESC LIMIT :limit OFFSET :offset",
+            $this->paginationParams($limit, $offset)
+        );
+
         return array_map([$this, 'mapRowToEnrollment'], $rows);
     }
 
@@ -21,27 +26,50 @@ class EnrollmentRepository extends Repository implements EnrollmentRepositoryInt
         return $row ? $this->mapRowToEnrollment($row) : null;
     }
 
-    public function findByStudentId(int $studentId): array
+    public function findByStudentId(int $studentId, int $limit = 100, int $offset = 0): array
     {
-        $rows = $this->fetchAll("SELECT * FROM enrollments WHERE student_id = :student_id", ['student_id' => $studentId]);
+        $rows = $this->fetchAll(
+            "SELECT * FROM enrollments WHERE student_id = :student_id ORDER BY enrollment_date DESC, enrollment_id DESC LIMIT :limit OFFSET :offset",
+            ['student_id' => $studentId] + $this->paginationParams($limit, $offset)
+        );
+
         return array_map([$this, 'mapRowToEnrollment'], $rows);
     }
 
-    public function findByCourseId(int $courseId): array
+    public function findByCourseId(int $courseId, int $limit = 100, int $offset = 0): array
     {
         $sql = "SELECT e.*, u.first_name, u.last_name, u.student_number 
                 FROM enrollments e 
                 JOIN users u ON e.student_id = u.user_id 
                 WHERE e.course_id = :course_id 
-                ORDER BY u.last_name, u.first_name";
-        $rows = $this->fetchAll($sql, ['course_id' => $courseId]);
+                ORDER BY u.last_name, u.first_name
+                LIMIT :limit OFFSET :offset";
+        $rows = $this->fetchAll($sql, ['course_id' => $courseId] + $this->paginationParams($limit, $offset));
+
         return array_map([$this, 'mapRowToEnrollment'], $rows);
     }
 
-    public function findActiveEnrollmentsByStudentId(int $studentId): array
+    public function findByStudentIdAndStatus(
+        int $studentId,
+        EnrollmentStatus $status,
+        int $limit = 100,
+        int $offset = 0
+    ): array
     {
-        $rows = $this->fetchAll("SELECT * FROM enrollments WHERE student_id = :student_id AND status = 'active'", ['student_id' => $studentId]);
+        $rows = $this->fetchAll(
+            "SELECT * FROM enrollments
+             WHERE student_id = :student_id AND status = :status
+             ORDER BY enrollment_date DESC, enrollment_id DESC
+             LIMIT :limit OFFSET :offset",
+            ['student_id' => $studentId, 'status' => $status->value] + $this->paginationParams($limit, $offset)
+        );
+
         return array_map([$this, 'mapRowToEnrollment'], $rows);
+    }
+
+    public function findActiveEnrollmentsByStudentId(int $studentId, int $limit = 100, int $offset = 0): array
+    {
+        return $this->findByStudentIdAndStatus($studentId, EnrollmentStatus::ACTIVE, $limit, $offset);
     }
 
     public function create(Enrollment $enrollment): ?Enrollment
@@ -94,16 +122,19 @@ class EnrollmentRepository extends Repository implements EnrollmentRepositoryInt
             $row['enrollment_date']
         );
 
-        if (isset($row['first_name'])) {
-            $enrollment->setStudentFirstName($row['first_name']);
-        }
-        if (isset($row['last_name'])) {
-            $enrollment->setStudentLastName($row['last_name']);
-        }
-        if (isset($row['student_number'])) {
-            $enrollment->setStudentNumber($row['student_number']);
-        }
+        // Joined queries include denormalized student details for teacher-facing rosters.
+        $enrollment->setStudentFirstName($row['first_name'] ?? null);
+        $enrollment->setStudentLastName($row['last_name'] ?? null);
+        $enrollment->setStudentNumber($row['student_number'] ?? null);
 
         return $enrollment;
+    }
+
+    private function paginationParams(int $limit, int $offset): array
+    {
+        return [
+            'limit' => max(1, $limit),
+            'offset' => max(0, $offset),
+        ];
     }
 }

@@ -26,7 +26,7 @@ class AssignmentController extends Controller
     {
         Auth::requireRole('teacher');
         $course = $this->courseService->findById($courseId);
-        
+
         if (!$course || $course->getTeacherId() !== Auth::id()) {
             $this->setFlash('error', 'Course not found or access denied.');
             $this->redirect('/teacher/dashboard');

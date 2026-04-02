@@ -9,9 +9,13 @@ use App\Repositories\Interfaces\AssignmentRepositoryInterface;
 
 class AssignmentRepository extends Repository implements AssignmentRepositoryInterface
 {
-    public function findAll(): array
+    public function findAll(int $limit = 100, int $offset = 0): array
     {
-        $rows = $this->fetchAll("SELECT * FROM assignments ORDER BY due_date DESC");
+        $rows = $this->fetchAll(
+            "SELECT * FROM assignments ORDER BY due_date DESC LIMIT :limit OFFSET :offset",
+            $this->paginationParams($limit, $offset)
+        );
+
         return array_map([$this, 'mapRowToAssignment'], $rows);
     }
 
@@ -21,9 +25,13 @@ class AssignmentRepository extends Repository implements AssignmentRepositoryInt
         return $row ? $this->mapRowToAssignment($row) : null;
     }
 
-    public function findByCourseId(int $courseId): array
+    public function findByCourseId(int $courseId, int $limit = 100, int $offset = 0): array
     {
-        $rows = $this->fetchAll("SELECT * FROM assignments WHERE course_id = :course_id ORDER BY due_date", ['course_id' => $courseId]);
+        $rows = $this->fetchAll(
+            "SELECT * FROM assignments WHERE course_id = :course_id ORDER BY due_date LIMIT :limit OFFSET :offset",
+            ['course_id' => $courseId] + $this->paginationParams($limit, $offset)
+        );
+
         return array_map([$this, 'mapRowToAssignment'], $rows);
     }
 
@@ -82,5 +90,13 @@ class AssignmentRepository extends Repository implements AssignmentRepositoryInt
             $row['created_at'] ?? null,
             $row['updated_at'] ?? null
         );
+    }
+
+    private function paginationParams(int $limit, int $offset): array
+    {
+        return [
+            'limit' => max(1, $limit),
+            'offset' => max(0, $offset),
+        ];
     }
 }

@@ -38,8 +38,6 @@ class CourseService implements CourseServiceInterface
 
     public function findBySemester(string $semester): array
     {
-        // Note: Assuming Repository has this method if added to interface
-        // If not in interface, we should add it or handle it.
         return $this->courseRepository->findBySemester($semester);
     }
 
@@ -55,46 +53,78 @@ class CourseService implements CourseServiceInterface
 
     public function createCourse(array $courseData): ?Course
     {
-        if (empty($courseData['course_code']) || empty($courseData['course_name']) || empty($courseData['teacher_id'])) {
+        if (!$this->hasValidCourseData($courseData)) {
             return null;
         }
 
-        $teacher = $this->userRepository->findById((int)$courseData['teacher_id']);
-        if (!$teacher || $teacher->getRole() !== 'teacher') {
+        if (!$this->isTeacher((int)$courseData['teacher_id'])) {
             return null;
         }
 
-        if (isset($courseData['credits']) && $courseData['credits'] <= 0) {
-            return null;
-        }
-
-        $course = new Course(
-            $courseData['course_code'],
-            $courseData['course_name'],
-            (int)$courseData['teacher_id'],
-            $courseData['description'] ?? null,
-            $courseData['credits'] ? (float)$courseData['credits'] : null,
-            $courseData['semester'] ?? null
-        );
-
-        return $this->courseRepository->create($course);
+        return $this->courseRepository->create($this->buildCourse($courseData));
     }
 
     public function updateCourse(Course $course, array $updateData): bool
     {
-        if (isset($updateData['teacher_id'])) {
-            $teacher = $this->userRepository->findById((int)$updateData['teacher_id']);
-            if (!$teacher || $teacher->getRole() !== 'teacher') {
-                return false;
-            }
-            $course->setTeacherId((int)$updateData['teacher_id']);
+        if (!$this->canUpdateCourse($updateData)) {
+            return false;
         }
 
-        if (isset($updateData['credits'])) {
-            if ($updateData['credits'] <= 0) {
-                return false;
-            }
-            $course->setCredits((float)$updateData['credits']);
+        $this->applyCourseUpdates($course, $updateData);
+
+        return $this->courseRepository->update($course);
+    }
+
+    public function deleteCourse(int $courseId): bool
+    {
+        return $this->courseRepository->delete($courseId);
+    }
+
+    private function hasValidCourseData(array $courseData): bool
+    {
+        if (empty($courseData['course_code']) || empty($courseData['course_name']) || empty($courseData['teacher_id'])) {
+            return false;
+        }
+
+        return !isset($courseData['credits']) || (float)$courseData['credits'] > 0;
+    }
+
+    private function isTeacher(int $teacherId): bool
+    {
+        $teacher = $this->userRepository->findById($teacherId);
+
+        return $teacher !== null && $teacher->getRole() === 'teacher';
+    }
+
+    private function buildCourse(array $courseData): Course
+    {
+        $credits = isset($courseData['credits']) && $courseData['credits'] !== ''
+            ? (float)$courseData['credits']
+            : null;
+
+        return new Course(
+            $courseData['course_code'],
+            $courseData['course_name'],
+            (int)$courseData['teacher_id'],
+            $courseData['description'] ?? null,
+            $credits,
+            $courseData['semester'] ?? null
+        );
+    }
+
+    private function canUpdateCourse(array $updateData): bool
+    {
+        if (isset($updateData['teacher_id']) && !$this->isTeacher((int)$updateData['teacher_id'])) {
+            return false;
+        }
+
+        return !isset($updateData['credits']) || (float)$updateData['credits'] > 0;
+    }
+
+    private function applyCourseUpdates(Course $course, array $updateData): void
+    {
+        if (isset($updateData['teacher_id'])) {
+            $course->setTeacherId((int)$updateData['teacher_id']);
         }
 
         if (isset($updateData['course_code'])) {
@@ -109,15 +139,12 @@ class CourseService implements CourseServiceInterface
             $course->setDescription($updateData['description']);
         }
 
-        if (isset($updateData['semester'])) {
-            $course->setSemester($updateData['semester']);
+        if (array_key_exists('credits', $updateData)) {
+            $course->setCredits($updateData['credits'] === '' ? null : (float)$updateData['credits']);
         }
 
-        return $this->courseRepository->update($course);
-    }
-
-    public function deleteCourse(int $courseId): bool
-    {
-        return $this->courseRepository->delete($courseId);
+        if (array_key_exists('semester', $updateData)) {
+            $course->setSemester($updateData['semester']);
+        }
     }
 }

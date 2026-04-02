@@ -3,15 +3,20 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Enums\UserRole;
 use App\Framework\Repository;
 use App\Models\User;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 
 class UserRepository extends Repository implements UserRepositoryInterface
 {
-    public function findAll(): array
+    public function findAll(int $limit = 100, int $offset = 0): array
     {
-        $rows = $this->fetchAll("SELECT * FROM users ORDER BY last_name, first_name");
+        $rows = $this->fetchAll(
+            "SELECT * FROM users ORDER BY last_name, first_name LIMIT :limit OFFSET :offset",
+            $this->paginationParams($limit, $offset)
+        );
+
         return array_map([$this, 'mapRowToUser'], $rows);
     }
 
@@ -27,16 +32,24 @@ class UserRepository extends Repository implements UserRepositoryInterface
         return $row ? $this->mapRowToUser($row) : null;
     }
 
+    public function findByRole(UserRole $role, int $limit = 100, int $offset = 0): array
+    {
+        $rows = $this->fetchAll(
+            "SELECT * FROM users WHERE role = :role ORDER BY last_name, first_name LIMIT :limit OFFSET :offset",
+            ['role' => $role->value] + $this->paginationParams($limit, $offset)
+        );
+
+        return array_map([$this, 'mapRowToUser'], $rows);
+    }
+
     public function findAllStudents(): array
     {
-        $rows = $this->fetchAll("SELECT * FROM users WHERE role = 'student' ORDER BY last_name, first_name");
-        return array_map([$this, 'mapRowToUser'], $rows);
+        return $this->findByRole(UserRole::STUDENT);
     }
 
     public function findAllTeachers(): array
     {
-        $rows = $this->fetchAll("SELECT * FROM users WHERE role = 'teacher' ORDER BY last_name, first_name");
-        return array_map([$this, 'mapRowToUser'], $rows);
+        return $this->findByRole(UserRole::TEACHER);
     }
 
     public function create(User $user): ?User
@@ -98,5 +111,13 @@ class UserRepository extends Repository implements UserRepositoryInterface
             $row['created_at'] ?? null,
             $row['updated_at'] ?? null
         );
+    }
+
+    private function paginationParams(int $limit, int $offset): array
+    {
+        return [
+            'limit' => max(1, $limit),
+            'offset' => max(0, $offset),
+        ];
     }
 }

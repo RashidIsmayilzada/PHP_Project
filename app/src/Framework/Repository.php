@@ -6,6 +6,7 @@ namespace App\Framework;
 use App\Config;
 use PDO;
 use PDOException;
+use PDOStatement;
 
 abstract class Repository
 {
@@ -62,22 +63,22 @@ abstract class Repository
         return new PDO($dsn, $user, $pass, [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES => false,
         ]);
     }
 
     protected function fetchAll(string $sql, array $params = []): array
     {
         // Run a query and return all rows.
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute($params);
+        $stmt = $this->prepareAndExecute($sql, $params);
+
         return $stmt->fetchAll();
     }
 
     protected function fetch(string $sql, array $params = []): ?array
     {
         // Run a query and return a single row (or null).
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute($params);
+        $stmt = $this->prepareAndExecute($sql, $params);
 
         $row = $stmt->fetch();
         return $row === false ? null : $row;
@@ -86,13 +87,26 @@ abstract class Repository
     protected function execute(string $sql, array $params = []): bool
     {
         // Run a query that doesn't need results (insert/update/delete).
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute($params);
+        return $this->prepareAndExecute($sql, $params) instanceof PDOStatement;
     }
 
     protected function lastInsertId(): int
     {
         // Return the last auto-increment ID from this connection.
         return (int)$this->db->lastInsertId();
+    }
+
+    private function prepareAndExecute(string $sql, array $params): PDOStatement
+    {
+        $stmt = $this->db->prepare($sql);
+
+        foreach ($params as $name => $value) {
+            $type = is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR;
+            $stmt->bindValue(':' . ltrim((string)$name, ':'), $value, $type);
+        }
+
+        $stmt->execute();
+
+        return $stmt;
     }
 }

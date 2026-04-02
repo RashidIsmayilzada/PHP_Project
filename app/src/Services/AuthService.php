@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace App\Services;
 
 use App\Models\User;
@@ -44,28 +46,22 @@ class AuthService implements AuthServiceInterface
     public function login(string $email, string $password): ?User
     {
         $this->session->ensureStarted();
+
         return $this->authenticate($email, $password);
     }
 
     // Create a new user account without mutating HTTP or session state.
     public function register(array $userData): ?User
     {
-        if ($this->userRepository->findByEmail($userData['email'])) {
+        if (!$this->hasRequiredRegistrationFields($userData)) {
             return null;
         }
 
-        $hashedPassword = $this->passwordHasher->hash($userData['password']);
+        if ($this->userRepository->findByEmail($userData['email']) !== null) {
+            return null;
+        }
 
-        $user = new User(
-            $userData['email'],
-            $hashedPassword,
-            $userData['first_name'],
-            $userData['last_name'],
-            $userData['role'],
-            $userData['student_number'] ?? null
-        );
-
-        return $this->userRepository->create($user);
+        return $this->userRepository->create($this->buildUser($userData));
     }
 
     // Check whether a user holds a specific role.
@@ -84,5 +80,30 @@ class AuthService implements AuthServiceInterface
     public function isStudent(User $user): bool
     {
         return $this->hasRole($user, 'student');
+    }
+
+    private function hasRequiredRegistrationFields(array $userData): bool
+    {
+        $requiredFields = ['email', 'password', 'first_name', 'last_name', 'role'];
+
+        foreach ($requiredFields as $field) {
+            if (empty($userData[$field])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function buildUser(array $userData): User
+    {
+        return new User(
+            $userData['email'],
+            $this->passwordHasher->hash($userData['password']),
+            $userData['first_name'],
+            $userData['last_name'],
+            $userData['role'],
+            $userData['student_number'] ?? null
+        );
     }
 }

@@ -51,9 +51,19 @@ class User
         return $this->email;
     }
 
+    public function setEmail(string $email): void
+    {
+        $this->email = $email;
+    }
+
     public function getPassword(): string
     {
         return $this->password;
+    }
+
+    public function setPassword(string $password): void
+    {
+        $this->password = $password;
     }
 
     public function getFirstName(): string
@@ -61,9 +71,19 @@ class User
         return $this->firstName;
     }
 
+    public function setFirstName(string $firstName): void
+    {
+        $this->firstName = $firstName;
+    }
+
     public function getLastName(): string
     {
         return $this->lastName;
+    }
+
+    public function setLastName(string $lastName): void
+    {
+        $this->lastName = $lastName;
     }
 
     public function getFullName(): string
@@ -76,9 +96,19 @@ class User
         return $this->role;
     }
 
+    public function setRole(string $role): void
+    {
+        $this->role = $role;
+    }
+
     public function getStudentNumber(): ?string
     {
         return $this->studentNumber;
+    }
+
+    public function setStudentNumber(?string $studentNumber): void
+    {
+        $this->studentNumber = $studentNumber;
     }
 
     public function isTeacher(): bool

@@ -11,6 +11,8 @@ use App\Services\Interfaces\EnrollmentServiceInterface;
 
 class EnrollmentService implements EnrollmentServiceInterface
 {
+    private const VALID_STATUSES = ['active', 'inactive', 'completed', 'dropped'];
+
     private EnrollmentRepositoryInterface $enrollmentRepository;
     private UserRepositoryInterface $userRepository;
     private CourseRepositoryInterface $courseRepository;
@@ -47,43 +49,25 @@ class EnrollmentService implements EnrollmentServiceInterface
 
     public function findActiveEnrollmentsByStudentId(int $studentId): array
     {
-        // Assuming interface has this or we need to handle it.
-        // For now, mapping to repository.
-        return $this->enrollmentRepository->findByStudentId($studentId);
+        return $this->enrollmentRepository->findActiveEnrollmentsByStudentId($studentId);
     }
 
     public function enrollStudent(int $studentId, int $courseId): ?Enrollment
     {
-        $student = $this->userRepository->findById($studentId);
-        if (!$student || $student->getRole() !== 'student') {
+        if (!$this->isStudent($studentId) || !$this->courseExists($courseId)) {
             return null;
         }
 
-        $course = $this->courseRepository->findById($courseId);
-        if (!$course) {
+        if ($this->hasEnrollmentForCourse($studentId, $courseId)) {
             return null;
         }
 
-        $existingEnrollments = $this->enrollmentRepository->findByStudentId($studentId);
-        foreach ($existingEnrollments as $enrollment) {
-            if ($enrollment->getCourseId() === $courseId) {
-                return null;
-            }
-        }
-
-        $enrollment = new Enrollment(
-            $studentId,
-            $courseId,
-            'active'
-        );
-
-        return $this->enrollmentRepository->create($enrollment);
+        return $this->enrollmentRepository->create(new Enrollment($studentId, $courseId, 'active'));
     }
 
     public function updateEnrollmentStatus(int $enrollmentId, string $status): bool
     {
-        $validStatuses = ['active', 'inactive', 'completed', 'dropped'];
-        if (!in_array($status, $validStatuses)) {
+        if (!$this->isValidStatus($status)) {
             return false;
         }
 
@@ -104,5 +88,33 @@ class EnrollmentService implements EnrollmentServiceInterface
     public function deleteEnrollment(int $enrollmentId): bool
     {
         return $this->enrollmentRepository->delete($enrollmentId);
+    }
+
+    private function isStudent(int $studentId): bool
+    {
+        $student = $this->userRepository->findById($studentId);
+
+        return $student !== null && $student->getRole() === 'student';
+    }
+
+    private function courseExists(int $courseId): bool
+    {
+        return $this->courseRepository->findById($courseId) !== null;
+    }
+
+    private function hasEnrollmentForCourse(int $studentId, int $courseId): bool
+    {
+        foreach ($this->enrollmentRepository->findByStudentId($studentId) as $enrollment) {
+            if ($enrollment->getCourseId() === $courseId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function isValidStatus(string $status): bool
+    {
+        return in_array($status, self::VALID_STATUSES, true);
     }
 }

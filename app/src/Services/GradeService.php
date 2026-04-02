@@ -33,19 +33,21 @@ class GradeService implements GradeServiceInterface
 
     public function createGrade(array $gradeData): ?Grade
     {
-        // Validation logic...
-        return $this->gradeRepository->create(new Grade(
-            (int)$gradeData['assignment_id'],
-            (int)$gradeData['student_id'],
-            (float)$gradeData['points_earned'],
-            $gradeData['feedback'] ?? null
-        ));
+        if (!$this->hasValidGradeData($gradeData)) {
+            return null;
+        }
+
+        if ($this->findByStudentAndAssignment((int)$gradeData['student_id'], (int)$gradeData['assignment_id'])) {
+            return null;
+        }
+
+        return $this->gradeRepository->create($this->buildGrade($gradeData));
     }
 
     public function updateGrade(Grade $grade, array $updateData): bool
     {
-        $grade->setPointsEarned((float)($updateData['points_earned'] ?? $grade->getPointsEarned()));
-        $grade->setFeedback($updateData['feedback'] ?? $grade->getFeedback());
+        $this->applyGradeUpdates($grade, $updateData);
+
         return $this->gradeRepository->update($grade);
     }
 
@@ -53,15 +55,12 @@ class GradeService implements GradeServiceInterface
 
     public function calculateCourseAverage(int $courseId, int $studentId): ?float
     {
-        $gradeData = $this->gradeRepository->getGradeDataForCourseAndStudent($courseId, $studentId);
-        if (empty($gradeData)) return null;
-
-        $totalPoints = 0;
-        $maxPoints = 0;
-        foreach ($gradeData as $g) {
-            $totalPoints += $g['points_earned'];
-            $maxPoints += $g['max_points'];
+        $gradeData = $this->gradeRepository->findGradeDataForCourseAndStudent($courseId, $studentId);
+        if (empty($gradeData)) {
+            return null;
         }
+
+        [$totalPoints, $maxPoints] = $this->sumGradeData($gradeData);
 
         return $maxPoints > 0 ? ($totalPoints / $maxPoints) * 100 : null;
     }
@@ -75,13 +74,13 @@ class GradeService implements GradeServiceInterface
         $totalCredits = 0.0;
 
         foreach ($courses as $course) {
-            $avg = $this->calculateCourseAverage($course->getCourseId(), $studentId);
-            if ($avg !== null) {
-                $gpa = $this->percentageToGPA($avg);
-                $credits = $course->getCredits() ?? $this->gradePolicy->getDefaultCourseCredits();
-                $totalPoints += ($gpa * $credits);
-                $totalCredits += $credits;
+            $courseSummary = $this->buildCoursePerformance($course->getCourseId(), $studentId, $course->getCredits());
+            if ($courseSummary === null) {
+                continue;
             }
+
+            $totalPoints += $courseSummary['gpa'] * $courseSummary['credits'];
+            $totalCredits += $courseSummary['credits'];
         }
 
         return $totalCredits > 0 ? round($totalPoints / $totalCredits, 2) : 0.0;
@@ -105,22 +104,20 @@ class GradeService implements GradeServiceInterface
         $totalCredits = 0.0;
 
         foreach ($courses as $course) {
-            $avg = $this->calculateCourseAverage($course->getCourseId(), $studentId);
-            if ($avg !== null) {
-                $letter = $this->percentageToLetterGrade($avg);
-                $gpa = $this->percentageToGPA($avg);
-                $credits = $course->getCredits() ?? $this->gradePolicy->getDefaultCourseCredits();
-
-                $courseStats[] = [
-                    'course' => $course,
-                    'average' => round($avg, 2),
-                    'letter' => $letter,
-                    'gpa' => $gpa,
-                    'credits' => $credits
-                ];
-                $gradeDistribution[$letter]++;
-                $totalCredits += $credits;
+            $courseSummary = $this->buildCoursePerformance($course->getCourseId(), $studentId, $course->getCredits());
+            if ($courseSummary === null) {
+                continue;
             }
+
+            $courseStats[] = [
+                'course' => $course,
+                'average' => $courseSummary['average'],
+                'letter' => $courseSummary['letter'],
+                'gpa' => $courseSummary['gpa'],
+                'credits' => $courseSummary['credits']
+            ];
+            $gradeDistribution[$courseSummary['letter']]++;
+            $totalCredits += $courseSummary['credits'];
         }
 
         return [
@@ -129,6 +126,62 @@ class GradeService implements GradeServiceInterface
             'courses' => $courseStats,
             'grade_distribution' => $gradeDistribution,
             'total_courses' => count($courseStats)
+        ];
+    }
+
+    private function hasValidGradeData(array $gradeData): bool
+    {
+        return isset($gradeData['assignment_id'], $gradeData['student_id'], $gradeData['points_earned']);
+    }
+
+    private function buildGrade(array $gradeData): Grade
+    {
+        return new Grade(
+            (int)$gradeData['assignment_id'],
+            (int)$gradeData['student_id'],
+            (float)$gradeData['points_earned'],
+            $gradeData['feedback'] ?? null
+        );
+    }
+
+    private function applyGradeUpdates(Grade $grade, array $updateData): void
+    {
+        if (array_key_exists('points_earned', $updateData)) {
+            $grade->setPointsEarned((float)$updateData['points_earned']);
+        }
+
+        if (array_key_exists('feedback', $updateData)) {
+            $grade->setFeedback($updateData['feedback']);
+        }
+    }
+
+    private function sumGradeData(array $gradeData): array
+    {
+        $totalPoints = 0.0;
+        $maxPoints = 0.0;
+
+        foreach ($gradeData as $gradeRow) {
+            $totalPoints += $gradeRow->getPointsEarned();
+            $maxPoints += $gradeRow->getMaxPoints();
+        }
+
+        return [$totalPoints, $maxPoints];
+    }
+
+    private function buildCoursePerformance(int $courseId, int $studentId, ?float $credits): ?array
+    {
+        $average = $this->calculateCourseAverage($courseId, $studentId);
+        if ($average === null) {
+            return null;
+        }
+
+        $resolvedCredits = $credits ?? $this->gradePolicy->getDefaultCourseCredits();
+
+        return [
+            'average' => round($average, 2),
+            'letter' => $this->percentageToLetterGrade($average),
+            'gpa' => $this->percentageToGPA($average),
+            'credits' => $resolvedCredits
         ];
     }
 }

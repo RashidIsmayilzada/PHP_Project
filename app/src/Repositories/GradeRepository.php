@@ -5,13 +5,18 @@ namespace App\Repositories;
 
 use App\Framework\Repository;
 use App\Models\Grade;
+use App\Repositories\Data\CourseGradeData;
 use App\Repositories\Interfaces\GradeRepositoryInterface;
 
 class GradeRepository extends Repository implements GradeRepositoryInterface
 {
-    public function findAll(): array
+    public function findAll(int $limit = 100, int $offset = 0): array
     {
-        $rows = $this->fetchAll("SELECT * FROM grades");
+        $rows = $this->fetchAll(
+            "SELECT * FROM grades ORDER BY graded_at DESC, grade_id DESC LIMIT :limit OFFSET :offset",
+            $this->paginationParams($limit, $offset)
+        );
+
         return array_map([$this, 'mapRowToGrade'], $rows);
     }
 
@@ -21,15 +26,23 @@ class GradeRepository extends Repository implements GradeRepositoryInterface
         return $row ? $this->mapRowToGrade($row) : null;
     }
 
-    public function findByStudentId(int $studentId): array
+    public function findByStudentId(int $studentId, int $limit = 100, int $offset = 0): array
     {
-        $rows = $this->fetchAll("SELECT * FROM grades WHERE student_id = :student_id", ['student_id' => $studentId]);
+        $rows = $this->fetchAll(
+            "SELECT * FROM grades WHERE student_id = :student_id ORDER BY graded_at DESC, grade_id DESC LIMIT :limit OFFSET :offset",
+            ['student_id' => $studentId] + $this->paginationParams($limit, $offset)
+        );
+
         return array_map([$this, 'mapRowToGrade'], $rows);
     }
 
-    public function findByAssignmentId(int $assignmentId): array
+    public function findByAssignmentId(int $assignmentId, int $limit = 100, int $offset = 0): array
     {
-        $rows = $this->fetchAll("SELECT * FROM grades WHERE assignment_id = :assignment_id", ['assignment_id' => $assignmentId]);
+        $rows = $this->fetchAll(
+            "SELECT * FROM grades WHERE assignment_id = :assignment_id ORDER BY graded_at DESC, grade_id DESC LIMIT :limit OFFSET :offset",
+            ['assignment_id' => $assignmentId] + $this->paginationParams($limit, $offset)
+        );
+
         return array_map([$this, 'mapRowToGrade'], $rows);
     }
 
@@ -43,24 +56,36 @@ class GradeRepository extends Repository implements GradeRepositoryInterface
         return $row ? $this->mapRowToGrade($row) : null;
     }
 
-    public function findByCourseId(int $courseId): array
+    public function findByCourseId(int $courseId, int $limit = 100, int $offset = 0): array
     {
         $sql = "SELECT g.* FROM grades g 
                 JOIN assignments a ON g.assignment_id = a.assignment_id 
-                WHERE a.course_id = :course_id";
-        $rows = $this->fetchAll($sql, ['course_id' => $courseId]);
+                WHERE a.course_id = :course_id
+                ORDER BY g.graded_at DESC, g.grade_id DESC
+                LIMIT :limit OFFSET :offset";
+        $rows = $this->fetchAll($sql, ['course_id' => $courseId] + $this->paginationParams($limit, $offset));
+
         return array_map([$this, 'mapRowToGrade'], $rows);
     }
 
-    public function getGradeDataForCourseAndStudent(int $courseId, int $studentId): array
+    public function findGradeDataForCourseAndStudent(
+        int $courseId,
+        int $studentId,
+        int $limit = 100,
+        int $offset = 0
+    ): array
     {
         $sql = "SELECT g.*, a.max_points FROM grades g 
                 JOIN assignments a ON g.assignment_id = a.assignment_id 
-                WHERE a.course_id = :course_id AND g.student_id = :student_id";
-        return $this->fetchAll($sql, [
+                WHERE a.course_id = :course_id AND g.student_id = :student_id
+                ORDER BY g.graded_at DESC, g.grade_id DESC
+                LIMIT :limit OFFSET :offset";
+        $rows = $this->fetchAll($sql, [
             'course_id' => $courseId,
-            'student_id' => $studentId
-        ]);
+            'student_id' => $studentId,
+        ] + $this->paginationParams($limit, $offset));
+
+        return array_map([$this, 'mapRowToCourseGradeData'], $rows);
     }
 
     public function create(Grade $grade): ?Grade
@@ -111,5 +136,21 @@ class GradeRepository extends Repository implements GradeRepositoryInterface
             $row['graded_at'],
             $row['updated_at'] ?? null
         );
+    }
+
+    private function mapRowToCourseGradeData(array $row): CourseGradeData
+    {
+        return new CourseGradeData(
+            (float)$row['points_earned'],
+            (float)$row['max_points']
+        );
+    }
+
+    private function paginationParams(int $limit, int $offset): array
+    {
+        return [
+            'limit' => max(1, $limit),
+            'offset' => max(0, $offset),
+        ];
     }
 }
