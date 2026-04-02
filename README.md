@@ -87,9 +87,19 @@ The application contains several secure API endpoints for managing resources.
 
 Examples:
 - `GET /api/courses` - Get a list of all courses.
-- `POST /api/courses` - Create a new course.
-- `GET /api/students/{id}` - Get details of a specific student.
-and many more for different use cases.
+- `GET /api/users` - Get a list of users for teacher-only management pages.
+- `GET /api/students` - Get students as JSON for teacher-side enrollment tools.
+
+## JavaScript + API Integration
+
+The application includes client-side JavaScript integration through [main.js](app/public/assets/js/main.js).
+
+Implemented example:
+- The teacher enrollment page uses `fetch('/api/students')` for live student search.
+- Search works by student name and email.
+- The checkbox selection count stays in sync while filtering results.
+
+This integration demonstrates that the frontend is consuming internal JSON API routes instead of relying only on server-rendered PHP.
 
 ## Code Structure
 Application uses Advanced MVC architecture.

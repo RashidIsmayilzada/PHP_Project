@@ -59,11 +59,6 @@ final class Auth
         return $_SESSION['role'] ?? null;
     }
 
-    public static function isAdmin(): bool
-    {
-        return self::role() === UserRole::TEACHER->value;
-    }
-
     public static function requireLogin(): void
     {
         if (!self::check()) {

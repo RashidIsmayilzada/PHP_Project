@@ -37,34 +37,32 @@ class StudentController extends Controller
 
         $enrolledCourses = $this->courseService->getCoursesForStudent($studentId);
         $overallGPA = $this->gradeService->calculateOverallGPA($studentId);
+        $statuses = $this->mapEnrollmentStatuses($studentId);
+        $summary = $this->buildDashboardSummary($enrolledCourses, $statuses);
 
         $coursesData = [];
         foreach ($enrolledCourses as $course) {
             $courseAverage = $this->gradeService->calculateCourseAverage($course->getCourseId(), $studentId);
             $letterGrade = $courseAverage !== null ? $this->gradeService->percentageToLetterGrade($courseAverage) : 'N/A';
             $teacher = $this->userService->findById($course->getTeacherId());
-            
-            $enrollments = $this->enrollmentService->findByStudentId($studentId);
-            $status = 'unknown';
-            foreach ($enrollments as $enrollment) {
-                if ($enrollment->getCourseId() === $course->getCourseId()) {
-                    $status = $enrollment->getStatus();
-                    break;
-                }
-            }
+            $status = $statuses[$course->getCourseId()] ?? 'unknown';
 
             $coursesData[] = [
                 'course' => $course,
                 'average' => $courseAverage,
-                'letter_grade' => $letterGrade,
+                'average_display' => $courseAverage !== null ? number_format($courseAverage, 1) . '%' : 'N/A',
+                'letter_grade' => $letterGrade ?: '-',
                 'teacher' => $teacher,
-                'status' => $status
+                'status' => $status,
+                'status_badge_class' => $status === 'active' ? 'success' : 'secondary',
+                'grade_color' => $this->resolveGradeColor($courseAverage),
             ];
         }
 
         $this->render('student/dashboard', [
             'pageTitle' => 'Student Dashboard',
             'overallGPA' => $overallGPA,
+            'dashboardSummary' => $summary,
             'coursesData' => $coursesData,
             'enrolledCourses' => $enrolledCourses
         ]);
@@ -76,13 +74,11 @@ class StudentController extends Controller
         $studentId = Auth::id();
 
         $course = $this->courseService->findById($id);
-        if (!$course) {
+        if (!$course || !$this->isEnrolledInCourse($studentId, $id)) {
             $this->redirect('/student/dashboard');
             return;
         }
 
-        // Logic to verify enrollment could go here...
-        
         $this->render('student/course-detail', [
             'pageTitle' => $course->getCourseCode() . ' - Details',
             'course' => $course
@@ -92,11 +88,85 @@ class StudentController extends Controller
     public function statistics(): void
     {
         Auth::requireRole('student');
-        $statistics = $this->gradeService->getStudentStatistics(Auth::id());
+        $statistics = $this->buildStatisticsViewData(
+            $this->gradeService->getStudentStatistics(Auth::id())
+        );
 
         $this->render('student/statistics', [
             'pageTitle' => 'Academic Statistics',
             'statistics' => $statistics
         ]);
+    }
+
+    private function mapEnrollmentStatuses(int $studentId): array
+    {
+        $statuses = [];
+
+        foreach ($this->enrollmentService->findByStudentId($studentId) as $enrollment) {
+            $statuses[$enrollment->getCourseId()] = $enrollment->getStatus();
+        }
+
+        return $statuses;
+    }
+
+    private function isEnrolledInCourse(int $studentId, int $courseId): bool
+    {
+        foreach ($this->enrollmentService->findByStudentId($studentId) as $enrollment) {
+            if ($enrollment->getCourseId() === $courseId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function buildDashboardSummary(array $courses, array $statuses): array
+    {
+        $activeCount = 0;
+        $totalCredits = 0.0;
+
+        foreach ($courses as $course) {
+            if (($statuses[$course->getCourseId()] ?? null) === 'active') {
+                $activeCount++;
+            }
+
+            $totalCredits += $course->getCredits() ?? 0.0;
+        }
+
+        return [
+            'course_count' => count($courses),
+            'active_count' => $activeCount,
+            'total_credits' => $totalCredits,
+        ];
+    }
+
+    private function buildStatisticsViewData(array $statistics): array
+    {
+        $statistics['courses'] = array_map(function (array $courseStat): array {
+            $courseStat['average_display'] = number_format($courseStat['average'], 1) . '%';
+            $courseStat['gpa_display'] = number_format($courseStat['gpa'], 1);
+            $courseStat['grade_color'] = $this->resolveGradeColor($courseStat['average']);
+
+            return $courseStat;
+        }, $statistics['courses']);
+
+        return $statistics;
+    }
+
+    private function resolveGradeColor(?float $average): string
+    {
+        if ($average === null) {
+            return 'secondary';
+        }
+
+        if ($average >= 90) {
+            return 'success';
+        }
+
+        if ($average >= 70) {
+            return 'primary';
+        }
+
+        return $average >= 50 ? 'warning' : 'danger';
     }
 }

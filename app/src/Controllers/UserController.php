@@ -18,7 +18,7 @@ class UserController extends Controller
     }
 
     /**
-     * API: Get all users (Admin/Teacher only)
+     * API: Get all users (Teacher only)
      */
     public function index(): void
     {
@@ -47,6 +47,7 @@ class UserController extends Controller
         $data = array_map(fn($s) => [
             'id' => $s->getUserId(),
             'name' => $s->getFullName(),
+            'email' => $s->getEmail(),
             'student_number' => $s->getStudentNumber()
         ], $students);
 

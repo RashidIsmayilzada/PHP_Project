@@ -81,7 +81,13 @@
                 <?php else: ?>
                     <div class="input-group mb-3">
                         <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                        <input type="text" id="studentSearch" class="form-control" placeholder="Search students by name or email...">
+                        <input
+                            type="text"
+                            id="liveSearchInput"
+                            class="form-control"
+                            placeholder="Search students by name or email..."
+                            data-api-url="/api/students"
+                        >
                     </div>
 
                     <form method="POST">
@@ -95,9 +101,13 @@
                                         <th>Email</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="liveSearchResults">
                                     <?php foreach ($availableStudents as $student): ?>
-                                        <tr class="student-row" data-search="<?= htmlspecialchars(strtolower($student->getFullName() . ' ' . $student->getEmail())) ?>">
+                                        <tr
+                                            class="student-row"
+                                            data-student-id="<?= $student->getUserId() ?>"
+                                            data-search="<?= htmlspecialchars(strtolower($student->getFullName() . ' ' . $student->getEmail())) ?>"
+                                        >
                                             <td>
                                                 <div class="form-check">
                                                     <input type="checkbox" name="student_ids[]" value="<?= $student->getUserId() ?>" class="form-check-input student-checkbox">
@@ -125,31 +135,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    const searchInput = document.getElementById('studentSearch');
-    const tableRows = document.querySelectorAll('.student-row');
-    const checkboxes = document.querySelectorAll('.student-checkbox');
-    const countDisplay = document.getElementById('selectedCount');
-
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            const query = this.value.toLowerCase();
-            tableRows.forEach(row => {
-                const text = row.getAttribute('data-search');
-                if (text.includes(query)) {
-                    row.classList.remove('d-none');
-                } else {
-                    row.classList.add('d-none');
-                }
-            });
-        });
-    }
-
-    checkboxes.forEach(cb => {
-        cb.addEventListener('change', function() {
-            const checkedCount = document.querySelectorAll('.student-checkbox:checked').length;
-            countDisplay.textContent = checkedCount;
-        });
-    });
-</script>

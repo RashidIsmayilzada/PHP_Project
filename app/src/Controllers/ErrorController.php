@@ -1,24 +1,24 @@
 <?php
+declare(strict_types=1);
+
 namespace App\Controllers;
 
 use App\Framework\Controller;
+
 class ErrorController extends Controller
 {
-    // Display 404 not found error page
     public function notFound(): void
     {
         http_response_code(404);
-        $this->render('errors/404.view.php', ['pageTitle' => '404 Not Found']);
+        $this->render('errors/404', ['pageTitle' => '404 Not Found']);
     }
 
-    // Display 403 forbidden error page
     public function forbidden(): void
     {
         http_response_code(403);
-        $this->render('errors/403.view.php', ['pageTitle' => '403 Access Denied']);
+        $this->render('errors/403', ['pageTitle' => '403 Access Denied']);
     }
 
-    // Display 500 server error page with optional custom message
     public function serverError(?string $message = null): void
     {
         http_response_code(500);
@@ -27,7 +27,7 @@ class ErrorController extends Controller
             $message = $_GET['message'];
         }
 
-        $this->render('errors/error.view.php', [
+        $this->render('errors/error', [
             'pageTitle' => 'Error',
             'errorMessage' => $message ?? 'An unexpected error occurred. Please try again.'
         ]);

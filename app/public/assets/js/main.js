@@ -31,31 +31,55 @@ function initLiveSearch() {
 
     if (!searchInput || !resultsContainer) return;
 
-    searchInput.addEventListener('input', debounce(async (e) => {
-        const query = e.target.value.toLowerCase().trim();
-        
-        try {
-            const response = await fetch('/api/students');
-            if (!response.ok) throw new Error('API fetch failed');
-            
-            const students = await response.json();
-            
-            const filtered = students.filter(student => 
-                student.name.toLowerCase().includes(query) || 
-                (student.email && student.email.toLowerCase().includes(query))
-            );
+    const apiUrl = searchInput.dataset.apiUrl || '/api/students';
+    const availableIds = new Set(
+        Array.from(resultsContainer.querySelectorAll('[data-student-id]'))
+            .map(row => Number.parseInt(row.dataset.studentId, 10))
+            .filter(Number.isInteger)
+    );
+    const selectedIds = new Set();
+    let students = [];
 
-            renderStudentRows(filtered, resultsContainer);
-        } catch (err) {
-            console.error('Live Search Error:', err);
-        }
-    }, 300));
+    bindSelectionTracking(resultsContainer, selectedIds);
+    updateSelectedCount(selectedIds);
+
+    searchInput.addEventListener('input', debounce((event) => {
+        const query = event.target.value.toLowerCase().trim();
+        const filteredStudents = students.filter(student => {
+            const matchesAvailableList = availableIds.has(Number(student.id));
+            const matchesQuery = query === ''
+                || student.name.toLowerCase().includes(query)
+                || (student.email && student.email.toLowerCase().includes(query));
+
+            return matchesAvailableList && matchesQuery;
+        });
+
+        renderStudentRows(filteredStudents, resultsContainer, selectedIds);
+    }, 250));
+
+    fetch(apiUrl, { headers: { Accept: 'application/json' } })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('API fetch failed');
+            }
+
+            return response.json();
+        })
+        .then(data => {
+            students = Array.isArray(data) ? data : [];
+            const filteredStudents = students.filter(student => availableIds.has(Number(student.id)));
+            renderStudentRows(filteredStudents, resultsContainer, selectedIds);
+        })
+        .catch(error => {
+            console.error('Live Search Error:', error);
+            showSearchError(resultsContainer);
+        });
 }
 
 /**
  * Re-renders table rows for student list with Bootstrap classes
  */
-function renderStudentRows(students, container) {
+function renderStudentRows(students, container, selectedIds) {
     if (students.length === 0) {
         container.innerHTML = `
             <tr>
@@ -68,10 +92,16 @@ function renderStudentRows(students, container) {
     }
 
     container.innerHTML = students.map(student => `
-        <tr class="student-row">
+        <tr class="student-row" data-student-id="${student.id}">
             <td>
                 <div class="form-check">
-                    <input type="checkbox" name="student_ids[]" value="${student.id}" class="form-check-input student-checkbox">
+                    <input
+                        type="checkbox"
+                        name="student_ids[]"
+                        value="${student.id}"
+                        class="form-check-input student-checkbox"
+                        ${selectedIds.has(Number(student.id)) ? 'checked' : ''}
+                    >
                 </div>
             </td>
             <td>${escapeHtml(student.name)}</td>
@@ -79,16 +109,8 @@ function renderStudentRows(students, container) {
         </tr>
     `).join('');
 
-    // Re-attach listeners for count update if they exist
-    const countDisplay = document.getElementById('selectedCount');
-    if (countDisplay) {
-        container.querySelectorAll('.student-checkbox').forEach(cb => {
-            cb.addEventListener('change', () => {
-                const checkedCount = document.querySelectorAll('.student-checkbox:checked').length;
-                countDisplay.textContent = checkedCount;
-            });
-        });
-    }
+    bindSelectionTracking(container, selectedIds);
+    updateSelectedCount(selectedIds);
 }
 
 /**
@@ -109,6 +131,40 @@ function initFlashMessageAutoDismiss() {
             }
         }, 5000);
     });
+}
+
+function bindSelectionTracking(container, selectedIds) {
+    container.querySelectorAll('.student-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            const studentId = Number(checkbox.value);
+
+            if (checkbox.checked) {
+                selectedIds.add(studentId);
+            } else {
+                selectedIds.delete(studentId);
+            }
+
+            updateSelectedCount(selectedIds);
+        });
+    });
+}
+
+function updateSelectedCount(selectedIds) {
+    const countDisplay = document.getElementById('selectedCount');
+    if (countDisplay) {
+        countDisplay.textContent = String(selectedIds.size);
+    }
+}
+
+function showSearchError(container) {
+    container.innerHTML = `
+        <tr>
+            <td colspan="3" class="text-center py-4 text-danger">
+                <i class="bi bi-exclamation-circle display-6 d-block mb-2"></i>
+                Could not load students from the API.
+            </td>
+        </tr>
+    `;
 }
 
 /**

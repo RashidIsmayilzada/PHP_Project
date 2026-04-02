@@ -8,4 +8,4 @@
 <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <!-- Custom Style -->
-<link href="/assets/css/style.css" rel="stylesheet">
+<link href="/assets/css/main.css" rel="stylesheet">

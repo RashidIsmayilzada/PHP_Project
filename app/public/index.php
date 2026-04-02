@@ -109,7 +109,8 @@ $container->set(AuthServiceInterface::class, fn($c) => new AuthService(
 
 // Bind Controllers
 $container->set(AuthController::class, fn($c) => new AuthController(
-    fn() => $c->get(UserServiceInterface::class)
+    $c->get(AuthServiceInterface::class),
+    $c->get(UserServiceInterface::class)
 ));
 $container->set(StudentController::class, fn($c) => new StudentController(
     $c->get(CourseServiceInterface::class),
@@ -124,7 +125,12 @@ $container->set(TeacherController::class, fn($c) => new TeacherController(
 ));
 $container->set(CourseController::class, fn($c) => new CourseController($c->get(CourseServiceInterface::class)));
 $container->set(AssignmentController::class, fn($c) => new AssignmentController($c->get(AssignmentServiceInterface::class), $c->get(CourseServiceInterface::class)));
-$container->set(GradeController::class, fn($c) => new GradeController($c->get(GradeServiceInterface::class)));
+$container->set(GradeController::class, fn($c) => new GradeController(
+    $c->get(CourseServiceInterface::class),
+    $c->get(AssignmentServiceInterface::class),
+    $c->get(EnrollmentServiceInterface::class),
+    $c->get(GradeServiceInterface::class)
+));
 $container->set(EnrollmentController::class, fn($c) => new EnrollmentController(
     $c->get(EnrollmentServiceInterface::class),
     $c->get(CourseServiceInterface::class),
@@ -145,6 +151,7 @@ $router->post('/register', [AuthController::class, 'register'], ['guest']);
 // API Routes
 $router->get('/api/users', [UserController::class, 'index'], ['auth', 'teacher']);
 $router->get('/api/students', [UserController::class, 'students'], ['auth', 'teacher']);
+$router->get('/api/courses', [CourseController::class, 'index'], ['auth', 'teacher']);
 
 // Protected Routes
 $router->get('/logout', [AuthController::class, 'logout'], ['auth']);
