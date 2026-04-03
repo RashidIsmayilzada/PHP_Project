@@ -42,14 +42,14 @@ use App\Services\Security\BcryptPasswordHasher;
 use App\Services\Session\PhpSession;
 use App\Services\Config\GradeConfigPolicy;
 
-use App\Controllers\AuthController;
-use App\Controllers\StudentController;
-use App\Controllers\TeacherController;
-use App\Controllers\CourseController;
-use App\Controllers\AssignmentController;
-use App\Controllers\GradeController;
-use App\Controllers\EnrollmentController;
-use App\Controllers\UserController;
+// use App\Controllers\AuthController;
+// use App\Controllers\StudentController;
+// use App\Controllers\TeacherController;
+// use App\Controllers\CourseController;
+// use App\Controllers\AssignmentController;
+// use App\Controllers\GradeController;
+// use App\Controllers\EnrollmentController;
+// use App\Controllers\UserController;
 use App\Controllers\ErrorController;
 
 // --- 1. Environment & Setup ---
@@ -108,85 +108,85 @@ $container->set(AuthServiceInterface::class, fn($c) => new AuthService(
 ));
 
 // Bind Controllers
-$container->set(AuthController::class, fn($c) => new AuthController(
-    $c->get(AuthServiceInterface::class),
-    $c->get(UserServiceInterface::class)
-));
-$container->set(StudentController::class, fn($c) => new StudentController(
-    $c->get(CourseServiceInterface::class),
-    $c->get(AssignmentServiceInterface::class),
-    $c->get(GradeServiceInterface::class),
-    $c->get(UserServiceInterface::class),
-    $c->get(EnrollmentServiceInterface::class)
-));
-$container->set(TeacherController::class, fn($c) => new TeacherController(
-    $c->get(CourseServiceInterface::class),
-    $c->get(EnrollmentServiceInterface::class),
-    $c->get(AssignmentServiceInterface::class)
-));
-$container->set(CourseController::class, fn($c) => new CourseController($c->get(CourseServiceInterface::class)));
-$container->set(AssignmentController::class, fn($c) => new AssignmentController($c->get(AssignmentServiceInterface::class), $c->get(CourseServiceInterface::class)));
-$container->set(GradeController::class, fn($c) => new GradeController(
-    $c->get(CourseServiceInterface::class),
-    $c->get(AssignmentServiceInterface::class),
-    $c->get(EnrollmentServiceInterface::class),
-    $c->get(GradeServiceInterface::class)
-));
-$container->set(EnrollmentController::class, fn($c) => new EnrollmentController(
-    $c->get(EnrollmentServiceInterface::class),
-    $c->get(CourseServiceInterface::class),
-    $c->get(UserServiceInterface::class)
-));
-$container->set(UserController::class, fn($c) => new UserController($c->get(UserServiceInterface::class)));
+// $container->set(AuthController::class, fn($c) => new AuthController(
+//     $c->get(AuthServiceInterface::class),
+//     $c->get(UserServiceInterface::class)
+// ));
+// $container->set(StudentController::class, fn($c) => new StudentController(
+//     $c->get(CourseServiceInterface::class),
+//     $c->get(AssignmentServiceInterface::class),
+//     $c->get(GradeServiceInterface::class),
+//     $c->get(UserServiceInterface::class),
+//     $c->get(EnrollmentServiceInterface::class)
+// ));
+// $container->set(TeacherController::class, fn($c) => new TeacherController(
+//     $c->get(CourseServiceInterface::class),
+//     $c->get(EnrollmentServiceInterface::class),
+//     $c->get(AssignmentServiceInterface::class)
+// ));
+// $container->set(CourseController::class, fn($c) => new CourseController($c->get(CourseServiceInterface::class)));
+// $container->set(AssignmentController::class, fn($c) => new AssignmentController($c->get(AssignmentServiceInterface::class), $c->get(CourseServiceInterface::class)));
+// $container->set(GradeController::class, fn($c) => new GradeController(
+//     $c->get(CourseServiceInterface::class),
+//     $c->get(AssignmentServiceInterface::class),
+//     $c->get(EnrollmentServiceInterface::class),
+//     $c->get(GradeServiceInterface::class)
+// ));
+// $container->set(EnrollmentController::class, fn($c) => new EnrollmentController(
+//     $c->get(EnrollmentServiceInterface::class),
+//     $c->get(CourseServiceInterface::class),
+//     $c->get(UserServiceInterface::class)
+// ));
+// $container->set(UserController::class, fn($c) => new UserController($c->get(UserServiceInterface::class)));
 $container->set(ErrorController::class, fn() => new ErrorController());
 
 // --- 4. Routing ---
 $router = new Router($container);
 
 // Public Routes
-$router->get('/login', [AuthController::class, 'showLogin'], ['guest']);
-$router->post('/login', [AuthController::class, 'login'], ['guest']);
-$router->get('/register', [AuthController::class, 'showRegister'], ['guest']);
-$router->post('/register', [AuthController::class, 'register'], ['guest']);
+// $router->get('/login', [AuthController::class, 'showLogin'], ['guest']);
+// $router->post('/login', [AuthController::class, 'login'], ['guest']);
+// $router->get('/register', [AuthController::class, 'showRegister'], ['guest']);
+// $router->post('/register', [AuthController::class, 'register'], ['guest']);
 $router->get('/403', [ErrorController::class, 'forbidden']);
 
 // API Routes
-$router->get('/api/users', [UserController::class, 'index'], ['auth', 'teacher']);
-$router->get('/api/students', [UserController::class, 'students'], ['auth', 'teacher']);
-$router->get('/api/courses', [CourseController::class, 'index'], ['auth', 'teacher']);
+// $router->get('/api/users', [UserController::class, 'index'], ['auth', 'teacher']);
+// $router->get('/api/students', [UserController::class, 'students'], ['auth', 'teacher']);
+// $router->get('/api/courses', [CourseController::class, 'index'], ['auth', 'teacher']);
 
 // Protected Routes
-$router->get('/logout', [AuthController::class, 'logout'], ['auth']);
+// $router->get('/logout', [AuthController::class, 'logout'], ['auth']);
 
 // Student Area
-$router->get('/student/dashboard', [StudentController::class, 'dashboard'], ['auth', 'student']);
-$router->get('/student/course-detail/{id:\d+}', [StudentController::class, 'courseDetail'], ['auth', 'student']);
-$router->get('/student/statistics', [StudentController::class, 'statistics'], ['auth', 'student']);
+// $router->get('/student/dashboard', [StudentController::class, 'dashboard'], ['auth', 'student']);
+// $router->get('/student/course-detail/{id:\d+}', [StudentController::class, 'courseDetail'], ['auth', 'student']);
+// $router->get('/student/statistics', [StudentController::class, 'statistics'], ['auth', 'student']);
 
 // Teacher Area
-$router->get('/teacher/dashboard', [TeacherController::class, 'dashboard'], ['auth', 'teacher']);
-$router->get('/teacher/course-detail/{id:\d+}', [CourseController::class, 'show'], ['auth', 'teacher']);
-$router->get('/teacher/course-create', [CourseController::class, 'createAction'], ['auth', 'teacher']);
-$router->post('/teacher/course-create', [CourseController::class, 'createAction'], ['auth', 'teacher']);
-$router->get('/teacher/course-edit/{id:\d+}', [CourseController::class, 'editAction'], ['auth', 'teacher']);
-$router->post('/teacher/course-edit/{id:\d+}', [CourseController::class, 'editAction'], ['auth', 'teacher']);
-$router->post('/teacher/course-delete/{id:\d+}', [CourseController::class, 'delete'], ['auth', 'teacher']);
+// $router->get('/teacher/dashboard', [TeacherController::class, 'dashboard'], ['auth', 'teacher']);
+// $router->get('/teacher/course-detail/{id:\d+}', [CourseController::class, 'show'], ['auth', 'teacher']);
+// $router->get('/teacher/course-create', [CourseController::class, 'createAction'], ['auth', 'teacher']);
+// $router->post('/teacher/course-create', [CourseController::class, 'createAction'], ['auth', 'teacher']);
+// $router->get('/teacher/course-edit/{id:\d+}', [CourseController::class, 'editAction'], ['auth', 'teacher']);
+// $router->post('/teacher/course-edit/{id:\d+}', [CourseController::class, 'editAction'], ['auth', 'teacher']);
+// $router->post('/teacher/course-delete/{id:\d+}', [CourseController::class, 'delete'], ['auth', 'teacher']);
 
 // Teacher Management
-$router->get('/teacher/assignment-create/{courseId:\d+}', [AssignmentController::class, 'createAction'], ['auth', 'teacher']);
-$router->post('/teacher/assignment-create/{courseId:\d+}', [AssignmentController::class, 'createAction'], ['auth', 'teacher']);
-$router->get('/teacher/assignment-edit/{id:\d+}', [AssignmentController::class, 'editAction'], ['auth', 'teacher']);
-$router->post('/teacher/assignment-edit/{id:\d+}', [AssignmentController::class, 'editAction'], ['auth', 'teacher']);
-$router->post('/teacher/assignment-delete/{id:\d+}', [AssignmentController::class, 'delete'], ['auth', 'teacher']);
+// $router->get('/teacher/assignment-create/{courseId:\d+}', [AssignmentController::class, 'createAction'], ['auth', 'teacher']);
+// $router->post('/teacher/assignment-create/{courseId:\d+}', [AssignmentController::class, 'createAction'], ['auth', 'teacher']);
+// $router->get('/teacher/assignment-edit/{id:\d+}', [AssignmentController::class, 'editAction'], ['auth', 'teacher']);
+// $router->post('/teacher/assignment-edit/{id:\d+}', [AssignmentController::class, 'editAction'], ['auth', 'teacher']);
+// $router->post('/teacher/assignment-delete/{id:\d+}', [AssignmentController::class, 'delete'], ['auth', 'teacher']);
 
-$router->get('/teacher/course-grades/{courseId:\d+}', [GradeController::class, 'showCourseGrades'], ['auth', 'teacher']);
-$router->get('/teacher/grade-assign/{assignmentId:\d+}', [GradeController::class, 'gradeAction'], ['auth', 'teacher']);
-$router->post('/teacher/grade-assign/{assignmentId:\d+}', [GradeController::class, 'gradeAction'], ['auth', 'teacher']);
-$router->get('/teacher/grade-edit/{id:\d+}', [GradeController::class, 'editAction'], ['auth', 'teacher']);
-$router->post('/teacher/grade-edit/{id:\d+}', [GradeController::class, 'editAction'], ['auth', 'teacher']);
+// $router->get('/teacher/course-grades/{courseId:\d+}', [GradeController::class, 'showCourseGrades'], ['auth', 'teacher']);
+// $router->get('/teacher/grade-assign/{assignmentId:\d+}', [GradeController::class, 'gradeAction'], ['auth', 'teacher']);
+// $router->post('/teacher/grade-assign/{assignmentId:\d+}', [GradeController::class, 'gradeAction'], ['auth', 'teacher']);
+// $router->get('/teacher/grade-edit/{id:\d+}', [GradeController::class, 'editAction'], ['auth', 'teacher']);
+// $router->post('/teacher/grade-edit/{id:\d+}', [GradeController::class, 'editAction'], ['auth', 'teacher']);
 
-$router->get('/teacher/course-enroll/{courseId:\d+}', [EnrollmentController::class, 'enrollAction'], ['auth', 'teacher']);
-$router->post('/teacher/course-enroll/{courseId:\d+}', [EnrollmentController::class, 'enrollAction'], ['auth', 'teacher']);
+// $router->get('/teacher/course-enroll/{courseId:\d+}', [EnrollmentController::class, 'enrollAction'], ['auth', 'teacher']);
+// $router->post('/teacher/course-enroll/{courseId:\d+}', [EnrollmentController::class, 'enrollAction'], ['auth', 'teacher']);
 
 // Root
 $router->get('/', function() {
