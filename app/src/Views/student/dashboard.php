@@ -102,7 +102,7 @@
                         </div>
                     </div>
                     <div class="card-footer bg-white border-0 pb-4">
-                        <a href="/student/course-detail/<?= $course->getCourseId() ?>" class="btn btn-outline-primary w-100">
+                        <a href="/student/course-detail/<?= htmlspecialchars((string) $course->getCourseId()) ?>" class="btn btn-outline-primary w-100">
                             View Course Details
                         </a>
                     </div>

@@ -149,6 +149,13 @@ Implemented security-related measures include:
 
 The UI uses Bootstrap-based layouts, consistent form labels, feedback alerts, and dedicated error pages for common failure states such as `403` and `404`.
 
+## Legal / Accessibility (WCAG + GDPR)
+
+- Accessibility: the app uses a responsive layout in [app/src/Views/partials/head.php](app/src/Views/partials/head.php), sets the page language in [app/src/Views/layout.php](app/src/Views/layout.php), and uses form labels in [app/src/Views/auth/login.php](app/src/Views/auth/login.php) and [app/src/Views/auth/register.php](app/src/Views/auth/register.php).
+- Accessibility: breadcrumb navigation, ARIA labels, and responsive tables are used in [app/src/Views/student/course-detail.php](app/src/Views/student/course-detail.php), [app/src/Views/student/statistics.php](app/src/Views/student/statistics.php), [app/src/Views/teacher/course-enroll.php](app/src/Views/teacher/course-enroll.php), and [app/src/Views/partials/alerts.php](app/src/Views/partials/alerts.php).
+- GDPR / security: passwords are hashed in [app/src/Services/Security/BcryptPasswordHasher.php](app/src/Services/Security/BcryptPasswordHasher.php), sessions are handled in [app/src/Framework/Auth.php](app/src/Framework/Auth.php), and prepared statements are used in [app/src/Framework/Repository.php](app/src/Framework/Repository.php).
+- GDPR / security: personal data shown in the browser is escaped in views such as [app/src/Views/student/dashboard.php](app/src/Views/student/dashboard.php) and [app/src/Views/teacher/course-enroll.php](app/src/Views/teacher/course-enroll.php), and protected routes are defined in [app/public/index.php](app/public/index.php) and [app/src/Framework/Router.php](app/src/Framework/Router.php).
+
 ## Running Tests
 
 From the `app` directory:

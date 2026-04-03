@@ -37,20 +37,20 @@
                         </p>
                         <div class="d-flex justify-content-between align-items-center mt-auto">
                             <span class="badge bg-light text-dark border">
-                                <i class="bi bi-people me-1"></i> <?= $data['enrollment_count'] ?> Students
+                                <i class="bi bi-people me-1"></i> <?= htmlspecialchars((string) $data['enrollment_count']) ?> Students
                             </span>
                             <span class="badge bg-light text-dark border">
-                                <i class="bi bi-file-text me-1"></i> <?= $data['assignment_count'] ?> Assignments
+                                <i class="bi bi-file-text me-1"></i> <?= htmlspecialchars((string) $data['assignment_count']) ?> Assignments
                             </span>
                         </div>
                     </div>
                     <div class="card-footer bg-white border-top-0 p-3">
                         <div class="row g-2">
                             <div class="col-6">
-                                <a href="/teacher/course-detail/<?= $course->getCourseId() ?>" class="btn btn-outline-primary w-100">Manage</a>
+                                <a href="/teacher/course-detail/<?= htmlspecialchars((string) $course->getCourseId()) ?>" class="btn btn-outline-primary w-100">Manage</a>
                             </div>
                             <div class="col-6">
-                                <a href="/teacher/course-grades/<?= $course->getCourseId() ?>" class="btn btn-outline-secondary w-100">Grades</a>
+                                <a href="/teacher/course-grades/<?= htmlspecialchars((string) $course->getCourseId()) ?>" class="btn btn-outline-secondary w-100">Grades</a>
                             </div>
                         </div>
                     </div>

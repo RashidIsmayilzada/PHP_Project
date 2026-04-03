@@ -2,7 +2,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/teacher/dashboard" class="text-decoration-none">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="/teacher/course-detail/<?= $courseId ?>" class="text-decoration-none">Course</a></li>
+            <li class="breadcrumb-item"><a href="/teacher/course-detail/<?= htmlspecialchars((string) $courseId) ?>" class="text-decoration-none">Course</a></li>
             <li class="breadcrumb-item active" aria-current="page">Grades</li>
         </ol>
     </nav>
@@ -43,7 +43,7 @@
                                     </span>
                                 </td>
                                 <td class="text-end pe-3">
-                                    <a href="/teacher/course-enroll/<?= $courseId ?>" class="btn btn-outline-primary btn-sm">Manage Student</a>
+                                    <a href="/teacher/course-enroll/<?= htmlspecialchars((string) $courseId) ?>" class="btn btn-outline-primary btn-sm">Manage Student</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -52,7 +52,7 @@
                             <td colspan="4" class="text-center py-5 text-muted">
                                 <i class="bi bi-grid-3x3 display-4"></i>
                                 <p class="mt-2">No enrolled students found for this course yet.</p>
-                                <a href="/teacher/course-enroll/<?= $courseId ?>" class="btn btn-primary btn-sm mt-2">Manage Enrollments</a>
+                                <a href="/teacher/course-enroll/<?= htmlspecialchars((string) $courseId) ?>" class="btn btn-primary btn-sm mt-2">Manage Enrollments</a>
                             </td>
                         </tr>
                     <?php endif; ?>
@@ -89,7 +89,7 @@
                                 <td><?= htmlspecialchars($assignment->getDueDate() ?? 'No due date') ?></td>
                                 <td><?= htmlspecialchars((string)$row['graded_count']) ?></td>
                                 <td class="text-end pe-3">
-                                    <a href="/teacher/grade-assign/<?= $assignment->getAssignmentId() ?>" class="btn btn-primary btn-sm">View Grades</a>
+                                    <a href="/teacher/grade-assign/<?= htmlspecialchars((string) $assignment->getAssignmentId()) ?>" class="btn btn-primary btn-sm">View Grades</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

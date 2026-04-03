@@ -1,6 +1,6 @@
 <footer class="py-4 bg-white border-top mt-auto">
     <div class="container text-center text-muted">
-        <p class="mb-0">&copy; <?= date('Y') ?> Student Grade Management System</p>
+        <p class="mb-0">&copy; <?= htmlspecialchars((string) $currentYear) ?> Student Grade Management System</p>
     </div>
 </footer>
 

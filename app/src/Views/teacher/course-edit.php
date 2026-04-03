@@ -4,7 +4,7 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/teacher/dashboard" class="text-decoration-none">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="/teacher/course-detail/<?= $course->getCourseId() ?>" class="text-decoration-none"><?= htmlspecialchars($course->getCourseCode()) ?></a></li>
+                    <li class="breadcrumb-item"><a href="/teacher/course-detail/<?= htmlspecialchars((string) $course->getCourseId()) ?>" class="text-decoration-none"><?= htmlspecialchars($course->getCourseCode()) ?></a></li>
                     <li class="breadcrumb-item active" aria-current="page">Edit</li>
                 </ol>
             </nav>
@@ -14,7 +14,7 @@
 
         <div class="card shadow-sm">
             <div class="card-body p-4">
-                <form method="POST" action="/teacher/course-edit/<?= $course->getCourseId() ?>">
+                <form method="POST" action="/teacher/course-edit/<?= htmlspecialchars((string) $course->getCourseId()) ?>">
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label for="course_code" class="form-label fw-semibold">Course Code</label>
@@ -48,7 +48,7 @@
 
                     <div class="d-flex gap-3">
                         <button type="submit" class="btn btn-primary btn-lg px-5">Update Course</button>
-                        <a href="/teacher/course-detail/<?= $course->getCourseId() ?>" class="btn btn-outline-secondary btn-lg px-4">Cancel</a>
+                        <a href="/teacher/course-detail/<?= htmlspecialchars((string) $course->getCourseId()) ?>" class="btn btn-outline-secondary btn-lg px-4">Cancel</a>
                     </div>
                 </form>
             </div>

@@ -13,10 +13,10 @@
 
         <div class="card shadow-sm">
             <div class="card-body p-4">
-                <form method="POST" action="/teacher/grade-edit/<?= $grade->getGradeId() ?>">
+                <form method="POST" action="/teacher/grade-edit/<?= htmlspecialchars((string) $grade->getGradeId()) ?>">
                     <div class="mb-4 text-center p-3 bg-light rounded">
                         <div class="text-muted small text-uppercase fw-bold mb-1">Student ID</div>
-                        <div class="h5 mb-0 text-primary"><?= $grade->getStudentId() ?></div>
+                        <div class="h5 mb-0 text-primary"><?= htmlspecialchars((string) $grade->getStudentId()) ?></div>
                     </div>
 
                     <div class="mb-3">

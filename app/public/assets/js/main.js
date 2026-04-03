@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initLiveSearch();
     initFlashMessageAutoDismiss();
     initProgressBars();
+    initRegisterRoleToggle();
 });
 
 /**
@@ -130,6 +131,19 @@ function initFlashMessageAutoDismiss() {
                 setTimeout(() => alert.remove(), 500);
             }
         }, 5000);
+    });
+}
+
+function initRegisterRoleToggle() {
+    const roleSelect = document.getElementById('role');
+    const studentFields = document.getElementById('student_fields');
+
+    if (!roleSelect || !studentFields) {
+        return;
+    }
+
+    roleSelect.addEventListener('change', () => {
+        studentFields.classList.toggle('d-none', roleSelect.value !== 'student');
     });
 }
 

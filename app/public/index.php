@@ -147,6 +147,7 @@ $router->get('/login', [AuthController::class, 'showLogin'], ['guest']);
 $router->post('/login', [AuthController::class, 'login'], ['guest']);
 $router->get('/register', [AuthController::class, 'showRegister'], ['guest']);
 $router->post('/register', [AuthController::class, 'register'], ['guest']);
+$router->get('/403', [ErrorController::class, 'forbidden']);
 
 // API Routes
 $router->get('/api/users', [UserController::class, 'index'], ['auth', 'teacher']);

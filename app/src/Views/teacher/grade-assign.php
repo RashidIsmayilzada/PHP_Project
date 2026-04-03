@@ -2,7 +2,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/teacher/dashboard" class="text-decoration-none">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="/teacher/course-detail/<?= $course->getCourseId() ?>" class="text-decoration-none"><?= htmlspecialchars($course->getCourseCode()) ?></a></li>
+            <li class="breadcrumb-item"><a href="/teacher/course-detail/<?= htmlspecialchars((string) $course->getCourseId()) ?>" class="text-decoration-none"><?= htmlspecialchars($course->getCourseCode()) ?></a></li>
             <li class="breadcrumb-item active" aria-current="page">Grade Assignment</li>
         </ol>
     </nav>
@@ -48,7 +48,7 @@
                                         <input
                                             type="number"
                                             class="form-control"
-                                            name="grades[<?= $studentId ?>][points_earned]"
+                                            name="grades[<?= htmlspecialchars((string) $studentId) ?>][points_earned]"
                                             step="0.5"
                                             min="0"
                                             max="<?= htmlspecialchars((string)$assignment->getMaxPoints()) ?>"
@@ -59,7 +59,7 @@
                                     <td>
                                         <textarea
                                             class="form-control"
-                                            name="grades[<?= $studentId ?>][feedback]"
+                                            name="grades[<?= htmlspecialchars((string) $studentId) ?>][feedback]"
                                             rows="2"
                                             placeholder="Optional feedback"
                                         ><?= htmlspecialchars($grade?->getFeedback() ?? '') ?></textarea>
@@ -68,7 +68,7 @@
                                         <?php if ($grade !== null): ?>
                                             <span class="badge bg-success-subtle text-success border">Saved</span>
                                             <div class="mt-2">
-                                                <a href="/teacher/grade-edit/<?= $grade->getGradeId() ?>" class="btn btn-outline-secondary btn-sm">Edit</a>
+                                                <a href="/teacher/grade-edit/<?= htmlspecialchars((string) $grade->getGradeId()) ?>" class="btn btn-outline-secondary btn-sm">Edit</a>
                                             </div>
                                         <?php else: ?>
                                             <span class="badge bg-secondary-subtle text-dark border">Not yet</span>

@@ -11,7 +11,7 @@
             <h1 class="h2"><?= htmlspecialchars($course->getCourseName()) ?></h1>
         </div>
         <div class="btn-group">
-            <a href="/teacher/course-edit/<?= $course->getCourseId() ?>" class="btn btn-outline-secondary">
+            <a href="/teacher/course-edit/<?= htmlspecialchars((string) $course->getCourseId()) ?>" class="btn btn-outline-secondary">
                 <i class="bi bi-pencil me-1"></i> Edit
             </a>
             <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
@@ -65,13 +65,13 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-3">
-                    <a href="/teacher/course-enroll/<?= $course->getCourseId() ?>" class="btn btn-primary py-2">
+                    <a href="/teacher/course-enroll/<?= htmlspecialchars((string) $course->getCourseId()) ?>" class="btn btn-primary py-2">
                         <i class="bi bi-people me-2"></i>Manage Enrollments
                     </a>
-                    <a href="/teacher/course-grades/<?= $course->getCourseId() ?>" class="btn btn-outline-primary py-2">
+                    <a href="/teacher/course-grades/<?= htmlspecialchars((string) $course->getCourseId()) ?>" class="btn btn-outline-primary py-2">
                         <i class="bi bi-table me-2"></i>View All Grades
                     </a>
-                    <a href="/teacher/assignment-create/<?= $course->getCourseId() ?>" class="btn btn-success py-2">
+                    <a href="/teacher/assignment-create/<?= htmlspecialchars((string) $course->getCourseId()) ?>" class="btn btn-success py-2">
                         <i class="bi bi-plus-lg me-2"></i>Create Assignment
                     </a>
                 </div>
@@ -93,7 +93,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form action="/teacher/course-delete/<?= $course->getCourseId() ?>" method="POST">
+                <form action="/teacher/course-delete/<?= htmlspecialchars((string) $course->getCourseId()) ?>" method="POST">
                     <button type="submit" class="btn btn-danger">Delete Course</button>
                 </form>
             </div>

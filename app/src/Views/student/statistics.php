@@ -21,13 +21,13 @@
             </div>
         </div>
         <div class="col-md-3 col-lg-4">
-            <div class="card shadow-sm border-0 py-4 h-100">
-                <div class="card-body text-center">
-                    <div class="text-muted small text-uppercase fw-bold mb-2">Total Courses</div>
-                    <div class="display-4 fw-bold text-primary mb-0"><?= $statistics['total_courses'] ?></div>
+                <div class="card shadow-sm border-0 py-4 h-100">
+                    <div class="card-body text-center">
+                        <div class="text-muted small text-uppercase fw-bold mb-2">Total Courses</div>
+                    <div class="display-4 fw-bold text-primary mb-0"><?= htmlspecialchars((string) $statistics['total_courses']) ?></div>
+                    </div>
                 </div>
             </div>
-        </div>
         <div class="col-md-3 col-lg-4">
             <div class="card shadow-sm border-0 py-4 h-100">
                 <div class="card-body text-center">
