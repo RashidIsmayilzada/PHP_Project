@@ -5,6 +5,7 @@ namespace App\Controllers;
 
 use App\Framework\Auth;
 use App\Framework\Controller;
+use App\Models\Assignment;
 use App\Services\Interfaces\AssignmentServiceInterface;
 use App\Services\Interfaces\CourseServiceInterface;
 
@@ -33,31 +34,24 @@ class AssignmentController extends Controller
             return;
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $assignmentData = [
-                'course_id' => $courseId,
-                'assignment_name' => $this->request('assignment_name'),
-                'description' => $this->request('description'),
-                'max_points' => $this->request('max_points'),
-                'due_date' => $this->request('due_date')
-            ];
+        $formData = $this->assignmentPayload($courseId);
+        $errors = [];
 
-            if ($this->assignmentService->createAssignment($assignmentData)) {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $errors = $this->validateAssignmentData($formData);
+
+            if (empty($errors) && $this->assignmentService->createAssignment($formData)) {
                 $this->setFlash('success', 'Assignment created successfully!');
                 $this->redirect('/teacher/course-detail/' . $courseId);
                 return;
-            } else {
+            }
+
+            if (empty($errors)) {
                 $this->setFlash('error', 'Failed to create assignment. Please check your input.');
             }
         }
 
-        $this->render('teacher/assignment-create', [
-            'pageTitle' => 'Create Assignment',
-            'course' => $course,
-            'courseId' => $courseId,
-            'errors' => [],
-            'formData' => []
-        ]);
+        $this->renderCreateForm($course, $courseId, $errors, $formData);
     }
 
     public function editAction(int $id): void
@@ -80,28 +74,24 @@ class AssignmentController extends Controller
             return;
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $updateData = [
-                'assignment_name' => $this->request('assignment_name'),
-                'description' => $this->request('description'),
-                'max_points' => $this->request('max_points'),
-                'due_date' => $this->request('due_date')
-            ];
+        $formData = $this->assignmentPayload($courseId, false, $assignment);
+        $errors = [];
 
-            if ($this->assignmentService->updateAssignment($assignment, $updateData)) {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $errors = $this->validateAssignmentData($formData, false);
+
+            if (empty($errors) && $this->assignmentService->updateAssignment($assignment, $formData)) {
                 $this->setFlash('success', 'Assignment updated successfully!');
                 $this->redirect('/teacher/course-detail/' . $courseId);
                 return;
-            } else {
+            }
+
+            if (empty($errors)) {
                 $this->setFlash('error', 'Failed to update assignment. Please check your input.');
             }
         }
 
-        $this->render('teacher/assignment-edit', [
-            'pageTitle' => 'Edit Assignment',
-            'assignment' => $assignment,
-            'courseId' => $courseId
-        ]);
+        $this->renderEditForm($assignment, $courseId, $errors, $formData);
     }
 
     public function delete(int $id): void
@@ -131,5 +121,92 @@ class AssignmentController extends Controller
         }
 
         $this->redirect('/teacher/course-detail/' . $courseId);
+    }
+
+    private function renderCreateForm(\App\Models\Course $course, int $courseId, array $errors, array $formData): void
+    {
+        $this->render('teacher/assignment-create', [
+            'pageTitle' => 'Create Assignment',
+            'course' => $course,
+            'courseId' => $courseId,
+            'errors' => $errors,
+            'formData' => $formData,
+        ]);
+    }
+
+    private function renderEditForm(Assignment $assignment, int $courseId, array $errors, array $formData): void
+    {
+        $this->render('teacher/assignment-edit', [
+            'pageTitle' => 'Edit Assignment',
+            'assignment' => $assignment,
+            'courseId' => $courseId,
+            'errors' => $errors,
+            'formData' => $formData,
+        ]);
+    }
+
+    private function assignmentPayload(int $courseId, bool $includeCourseId = true, ?Assignment $assignment = null): array
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $assignment !== null) {
+            return [
+                'assignment_name' => $assignment->getAssignmentName(),
+                'description' => $assignment->getDescription() ?? '',
+                'max_points' => (string) $assignment->getMaxPoints(),
+                'due_date' => $assignment->getDueDate() ?? '',
+            ];
+        }
+
+        $payload = [
+            'assignment_name' => trim((string) $this->request('assignment_name', '')),
+            'description' => trim((string) $this->request('description', '')),
+            'max_points' => trim((string) $this->request('max_points', '')),
+            'due_date' => trim((string) $this->request('due_date', '')),
+        ];
+
+        if ($includeCourseId) {
+            $payload['course_id'] = $courseId;
+        }
+
+        return $payload;
+    }
+
+    private function validateAssignmentData(array $assignmentData, bool $requireCourseId = true): array
+    {
+        $errors = [];
+
+        if ($requireCourseId && empty($assignmentData['course_id'])) {
+            $errors['course_id'] = 'Course is required.';
+        }
+
+        if (empty($assignmentData['assignment_name'])) {
+            $errors['assignment_name'] = 'Assignment name is required.';
+        }
+
+        if (empty($assignmentData['description'])) {
+            $errors['description'] = 'Description is required.';
+        }
+
+        if ($assignmentData['max_points'] === '') {
+            $errors['max_points'] = 'Maximum points is required.';
+        } elseif (!is_numeric($assignmentData['max_points']) || (float) $assignmentData['max_points'] <= 0) {
+            $errors['max_points'] = 'Maximum points must be a number greater than 0.';
+        }
+
+        if (empty($assignmentData['due_date'])) {
+            $errors['due_date'] = 'Due date is required.';
+        } else {
+            $date = \DateTime::createFromFormat('Y-m-d', $assignmentData['due_date']);
+            $dateErrors = \DateTime::getLastErrors() ?: ['warning_count' => 0, 'error_count' => 0];
+
+            if (
+                $date === false
+                || $dateErrors['warning_count'] > 0
+                || $dateErrors['error_count'] > 0
+            ) {
+                $errors['due_date'] = 'Due date must be a valid date.';
+            }
+        }
+
+        return $errors;
     }
 }

@@ -114,6 +114,7 @@ $container->set(AuthController::class, fn($c) => new AuthController(
 ));
 $container->set(StudentController::class, fn($c) => new StudentController(
     $c->get(CourseServiceInterface::class),
+    $c->get(AssignmentServiceInterface::class),
     $c->get(GradeServiceInterface::class),
     $c->get(UserServiceInterface::class),
     $c->get(EnrollmentServiceInterface::class)

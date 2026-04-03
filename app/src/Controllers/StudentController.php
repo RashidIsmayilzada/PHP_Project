@@ -5,6 +5,7 @@ namespace App\Controllers;
 
 use App\Framework\Auth;
 use App\Framework\Controller;
+use App\Services\Interfaces\AssignmentServiceInterface;
 use App\Services\Interfaces\CourseServiceInterface;
 use App\Services\Interfaces\GradeServiceInterface;
 use App\Services\Interfaces\UserServiceInterface;
@@ -13,18 +14,21 @@ use App\Services\Interfaces\EnrollmentServiceInterface;
 class StudentController extends Controller
 {
     private CourseServiceInterface $courseService;
+    private AssignmentServiceInterface $assignmentService;
     private GradeServiceInterface $gradeService;
     private UserServiceInterface $userService;
     private EnrollmentServiceInterface $enrollmentService;
 
     public function __construct(
         CourseServiceInterface $courseService,
+        AssignmentServiceInterface $assignmentService,
         GradeServiceInterface $gradeService,
         UserServiceInterface $userService,
         EnrollmentServiceInterface $enrollmentService
     ) {
         parent::__construct();
         $this->courseService = $courseService;
+        $this->assignmentService = $assignmentService;
         $this->gradeService = $gradeService;
         $this->userService = $userService;
         $this->enrollmentService = $enrollmentService;
@@ -79,9 +83,24 @@ class StudentController extends Controller
             return;
         }
 
+        $assignments = $this->assignmentService->findByCourseId($id);
+        $teacher = $this->userService->findById($course->getTeacherId());
+        $courseAverage = $this->gradeService->calculateCourseAverage($id, $studentId);
+        $assignmentRows = array_map(function ($assignment) use ($studentId): array {
+            $grade = $this->gradeService->findByStudentAndAssignment($studentId, $assignment->getAssignmentId());
+
+            return [
+                'assignment' => $assignment,
+                'grade' => $grade,
+            ];
+        }, $assignments);
+
         $this->render('student/course-detail', [
             'pageTitle' => $course->getCourseCode() . ' - Details',
-            'course' => $course
+            'course' => $course,
+            'teacher' => $teacher,
+            'assignmentRows' => $assignmentRows,
+            'courseAverageDisplay' => $courseAverage !== null ? number_format($courseAverage, 1) . '%' : 'N/A',
         ]);
     }
 

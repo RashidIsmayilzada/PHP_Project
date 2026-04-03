@@ -62,7 +62,10 @@ class EnrollmentService implements EnrollmentServiceInterface
             return null;
         }
 
-        return $this->enrollmentRepository->create(new Enrollment($studentId, $courseId, 'active'));
+        $enrollment = new Enrollment($studentId, $courseId, 'active');
+        $enrollment->setEnrollmentDate(date('Y-m-d H:i:s'));
+
+        return $this->enrollmentRepository->create($enrollment);
     }
 
     public function updateEnrollmentStatus(int $enrollmentId, string $status): bool

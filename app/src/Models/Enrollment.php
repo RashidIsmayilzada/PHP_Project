@@ -62,6 +62,11 @@ class Enrollment
         $this->status = $status;
     }
 
+    public function setEnrollmentDate(?string $enrollmentDate): void
+    {
+        $this->enrollmentDate = $enrollmentDate;
+    }
+
     public function getStudentFirstName(): ?string
     {
         return $this->studentFirstName;
