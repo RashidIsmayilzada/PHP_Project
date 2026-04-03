@@ -35,14 +35,14 @@ class Config
     public static function getDbUsername(): string
     {
         self::initialize();
-        return $_ENV['DB_USERNAME'] ?? 'root';
+        return $_ENV['DB_USERNAME'] ?? 'developer';
     }
 
     // Get database password from environment
     public static function getDbPassword(): string
     {
         self::initialize();
-        return $_ENV['DB_PASSWORD'] ?? '';
+        return $_ENV['DB_PASSWORD'] ?? 'secret123';
     }
 
     // Get database name from environment

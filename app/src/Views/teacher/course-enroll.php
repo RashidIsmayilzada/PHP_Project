@@ -2,7 +2,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/teacher/dashboard" class="text-decoration-none">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="/teacher/course-detail/<?= $courseId ?>" class="text-decoration-none"><?= htmlspecialchars($course->getCourseCode()) ?></a></li>
+            <li class="breadcrumb-item"><a href="/teacher/course-detail/<?= htmlspecialchars((string) $courseId) ?>" class="text-decoration-none"><?= htmlspecialchars($course->getCourseCode()) ?></a></li>
             <li class="breadcrumb-item active" aria-current="page">Enrollments</li>
         </ol>
     </nav>
@@ -42,14 +42,14 @@
                                             <div class="text-muted small">No: <?= htmlspecialchars($enrollment->getStudentNumber() ?? 'N/A') ?></div>
                                         </td>
                                         <td>
-                                            <span class="badge rounded-pill bg-<?= $enrollment->getStatus() === 'active' ? 'success' : 'warning' ?>">
-                                                <?= ucfirst($enrollment->getStatus()) ?>
+                                            <span class="badge rounded-pill bg-<?= htmlspecialchars($enrollment->getStatus() === 'active' ? 'success' : 'warning') ?>">
+                                                <?= htmlspecialchars(ucfirst($enrollment->getStatus())) ?>
                                             </span>
                                         </td>
                                         <td class="text-end pe-3">
                                             <form method="POST" class="d-inline">
                                                 <input type="hidden" name="action" value="unenroll">
-                                                <input type="hidden" name="enrollment_id" value="<?= $enrollment->getEnrollmentId() ?>">
+                                                <input type="hidden" name="enrollment_id" value="<?= htmlspecialchars((string) $enrollment->getEnrollmentId()) ?>">
                                                 <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Unenroll this student?')">
                                                     <i class="bi bi-person-dash"></i>
                                                 </button>
@@ -81,7 +81,13 @@
                 <?php else: ?>
                     <div class="input-group mb-3">
                         <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                        <input type="text" id="studentSearch" class="form-control" placeholder="Search students by name or email...">
+                        <input
+                            type="text"
+                            id="liveSearchInput"
+                            class="form-control"
+                            placeholder="Search students by name or email..."
+                            data-api-url="/api/students"
+                        >
                     </div>
 
                     <form method="POST">
@@ -95,12 +101,16 @@
                                         <th>Email</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="liveSearchResults">
                                     <?php foreach ($availableStudents as $student): ?>
-                                        <tr class="student-row" data-search="<?= htmlspecialchars(strtolower($student->getFullName() . ' ' . $student->getEmail())) ?>">
+                                        <tr
+                                            class="student-row"
+                                            data-student-id="<?= htmlspecialchars((string) $student->getUserId()) ?>"
+                                            data-search="<?= htmlspecialchars(strtolower($student->getFullName() . ' ' . $student->getEmail())) ?>"
+                                        >
                                             <td>
                                                 <div class="form-check">
-                                                    <input type="checkbox" name="student_ids[]" value="<?= $student->getUserId() ?>" class="form-check-input student-checkbox">
+                                                    <input type="checkbox" name="student_ids[]" value="<?= htmlspecialchars((string) $student->getUserId()) ?>" class="form-check-input student-checkbox">
                                                 </div>
                                             </td>
                                             <td><?= htmlspecialchars($student->getFullName()) ?></td>
@@ -125,27 +135,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    const searchInput = document.getElementById('studentSearch');
-    const tableRows = document.querySelectorAll('.student-row');
-    const checkboxes = document.querySelectorAll('.student-checkbox');
-    const countDisplay = document.getElementById('selectedCount');
-
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            const query = this.value.toLowerCase();
-            tableRows.forEach(row => {
-                const text = row.getAttribute('data-search');
-                row.style.display = text.includes(query) ? '' : 'none';
-            });
-        });
-    }
-
-    checkboxes.forEach(cb => {
-        cb.addEventListener('change', function() {
-            const checkedCount = document.querySelectorAll('.student-checkbox:checked').length;
-            countDisplay.textContent = checkedCount;
-        });
-    });
-</script>

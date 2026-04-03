@@ -32,22 +32,22 @@ class TeacherController extends Controller
         $teacherId = Auth::id();
 
         $courses = $this->courseService->getCoursesForTeacher($teacherId);
-        
-        $courseData = [];
-        foreach ($courses as $course) {
-            $enrollments = $this->enrollmentService->findByCourseId($course->getCourseId());
-            $assignments = $this->assignmentService->findByCourseId($course->getCourseId());
-
-            $courseData[] = [
-                'course' => $course,
-                'enrollment_count' => count($enrollments),
-                'assignment_count' => count($assignments)
-            ];
-        }
+        $courseData = array_map(fn($course) => $this->buildCourseSummary($course), $courses);
 
         $this->render('teacher/dashboard', [
             'pageTitle' => 'Teacher Dashboard',
             'courseData' => $courseData
         ]);
+    }
+
+    private function buildCourseSummary(\App\Models\Course $course): array
+    {
+        $courseId = $course->getCourseId();
+
+        return [
+            'course' => $course,
+            'enrollment_count' => count($this->enrollmentService->findByCourseId($courseId)),
+            'assignment_count' => count($this->assignmentService->findByCourseId($courseId))
+        ];
     }
 }

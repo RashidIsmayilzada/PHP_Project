@@ -7,6 +7,18 @@
                     <p class="text-muted">Access your grade management dashboard</p>
                 </div>
 
+                <?php if (!empty($error)): ?>
+                    <div class="alert alert-danger" role="alert">
+                        <?= htmlspecialchars($error) ?>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (!empty($success)): ?>
+                    <div class="alert alert-success" role="alert">
+                        <?= htmlspecialchars($success) ?>
+                    </div>
+                <?php endif; ?>
+
                 <form method="POST" action="/login">
                     <div class="form-floating mb-3">
                         <input type="email" class="form-control" id="email" name="email" value="<?= htmlspecialchars($email ?? '') ?>" placeholder="name@example.com" required autofocus>

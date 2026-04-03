@@ -4,7 +4,7 @@
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/teacher/dashboard" class="text-decoration-none">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="/teacher/course-detail/<?= $courseId ?>" class="text-decoration-none">Course</a></li>
+                    <li class="breadcrumb-item"><a href="/teacher/course-detail/<?= htmlspecialchars((string) $courseId) ?>" class="text-decoration-none">Course</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Create Assignment</li>
                 </ol>
             </nav>
@@ -14,7 +14,7 @@
 
         <div class="card shadow-sm">
             <div class="card-body p-4">
-                <form method="POST" action="/teacher/assignment-create/<?= $courseId ?>">
+                <form method="POST" action="/teacher/assignment-create/<?= htmlspecialchars((string) $courseId) ?>">
                     <div class="mb-3">
                         <label for="assignment_name" class="form-label fw-semibold">Assignment Name</label>
                         <input type="text" class="form-control form-control-lg" id="assignment_name" name="assignment_name" required placeholder="e.g., Homework 1: Introduction to Logic">
@@ -46,7 +46,7 @@
 
                     <div class="d-flex gap-3">
                         <button type="submit" class="btn btn-primary btn-lg px-5">Create Assignment</button>
-                        <a href="/teacher/course-detail/<?= $courseId ?>" class="btn btn-outline-secondary btn-lg px-4">Cancel</a>
+                        <a href="/teacher/course-detail/<?= htmlspecialchars((string) $courseId) ?>" class="btn btn-outline-secondary btn-lg px-4">Cancel</a>
                     </div>
                 </form>
             </div>

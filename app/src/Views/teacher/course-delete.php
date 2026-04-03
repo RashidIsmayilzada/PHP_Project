@@ -9,11 +9,11 @@
             </div>
         </div>
         
-        <form method="POST" action="/teacher/course-delete/<?= $course->getCourseId() ?>">
+        <form method="POST" action="/teacher/course-delete/<?= htmlspecialchars((string) $course->getCourseId()) ?>">
             <input type="hidden" name="confirm" value="1">
             <div class="d-flex justify-content-center gap-3">
                 <button type="submit" class="btn btn-danger btn-lg px-5">Yes, Delete Course</button>
-                <a href="/teacher/course-detail/<?= $course->getCourseId() ?>" class="btn btn-outline-secondary btn-lg px-4">Cancel</a>
+                <a href="/teacher/course-detail/<?= htmlspecialchars((string) $course->getCourseId()) ?>" class="btn btn-outline-secondary btn-lg px-4">Cancel</a>
             </div>
         </form>
     </div>

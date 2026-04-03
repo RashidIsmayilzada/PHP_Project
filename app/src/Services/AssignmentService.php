@@ -38,49 +38,24 @@ class AssignmentService implements AssignmentServiceInterface
 
     public function createAssignment(array $assignmentData): ?Assignment
     {
-        if (empty($assignmentData['course_id']) || empty($assignmentData['assignment_name']) || !isset($assignmentData['max_points'])) {
+        if (!$this->hasValidAssignmentData($assignmentData)) {
             return null;
         }
 
-        if (!$this->courseRepository->findById((int)$assignmentData['course_id'])) {
+        if (!$this->courseExists((int)$assignmentData['course_id'])) {
             return null;
         }
 
-        if ($assignmentData['max_points'] <= 0) {
-            return null;
-        }
-
-        $assignment = new Assignment(
-            (int)$assignmentData['course_id'],
-            $assignmentData['assignment_name'],
-            (float)$assignmentData['max_points'],
-            $assignmentData['description'] ?? null,
-            $assignmentData['due_date'] ?? null
-        );
-
-        return $this->assignmentRepository->create($assignment);
+        return $this->assignmentRepository->create($this->buildAssignment($assignmentData));
     }
 
     public function updateAssignment(Assignment $assignment, array $updateData): bool
     {
-        if (isset($updateData['max_points'])) {
-            if ($updateData['max_points'] <= 0) {
-                return false;
-            }
-            $assignment->setMaxPoints((float)$updateData['max_points']);
+        if (!$this->canUpdateAssignment($updateData)) {
+            return false;
         }
 
-        if (isset($updateData['assignment_name'])) {
-            $assignment->setAssignmentName($updateData['assignment_name']);
-        }
-
-        if (array_key_exists('description', $updateData)) {
-            $assignment->setDescription($updateData['description']);
-        }
-
-        if (isset($updateData['due_date'])) {
-            $assignment->setDueDate($updateData['due_date']);
-        }
+        $this->applyAssignmentUpdates($assignment, $updateData);
 
         return $this->assignmentRepository->update($assignment);
     }
@@ -88,5 +63,54 @@ class AssignmentService implements AssignmentServiceInterface
     public function deleteAssignment(int $assignmentId): bool
     {
         return $this->assignmentRepository->delete($assignmentId);
+    }
+
+    private function hasValidAssignmentData(array $assignmentData): bool
+    {
+        if (empty($assignmentData['course_id']) || empty($assignmentData['assignment_name'])) {
+            return false;
+        }
+
+        return isset($assignmentData['max_points']) && (float)$assignmentData['max_points'] > 0;
+    }
+
+    private function courseExists(int $courseId): bool
+    {
+        return $this->courseRepository->findById($courseId) !== null;
+    }
+
+    private function buildAssignment(array $assignmentData): Assignment
+    {
+        return new Assignment(
+            (int)$assignmentData['course_id'],
+            $assignmentData['assignment_name'],
+            (float)$assignmentData['max_points'],
+            $assignmentData['description'] ?? null,
+            $assignmentData['due_date'] ?? null
+        );
+    }
+
+    private function canUpdateAssignment(array $updateData): bool
+    {
+        return !isset($updateData['max_points']) || (float)$updateData['max_points'] > 0;
+    }
+
+    private function applyAssignmentUpdates(Assignment $assignment, array $updateData): void
+    {
+        if (isset($updateData['assignment_name'])) {
+            $assignment->setAssignmentName($updateData['assignment_name']);
+        }
+
+        if (isset($updateData['max_points'])) {
+            $assignment->setMaxPoints((float)$updateData['max_points']);
+        }
+
+        if (array_key_exists('description', $updateData)) {
+            $assignment->setDescription($updateData['description']);
+        }
+
+        if (array_key_exists('due_date', $updateData)) {
+            $assignment->setDueDate($updateData['due_date']);
+        }
     }
 }

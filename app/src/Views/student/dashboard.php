@@ -28,7 +28,7 @@
             <div class="col-sm-4">
                 <div class="card shadow-sm h-100 border-0">
                     <div class="card-body text-center">
-                        <div class="display-6 fw-bold text-primary mb-1"><?= count($enrolledCourses) ?></div>
+                        <div class="display-6 fw-bold text-primary mb-1"><?= htmlspecialchars((string)$dashboardSummary['course_count']) ?></div>
                         <div class="text-muted small text-uppercase fw-semibold">Enrolled Courses</div>
                     </div>
                 </div>
@@ -36,13 +36,7 @@
             <div class="col-sm-4">
                 <div class="card shadow-sm h-100 border-0">
                     <div class="card-body text-center">
-                        <?php
-                        $activeCount = 0;
-                        foreach ($coursesData as $data) {
-                            if ($data['status'] === 'active') $activeCount++;
-                        }
-                        ?>
-                        <div class="display-6 fw-bold text-success mb-1"><?= $activeCount ?></div>
+                        <div class="display-6 fw-bold text-success mb-1"><?= htmlspecialchars((string)$dashboardSummary['active_count']) ?></div>
                         <div class="text-muted small text-uppercase fw-semibold">Active Courses</div>
                     </div>
                 </div>
@@ -50,13 +44,7 @@
             <div class="col-sm-4">
                 <div class="card shadow-sm h-100 border-0">
                     <div class="card-body text-center">
-                        <?php
-                        $totalCredits = 0;
-                        foreach ($enrolledCourses as $course) {
-                            $totalCredits += $course->getCredits() ?? 0;
-                        }
-                        ?>
-                        <div class="display-6 fw-bold text-info mb-1"><?= $totalCredits ?></div>
+                        <div class="display-6 fw-bold text-info mb-1"><?= htmlspecialchars((string)$dashboardSummary['total_credits']) ?></div>
                         <div class="text-muted small text-uppercase fw-semibold">Total Credits</div>
                     </div>
                 </div>
@@ -78,46 +66,32 @@
 <?php else: ?>
     <div class="row g-4">
         <?php foreach ($coursesData as $data): ?>
-            <?php
-            $course = $data['course'];
-            $average = $data['average'];
-            $letterGrade = $data['letter_grade'];
-            $teacher = $data['teacher'];
-            $status = $data['status'];
-            
-            $gradeColor = 'secondary';
-            if ($average !== null) {
-                if ($average >= 90) $gradeColor = 'success';
-                elseif ($average >= 70) $gradeColor = 'primary';
-                elseif ($average >= 50) $gradeColor = 'warning';
-                else $gradeColor = 'danger';
-            }
-            ?>
+            <?php $course = $data['course']; ?>
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 shadow-sm transition-hover border-0">
                     <div class="card-header bg-white border-0 pt-4 pb-0 d-flex justify-content-between">
                         <span class="badge bg-light text-dark border small"><?= htmlspecialchars($course->getCourseCode()) ?></span>
-                        <span class="badge rounded-pill bg-<?= $status === 'active' ? 'success' : 'secondary' ?> opacity-75">
-                            <?= ucfirst($status) ?>
+                        <span class="badge rounded-pill bg-<?= htmlspecialchars($data['status_badge_class']) ?> opacity-75">
+                            <?= htmlspecialchars(ucfirst($data['status'])) ?>
                         </span>
                     </div>
                     <div class="card-body">
                         <h5 class="card-title mb-1"><?= htmlspecialchars($course->getCourseName()) ?></h5>
                         <p class="text-muted small mb-4">
-                            <i class="bi bi-person me-1"></i> <?= htmlspecialchars($teacher ? $teacher->getFullName() : 'Unknown Teacher') ?>
+                            <i class="bi bi-person me-1"></i> <?= htmlspecialchars($data['teacher'] ? $data['teacher']->getFullName() : 'Unknown Teacher') ?>
                         </p>
 
                         <div class="row g-2 mb-4">
                             <div class="col-6">
                                 <div class="p-3 bg-light rounded text-center">
                                     <div class="small text-muted mb-1">Average</div>
-                                    <div class="h4 mb-0 text-<?= $gradeColor ?>"><?= $average !== null ? number_format($average, 1) . '%' : 'N/A' ?></div>
+                                    <div class="h4 mb-0 text-<?= htmlspecialchars($data['grade_color']) ?>"><?= htmlspecialchars($data['average_display']) ?></div>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="p-3 bg-light rounded text-center">
                                     <div class="small text-muted mb-1">Grade</div>
-                                    <div class="h4 mb-0 text-<?= $gradeColor ?>"><?= $letterGrade ?: '-' ?></div>
+                                    <div class="h4 mb-0 text-<?= htmlspecialchars($data['grade_color']) ?>"><?= htmlspecialchars($data['letter_grade']) ?></div>
                                 </div>
                             </div>
                         </div>
@@ -128,7 +102,7 @@
                         </div>
                     </div>
                     <div class="card-footer bg-white border-0 pb-4">
-                        <a href="/student/course-detail/<?= $course->getCourseId() ?>" class="btn btn-outline-primary w-100">
+                        <a href="/student/course-detail/<?= htmlspecialchars((string) $course->getCourseId()) ?>" class="btn btn-outline-primary w-100">
                             View Course Details
                         </a>
                     </div>

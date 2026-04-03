@@ -9,9 +9,13 @@ use App\Repositories\Interfaces\CourseRepositoryInterface;
 
 class CourseRepository extends Repository implements CourseRepositoryInterface
 {
-    public function findAll(): array
+    public function findAll(int $limit = 100, int $offset = 0): array
     {
-        $rows = $this->fetchAll("SELECT * FROM courses ORDER BY course_name");
+        $rows = $this->fetchAll(
+            "SELECT * FROM courses ORDER BY course_name LIMIT :limit OFFSET :offset",
+            $this->paginationParams($limit, $offset)
+        );
+
         return array_map([$this, 'mapRowToCourse'], $rows);
     }
 
@@ -21,25 +25,35 @@ class CourseRepository extends Repository implements CourseRepositoryInterface
         return $row ? $this->mapRowToCourse($row) : null;
     }
 
-    public function findByTeacherId(int $teacherId): array
+    public function findByTeacherId(int $teacherId, int $limit = 100, int $offset = 0): array
     {
-        $rows = $this->fetchAll("SELECT * FROM courses WHERE teacher_id = :teacher_id ORDER BY course_name", ['teacher_id' => $teacherId]);
+        $rows = $this->fetchAll(
+            "SELECT * FROM courses WHERE teacher_id = :teacher_id ORDER BY course_name LIMIT :limit OFFSET :offset",
+            ['teacher_id' => $teacherId] + $this->paginationParams($limit, $offset)
+        );
+
         return array_map([$this, 'mapRowToCourse'], $rows);
     }
 
-    public function findBySemester(string $semester): array
+    public function findBySemester(string $semester, int $limit = 100, int $offset = 0): array
     {
-        $rows = $this->fetchAll("SELECT * FROM courses WHERE semester = :semester ORDER BY course_name", ['semester' => $semester]);
+        $rows = $this->fetchAll(
+            "SELECT * FROM courses WHERE semester = :semester ORDER BY course_name LIMIT :limit OFFSET :offset",
+            ['semester' => $semester] + $this->paginationParams($limit, $offset)
+        );
+
         return array_map([$this, 'mapRowToCourse'], $rows);
     }
 
-    public function findByStudentId(int $studentId): array
+    public function findByStudentId(int $studentId, int $limit = 100, int $offset = 0): array
     {
         $sql = "SELECT c.* FROM courses c 
                 JOIN enrollments e ON c.course_id = e.course_id 
                 WHERE e.student_id = :student_id 
-                ORDER BY c.course_name";
-        $rows = $this->fetchAll($sql, ['student_id' => $studentId]);
+                ORDER BY c.course_name
+                LIMIT :limit OFFSET :offset";
+        $rows = $this->fetchAll($sql, ['student_id' => $studentId] + $this->paginationParams($limit, $offset));
+
         return array_map([$this, 'mapRowToCourse'], $rows);
     }
 
@@ -102,5 +116,13 @@ class CourseRepository extends Repository implements CourseRepositoryInterface
             $row['created_at'] ?? null,
             $row['updated_at'] ?? null
         );
+    }
+
+    private function paginationParams(int $limit, int $offset): array
+    {
+        return [
+            'limit' => max(1, $limit),
+            'offset' => max(0, $offset),
+        ];
     }
 }

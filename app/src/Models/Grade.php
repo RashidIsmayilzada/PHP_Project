@@ -65,6 +65,11 @@ class Grade
         return $this->feedback;
     }
 
+    public function setFeedback(?string $feedback): void
+    {
+        $this->feedback = $feedback;
+    }
+
     public function getGradedAt(): ?string
     {
         return $this->gradedAt;

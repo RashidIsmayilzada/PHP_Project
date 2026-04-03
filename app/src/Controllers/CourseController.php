@@ -17,6 +17,24 @@ class CourseController extends Controller
         $this->courseService = $courseService;
     }
 
+    public function index(): void
+    {
+        Auth::requireRole('teacher');
+
+        $courses = $this->courseService->findAll();
+        $payload = array_map(fn($course) => [
+            'id' => $course->getCourseId(),
+            'course_code' => $course->getCourseCode(),
+            'course_name' => $course->getCourseName(),
+            'teacher_id' => $course->getTeacherId(),
+            'credits' => $course->getCredits(),
+            'semester' => $course->getSemester(),
+        ], $courses);
+
+        header('Content-Type: application/json');
+        echo json_encode($payload);
+    }
+
     public function show(int $id): void
     {
         Auth::requireRole('teacher');
@@ -36,25 +54,9 @@ class CourseController extends Controller
     public function createAction(): void
     {
         Auth::requireRole('teacher');
-        
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $courseData = [
-                'course_code' => $this->request('course_code'),
-                'course_name' => $this->request('course_name'),
-                'description' => $this->request('description'),
-                'credits' => $this->request('credits'),
-                'semester' => $this->request('semester'),
-                'teacher_id' => Auth::id()
-            ];
 
-            $course = $this->courseService->createCourse($courseData);
-            if ($course) {
-                $this->setFlash('success', 'Course created successfully!');
-                $this->redirect('/teacher/dashboard');
-                return;
-            } else {
-                $this->setFlash('error', 'Failed to create course. Please check your input.');
-            }
+        if ($this->isPostRequest() && $this->handleCreate()) {
+            return;
         }
 
         $this->render('teacher/course-create', ['pageTitle' => 'Create Course']);
@@ -63,30 +65,16 @@ class CourseController extends Controller
     public function editAction(int $id): void
     {
         Auth::requireRole('teacher');
-        $course = $this->courseService->findById($id);
+        $course = $this->findOwnedCourse($id);
 
-        if (!$course || $course->getTeacherId() !== Auth::id()) {
+        if ($course === null) {
             $this->setFlash('error', 'Course not found or access denied.');
             $this->redirect('/teacher/dashboard');
             return;
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $updateData = [
-                'course_code' => $this->request('course_code'),
-                'course_name' => $this->request('course_name'),
-                'description' => $this->request('description'),
-                'credits' => $this->request('credits'),
-                'semester' => $this->request('semester')
-            ];
-
-            if ($this->courseService->updateCourse($course, $updateData)) {
-                $this->setFlash('success', 'Course updated successfully!');
-                $this->redirect('/teacher/course-detail/' . $id);
-                return;
-            } else {
-                $this->setFlash('error', 'Failed to update course. Please check your input.');
-            }
+        if ($this->isPostRequest() && $this->handleUpdate($course, $id)) {
+            return;
         }
 
         $this->render('teacher/course-edit', [
@@ -98,9 +86,9 @@ class CourseController extends Controller
     public function delete(int $id): void
     {
         Auth::requireRole('teacher');
-        $course = $this->courseService->findById($id);
+        $course = $this->findOwnedCourse($id);
 
-        if (!$course || $course->getTeacherId() !== Auth::id()) {
+        if ($course === null) {
             $this->setFlash('error', 'Course not found or access denied.');
             $this->redirect('/teacher/dashboard');
             return;
@@ -113,5 +101,59 @@ class CourseController extends Controller
         }
 
         $this->redirect('/teacher/dashboard');
+    }
+
+    private function findOwnedCourse(int $courseId): ?\App\Models\Course
+    {
+        $course = $this->courseService->findById($courseId);
+
+        return $course && $course->getTeacherId() === Auth::id() ? $course : null;
+    }
+
+    private function handleCreate(): bool
+    {
+        $course = $this->courseService->createCourse($this->coursePayload());
+        if ($course === null) {
+            $this->setFlash('error', 'Failed to create course. Please check your input.');
+            return false;
+        }
+
+        $this->setFlash('success', 'Course created successfully!');
+        $this->redirect('/teacher/dashboard');
+        return true;
+    }
+
+    private function handleUpdate(\App\Models\Course $course, int $courseId): bool
+    {
+        if (!$this->courseService->updateCourse($course, $this->coursePayload(false))) {
+            $this->setFlash('error', 'Failed to update course. Please check your input.');
+            return false;
+        }
+
+        $this->setFlash('success', 'Course updated successfully!');
+        $this->redirect('/teacher/course-detail/' . $courseId);
+        return true;
+    }
+
+    private function coursePayload(bool $includeTeacher = true): array
+    {
+        $payload = [
+            'course_code' => $this->request('course_code'),
+            'course_name' => $this->request('course_name'),
+            'description' => $this->request('description'),
+            'credits' => $this->request('credits'),
+            'semester' => $this->request('semester'),
+        ];
+
+        if ($includeTeacher) {
+            $payload['teacher_id'] = Auth::id();
+        }
+
+        return $payload;
+    }
+
+    private function isPostRequest(): bool
+    {
+        return ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
     }
 }

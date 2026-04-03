@@ -5,16 +5,21 @@ namespace App\Controllers;
 
 use App\Framework\Auth;
 use App\Framework\Controller;
+use App\Services\Interfaces\AuthServiceInterface;
 use App\Services\Interfaces\UserServiceInterface;
-use App\Config;
 
 class AuthController extends Controller
 {
+    private AuthServiceInterface $authService;
     private UserServiceInterface $userService;
 
-    public function __construct(UserServiceInterface $userService)
+    public function __construct(
+        AuthServiceInterface $authService,
+        UserServiceInterface $userService
+    )
     {
         parent::__construct();
+        $this->authService = $authService;
         $this->userService = $userService;
     }
 
@@ -22,20 +27,14 @@ class AuthController extends Controller
     {
         if (Auth::check()) {
             $this->redirect(Auth::role() === 'teacher' ? '/teacher/dashboard' : '/student/dashboard');
-        }
-
-        $success = '';
-        if (isset($_GET['message'])) {
-            if ($_GET['message'] === 'logout_success') $success = 'You have been successfully logged out.';
-            if ($_GET['message'] === 'registration_success') $success = 'Registration successful! Please login.';
-            if ($_GET['message'] === 'session_expired') $success = 'Your session has expired due to inactivity.';
+            return;
         }
 
         $this->render('auth/login', [
             'pageTitle' => 'Login',
             'pageCss' => 'auth',
             'error' => $_SESSION['error'] ?? '',
-            'success' => $success,
+            'success' => $this->resolveLoginMessage(),
             'email' => $_SESSION['old_email'] ?? ''
         ]);
         unset($_SESSION['error'], $_SESSION['old_email']);
@@ -46,11 +45,12 @@ class AuthController extends Controller
         $email = $this->request('email', '');
         $password = $this->request('password', '');
 
-        $user = $this->userService->findByEmail($email);
+        $user = $this->authService->authenticate($email, $password);
 
-        if ($user && password_verify($password, $user->getPassword())) {
+        if ($user !== null) {
             Auth::login($user->getUserId(), $user->getRole());
             $this->redirect($user->getRole() === 'teacher' ? '/teacher/dashboard' : '/student/dashboard');
+            return;
         }
 
         $_SESSION['error'] = 'Invalid email or password.';
@@ -107,5 +107,15 @@ class AuthController extends Controller
         $_SESSION['errors'] = $errors;
         $_SESSION['old_data'] = $userData;
         $this->redirect('/register');
+    }
+
+    private function resolveLoginMessage(): string
+    {
+        return match ($_GET['message'] ?? '') {
+            'logout_success' => 'You have been successfully logged out.',
+            'registration_success' => 'Registration successful! Please login.',
+            'session_expired' => 'Your session has expired due to inactivity.',
+            default => '',
+        };
     }
 }

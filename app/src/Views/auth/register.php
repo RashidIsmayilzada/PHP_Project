@@ -12,25 +12,25 @@
                         <div class="col">
                             <label for="first_name" class="form-label">First Name</label>
                             <input type="text" class="form-control <?= !empty($errors['first_name']) ? 'is-invalid' : '' ?>" id="first_name" name="first_name" value="<?= htmlspecialchars($formData['first_name'] ?? '') ?>" required>
-                            <?php if (!empty($errors['first_name'])): ?><div class="invalid-feedback"><?= $errors['first_name'] ?></div><?php endif; ?>
+                            <?php if (!empty($errors['first_name'])): ?><div class="invalid-feedback"><?= htmlspecialchars($errors['first_name']) ?></div><?php endif; ?>
                         </div>
                         <div class="col">
                             <label for="last_name" class="form-label">Last Name</label>
                             <input type="text" class="form-control <?= !empty($errors['last_name']) ? 'is-invalid' : '' ?>" id="last_name" name="last_name" value="<?= htmlspecialchars($formData['last_name'] ?? '') ?>" required>
-                            <?php if (!empty($errors['last_name'])): ?><div class="invalid-feedback"><?= $errors['last_name'] ?></div><?php endif; ?>
+                            <?php if (!empty($errors['last_name'])): ?><div class="invalid-feedback"><?= htmlspecialchars($errors['last_name']) ?></div><?php endif; ?>
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <label for="email" class="form-label">Email Address</label>
                         <input type="email" class="form-control <?= !empty($errors['email']) ? 'is-invalid' : '' ?>" id="email" name="email" value="<?= htmlspecialchars($formData['email'] ?? '') ?>" required>
-                        <?php if (!empty($errors['email'])): ?><div class="invalid-feedback"><?= $errors['email'] ?></div><?php endif; ?>
+                        <?php if (!empty($errors['email'])): ?><div class="invalid-feedback"><?= htmlspecialchars($errors['email']) ?></div><?php endif; ?>
                     </div>
 
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
                         <input type="password" class="form-control <?= !empty($errors['password']) ? 'is-invalid' : '' ?>" id="password" name="password" required>
-                        <?php if (!empty($errors['password'])): ?><div class="invalid-feedback"><?= $errors['password'] ?></div><?php endif; ?>
+                        <?php if (!empty($errors['password'])): ?><div class="invalid-feedback"><?= htmlspecialchars($errors['password']) ?></div><?php endif; ?>
                     </div>
 
                     <div class="mb-3">
@@ -45,7 +45,7 @@
                         <div class="mb-3">
                             <label for="student_number" class="form-label">Student Number</label>
                             <input type="text" class="form-control <?= !empty($errors['student_number']) ? 'is-invalid' : '' ?>" id="student_number" name="student_number" value="<?= htmlspecialchars($formData['student_number'] ?? '') ?>">
-                            <?php if (!empty($errors['student_number'])): ?><div class="invalid-feedback"><?= $errors['student_number'] ?></div><?php endif; ?>
+                            <?php if (!empty($errors['student_number'])): ?><div class="invalid-feedback"><?= htmlspecialchars($errors['student_number']) ?></div><?php endif; ?>
                         </div>
                     </div>
 
@@ -61,14 +61,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    document.getElementById('role').addEventListener('change', function() {
-        const studentFields = document.getElementById('student_fields');
-        if (this.value === 'student') {
-            studentFields.classList.remove('d-none');
-        } else {
-            studentFields.classList.add('d-none');
-        }
-    });
-</script>

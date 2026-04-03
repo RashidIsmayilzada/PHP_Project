@@ -21,13 +21,13 @@
             </div>
         </div>
         <div class="col-md-3 col-lg-4">
-            <div class="card shadow-sm border-0 py-4 h-100">
-                <div class="card-body text-center">
-                    <div class="text-muted small text-uppercase fw-bold mb-2">Total Courses</div>
-                    <div class="display-4 fw-bold text-primary mb-0"><?= $statistics['total_courses'] ?></div>
+                <div class="card shadow-sm border-0 py-4 h-100">
+                    <div class="card-body text-center">
+                        <div class="text-muted small text-uppercase fw-bold mb-2">Total Courses</div>
+                    <div class="display-4 fw-bold text-primary mb-0"><?= htmlspecialchars((string) $statistics['total_courses']) ?></div>
+                    </div>
                 </div>
             </div>
-        </div>
         <div class="col-md-3 col-lg-4">
             <div class="card shadow-sm border-0 py-4 h-100">
                 <div class="card-body text-center">
@@ -55,14 +55,6 @@
                     </thead>
                     <tbody>
                         <?php foreach ($statistics['courses'] as $c): ?>
-                            <?php
-                            $gradeColor = 'secondary';
-                            $avg = $c['average'];
-                            if ($avg >= 90) $gradeColor = 'success';
-                            elseif ($avg >= 70) $gradeColor = 'primary';
-                            elseif ($avg >= 50) $gradeColor = 'warning';
-                            else $gradeColor = 'danger';
-                            ?>
                             <tr>
                                 <td class="ps-3">
                                     <div class="fw-bold"><?= htmlspecialchars($c['course']->getCourseCode()) ?></div>
@@ -70,17 +62,17 @@
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <span class="me-2"><?= number_format($avg, 1) ?>%</span>
+                                        <span class="me-2"><?= htmlspecialchars($c['average_display']) ?></span>
                                         <div class="progress flex-grow-1 d-none d-sm-flex progress-xs min-w-100">
-                                            <div class="progress-bar bg-<?= $gradeColor ?>" role="progressbar" style="width: <?= $avg ?>%"></div>
+                                            <div class="progress-bar bg-<?= htmlspecialchars($c['grade_color']) ?>" role="progressbar" data-progress="<?= htmlspecialchars((string)$c['average']) ?>"></div>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="badge bg-<?= $gradeColor ?> px-3"><?= $c['letter'] ?></span>
+                                    <span class="badge bg-<?= htmlspecialchars($c['grade_color']) ?> px-3"><?= htmlspecialchars($c['letter']) ?></span>
                                 </td>
                                 <td class="text-end pe-3 fw-semibold">
-                                    <?= number_format($c['gpa'], 1) ?>
+                                    <?= htmlspecialchars($c['gpa_display']) ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

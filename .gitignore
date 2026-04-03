@@ -42,3 +42,4 @@ node_modules/
 docker-compose.override.yml
 CLAUDE.md
 IMPLEMENTATION_PLAN.md
+GEMINI.md

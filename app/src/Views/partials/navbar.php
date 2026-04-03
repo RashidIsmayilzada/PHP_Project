@@ -8,9 +8,9 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <?php if (\App\Framework\Auth::check()): ?>
+                <?php if ($isAuthenticated): ?>
                     <li class="nav-item">
-                        <span class="nav-link text-white-50">Logged in as <?= ucfirst(\App\Framework\Auth::role()) ?></span>
+                        <span class="nav-link text-white-50">Logged in as <?= htmlspecialchars(ucfirst((string) $currentUserRole)) ?></span>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/logout">Logout</a>

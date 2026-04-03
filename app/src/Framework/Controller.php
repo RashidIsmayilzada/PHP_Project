@@ -22,7 +22,14 @@ class Controller
             return;
         }
 
+        $defaultLayoutData = [
+            'currentYear' => (int) date('Y'),
+            'isAuthenticated' => Auth::check(),
+            'currentUserRole' => Auth::role(),
+        ];
+
         // Turn array keys into local variables for the view.
+        $data = array_merge($defaultLayoutData, $data);
         extract($data, EXTR_SKIP);
 
         // Load and clear flash messages for one-time display.

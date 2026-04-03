@@ -2,6 +2,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/teacher/dashboard" class="text-decoration-none">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/teacher/course-detail/<?= htmlspecialchars((string) $course->getCourseId()) ?>" class="text-decoration-none"><?= htmlspecialchars($course->getCourseCode()) ?></a></li>
             <li class="breadcrumb-item active" aria-current="page">Grade Assignment</li>
         </ol>
     </nav>
@@ -27,16 +28,62 @@
                             <th>Student</th>
                             <th class="w-200">Grade</th>
                             <th>Feedback / Notes</th>
+                            <th>Saved</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Placeholder rows as actual logic is currently missing in controller -->
-                        <tr>
-                            <td colspan="3" class="text-center py-4 text-muted">
-                                <i class="bi bi-person-slash display-4"></i>
-                                <p class="mt-2">No student data available to grade.</p>
-                            </td>
-                        </tr>
+                        <?php if (!empty($gradeRows)): ?>
+                            <?php foreach ($gradeRows as $row): ?>
+                                <?php
+                                $enrollment = $row['enrollment'];
+                                $grade = $row['grade'];
+                                $studentId = $enrollment->getStudentId();
+                                ?>
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold"><?= htmlspecialchars($enrollment->getStudentFullName()) ?></div>
+                                        <div class="small text-muted"><?= htmlspecialchars($enrollment->getStudentNumber() ?? 'N/A') ?></div>
+                                    </td>
+                                    <td>
+                                        <input
+                                            type="number"
+                                            class="form-control"
+                                            name="grades[<?= htmlspecialchars((string) $studentId) ?>][points_earned]"
+                                            step="0.5"
+                                            min="0"
+                                            max="<?= htmlspecialchars((string)$assignment->getMaxPoints()) ?>"
+                                            value="<?= htmlspecialchars((string)($grade?->getPointsEarned() ?? '')) ?>"
+                                            placeholder="Out of <?= htmlspecialchars((string)$assignment->getMaxPoints()) ?>"
+                                        >
+                                    </td>
+                                    <td>
+                                        <textarea
+                                            class="form-control"
+                                            name="grades[<?= htmlspecialchars((string) $studentId) ?>][feedback]"
+                                            rows="2"
+                                            placeholder="Optional feedback"
+                                        ><?= htmlspecialchars($grade?->getFeedback() ?? '') ?></textarea>
+                                    </td>
+                                    <td>
+                                        <?php if ($grade !== null): ?>
+                                            <span class="badge bg-success-subtle text-success border">Saved</span>
+                                            <div class="mt-2">
+                                                <a href="/teacher/grade-edit/<?= htmlspecialchars((string) $grade->getGradeId()) ?>" class="btn btn-outline-secondary btn-sm">Edit</a>
+                                            </div>
+                                        <?php else: ?>
+                                            <span class="badge bg-secondary-subtle text-dark border">Not yet</span>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">
+                                    <i class="bi bi-person-slash display-4"></i>
+                                    <p class="mt-2">No student data available to grade.</p>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>

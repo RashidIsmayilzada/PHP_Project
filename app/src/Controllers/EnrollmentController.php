@@ -29,61 +29,27 @@ class EnrollmentController extends Controller
     public function enrollAction(int $courseId): void
     {
         Auth::requireRole('teacher');
-        
-        $course = $this->courseService->findById($courseId);
-        if (!$course || $course->getTeacherId() !== Auth::id()) {
+
+        $course = $this->findOwnedCourse($courseId);
+        if ($course === null) {
             $this->setFlash('error', 'Course not found or access denied.');
             $this->redirect('/teacher/dashboard');
             return;
         }
 
-        // Handle POST actions
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $action = $this->request('action');
-            
-            if ($action === 'bulk_enroll') {
-                $studentIds = $_POST['student_ids'] ?? [];
-                if (empty($studentIds)) {
-                    $this->setFlash('error', 'No students selected.');
-                } else {
-                    $count = 0;
-                    foreach ($studentIds as $sId) {
-                        if ($this->enrollmentService->enrollStudent((int)$sId, $courseId)) {
-                            $count++;
-                        }
-                    }
-                    if ($count > 0) {
-                        $this->setFlash('success', "Successfully enrolled $count student(s).");
-                    } else {
-                        $this->setFlash('error', "Failed to enroll students or they are already enrolled.");
-                    }
-                }
-            } elseif ($action === 'unenroll') {
-                $enrollmentId = (int)$this->request('enrollment_id');
-                $enrollment = $this->enrollmentService->findById($enrollmentId);
-                
-                if ($enrollment && $enrollment->getCourseId() === $courseId) {
-                    if ($this->enrollmentService->deleteEnrollment($enrollmentId)) {
-                        $this->setFlash('success', "Student unenrolled.");
-                    } else {
-                        $this->setFlash('error', "Failed to unenroll student.");
-                    }
-                } else {
-                    $this->setFlash('error', "Enrollment not found.");
-                }
-            }
-            
+        if ($this->isPostRequest()) {
+            $this->handleEnrollmentAction($courseId);
             $this->redirect("/teacher/course-enroll/$courseId");
             return;
         }
 
-        // Data for the view
         $enrollments = $this->enrollmentService->findByCourseId($courseId);
         $allStudents = $this->userService->findAllStudents();
-        
-        // Filter available students (those not already enrolled)
         $enrolledIds = array_map(fn($e) => $e->getStudentId(), $enrollments);
-        $availableStudents = array_filter($allStudents, fn($s) => !in_array($s->getUserId(), $enrolledIds));
+        $availableStudents = array_filter(
+            $allStudents,
+            fn($student) => !in_array($student->getUserId(), $enrolledIds, true)
+        );
 
         $this->render('teacher/course-enroll', [
             'pageTitle' => 'Manage Enrollments',
@@ -92,5 +58,62 @@ class EnrollmentController extends Controller
             'enrollments' => $enrollments,
             'availableStudents' => $availableStudents
         ]);
+    }
+
+    private function findOwnedCourse(int $courseId): ?\App\Models\Course
+    {
+        $course = $this->courseService->findById($courseId);
+
+        return $course && $course->getTeacherId() === Auth::id() ? $course : null;
+    }
+
+    private function handleEnrollmentAction(int $courseId): void
+    {
+        match ($this->request('action')) {
+            'bulk_enroll' => $this->handleBulkEnrollment($courseId),
+            'unenroll' => $this->handleUnenroll($courseId),
+            default => $this->setFlash('error', 'Unknown enrollment action.'),
+        };
+    }
+
+    private function handleBulkEnrollment(int $courseId): void
+    {
+        $studentIds = $_POST['student_ids'] ?? [];
+        if (empty($studentIds)) {
+            $this->setFlash('error', 'No students selected.');
+            return;
+        }
+
+        $count = 0;
+        foreach ($studentIds as $studentId) {
+            if ($this->enrollmentService->enrollStudent((int)$studentId, $courseId)) {
+                $count++;
+            }
+        }
+
+        $message = $count > 0
+            ? "Successfully enrolled $count student(s)."
+            : 'Failed to enroll students or they are already enrolled.';
+
+        $this->setFlash($count > 0 ? 'success' : 'error', $message);
+    }
+
+    private function handleUnenroll(int $courseId): void
+    {
+        $enrollmentId = (int)$this->request('enrollment_id');
+        $enrollment = $this->enrollmentService->findById($enrollmentId);
+
+        if ($enrollment === null || $enrollment->getCourseId() !== $courseId) {
+            $this->setFlash('error', 'Enrollment not found.');
+            return;
+        }
+
+        $success = $this->enrollmentService->deleteEnrollment($enrollmentId);
+        $this->setFlash($success ? 'success' : 'error', $success ? 'Student unenrolled.' : 'Failed to unenroll student.');
+    }
+
+    private function isPostRequest(): bool
+    {
+        return ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
     }
 }
