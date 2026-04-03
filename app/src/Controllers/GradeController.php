@@ -118,8 +118,17 @@ class GradeController extends Controller
         }
 
         if ($this->isPostRequest()) {
+            $pointsEarned = $this->request('points_earned');
+            $validationError = $this->validatePointsEarned($pointsEarned, $assignment->getMaxPoints());
+
+            if ($validationError !== null) {
+                $this->setFlash('error', $validationError);
+                $this->redirect('/teacher/grade-edit/' . $id);
+                return;
+            }
+
             $updated = $this->gradeService->updateGrade($grade, [
-                'points_earned' => $this->request('points_earned'),
+                'points_earned' => $pointsEarned,
                 'feedback' => $this->request('feedback'),
             ]);
 
@@ -171,6 +180,17 @@ class GradeController extends Controller
             return false;
         }
 
+        $assignment = $this->assignmentService->findById($assignmentId);
+        if ($assignment === null) {
+            return false;
+        }
+
+        $validationError = $this->validatePointsEarned($gradeInput['points_earned'], $assignment->getMaxPoints());
+        if ($validationError !== null) {
+            $this->setFlash('error', "Student ID {$studentId}: {$validationError}");
+            return false;
+        }
+
         $payload = [
             'points_earned' => $gradeInput['points_earned'],
             'feedback' => $gradeInput['feedback'] ?? null,
@@ -190,5 +210,27 @@ class GradeController extends Controller
     private function isPostRequest(): bool
     {
         return ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
+    }
+
+    private function validatePointsEarned(mixed $pointsEarned, float $maxPoints): ?string
+    {
+        if ($pointsEarned === null || $pointsEarned === '') {
+            return 'Points earned is required.';
+        }
+
+        if (!is_numeric($pointsEarned)) {
+            return 'Points earned must be a valid number.';
+        }
+
+        $numericPoints = (float) $pointsEarned;
+        if ($numericPoints < 0) {
+            return 'Points earned cannot be negative.';
+        }
+
+        if ($numericPoints > $maxPoints) {
+            return 'Points earned cannot be greater than the assignment maximum of ' . rtrim(rtrim((string) $maxPoints, '0'), '.') . '.';
+        }
+
+        return null;
     }
 }

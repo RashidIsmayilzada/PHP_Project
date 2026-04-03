@@ -23,8 +23,9 @@
                         <label for="points_earned" class="form-label fw-semibold">Points Earned</label>
                         <div class="input-group input-group-lg">
                             <span class="input-group-text"><i class="bi bi-award"></i></span>
-                            <input type="number" class="form-control" id="points_earned" name="points_earned" step="0.5" required value="<?= htmlspecialchars((string)$grade->getPointsEarned()) ?>">
+                            <input type="number" class="form-control" id="points_earned" name="points_earned" step="0.5" min="0" max="<?= htmlspecialchars((string) $assignment->getMaxPoints()) ?>" required value="<?= htmlspecialchars((string) $grade->getPointsEarned()) ?>">
                         </div>
+                        <div class="form-text">Enter a value between 0 and <?= htmlspecialchars((string) $assignment->getMaxPoints()) ?>.</div>
                     </div>
 
                     <div class="mb-3">
