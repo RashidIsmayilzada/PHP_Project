@@ -1,18 +1,21 @@
 # Student Management System
 
-A PHP MVC application for managing courses, enrollments, assignments, and grades for teachers and students.
+Some notes regarding the project:
+- the database export is inside of the directory and called "developmentdb.sql"
+- no any .env configuration needed as Config files has default values to simplify configuration however the data retrival via .env will also work but is not necessary in the current project
+- all the grade configuration has also been removed so no additional setup except running docker will be required (there were no issues when other students ran the app on their laptops)
+- majority if not all of the retake notes have been implemented but aside that design has been changed as I started using bootstrap instead of plain CSS
 
 ## Current State
 
 This project was refactored for the retake to align better with a cleaner MVC structure:
 
-- Controllers handle request flow and view orchestration
-- Services contain business logic
-- Repositories handle persistence and SQL
+- Controllers handle requests and view orchestration and they dont have any business logic compared to before-retake as all the methods have been reorganized based on the MVC architecture
+- Services contain business logic only compared to before-retake inconsistensies
+- Repositories handle persistence and SQL and do not include any business logic compared to before-retake
 - Views are stored under `app/src/Views`
 - Assets live under `app/public/assets`
-- JSON API routes are registered in the router
-- JavaScript consumes internal API routes for live search
+- JavaScript consumes internal API routes for live search while previously there was no any usage of JS or it was not working
 
 ## Project Structure
 
@@ -33,6 +36,8 @@ app/
 │   └── Views/
 └── tests/
 ```
+
+- this shows that the issues that I had with some views in the public are fixed and there is a consistenst with the architecture patterns and only view is responsible for the views
 
 ## Setup
 
@@ -99,12 +104,12 @@ If you used the latest seed data discussed during setup:
 ## Main Features
 
 - Teacher dashboard with course overview
-- Course creation and editing
-- Student enrollment management
-- Assignment creation and editing
-- Grade entry, editing, and teacher-side grade overview
-- Student dashboard and statistics view
-- Flash messaging and session-based authentication
+- Course CRUDs
+- Student enrollment management for teachers
+- Assignment CRUDs
+- Ability to enter grades
+- Student dashboard and statistics view with all the grades that they received
+- Security measurments such as secure Authentication and password hashing
 
 ## API Routes
 
@@ -130,26 +135,27 @@ This demonstrates real JS + API integration instead of relying only on server-re
 
 The application uses layered MVC with dependency injection:
 
-- Controllers depend on service interfaces
-- Services depend on repository interfaces
+- Controllers depends on services interfaces
+- Services depends on repositories interfaces
 - Repositories encapsulate SQL access
 - Shared grade rules are centralized in [GradeConfig.php](app/src/Constants/GradeConfig.php)
-- Password hashing and session handling are abstracted behind service interfaces
+- Password hashing and session handling are abstracted behind service interfaces for the security
 
 ## Security
 
-Implemented security-related measures include:
+Implemented security related measures include:
 
 - Password hashing with PHP password APIs
 - Prepared statements for database access
 - Route-level and controller-level authorization
-- Output escaping in many view templates with `htmlspecialchars()`
 
 ## Accessibility / UI
 
 The UI uses Bootstrap-based layouts, consistent form labels, feedback alerts, and dedicated error pages for common failure states such as `403` and `404`.
 
 ## Legal / Accessibility (WCAG + GDPR)
+
+This part was refined by AI to ensure that everything mentioned was correct
 
 - Accessibility: the app uses a responsive layout in [app/src/Views/partials/head.php](app/src/Views/partials/head.php), sets the page language in [app/src/Views/layout.php](app/src/Views/layout.php), and uses form labels in [app/src/Views/auth/login.php](app/src/Views/auth/login.php) and [app/src/Views/auth/register.php](app/src/Views/auth/register.php).
 - Accessibility: breadcrumb navigation, ARIA labels, and responsive tables are used in [app/src/Views/student/course-detail.php](app/src/Views/student/course-detail.php), [app/src/Views/student/statistics.php](app/src/Views/student/statistics.php), [app/src/Views/teacher/course-enroll.php](app/src/Views/teacher/course-enroll.php), and [app/src/Views/partials/alerts.php](app/src/Views/partials/alerts.php).
